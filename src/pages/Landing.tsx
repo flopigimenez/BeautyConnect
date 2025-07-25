@@ -4,7 +4,8 @@ import carrousel_2 from '../assets/carrousel_2.png';
 import carrousel_3 from '../assets/carrousel_3.png';
 import carrousel_4 from '../assets/carrousel_4.png';
 import carrousel_5 from '../assets/carrousel_5.png';
-
+import Navbar from '../components/navbar';
+import Footer from '../components/Footer';
 const categorias = [
   { nombre: 'Makeup artist', imagen: carrousel_1 },
   { nombre: 'Wellnesscenter', imagen: carrousel_2 },
@@ -17,6 +18,7 @@ const categorias = [
 const Landing = () => {
   return (
     <>
+      <Navbar />
       {/* HERO */}
       <div className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
         <img
@@ -107,7 +109,7 @@ const Landing = () => {
   </div>
   </div>
 </section>
-   
+   <Footer />
     </>
   );
 };
