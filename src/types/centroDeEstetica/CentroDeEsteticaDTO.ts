@@ -1,6 +1,9 @@
-
+import type { DomicilioDTO } from '../domicilio/DomicilioDTO';
+import type { ServicioDTO } from '../servicio/ServicioDTO';
+import type { TurnoDTO } from '../turno/TurnoDTO';
+import type { ReseñaDTO } from '../reseña/ReseñaDTO';
 export interface CentroDeEsteticaDTO {
-  id: string;
+  id: number;
   nombre: string;
   descripcion: string;
   imagen: string;
