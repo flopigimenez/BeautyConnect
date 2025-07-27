@@ -4,7 +4,7 @@ import carrousel_2 from '../assets/carrousel_2.png';
 import carrousel_3 from '../assets/carrousel_3.png';
 import carrousel_4 from '../assets/carrousel_4.png';
 import carrousel_5 from '../assets/carrousel_5.png';
-import Navbar from '../components/navbar';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 const categorias = [
   { nombre: 'Makeup artist', imagen: carrousel_1 },

@@ -1,9 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import Landing from './pages/Landing'
+import RoutesApp from './routes/RoutesApp'
 import '../styles.css'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Landing />
+    <RoutesApp />
   </StrictMode>,
 )

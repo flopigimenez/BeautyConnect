@@ -2,6 +2,9 @@
 @import "tailwindcss";
 
 @theme{
+    --color-primary: #FFFBFA;
+    --color-secondary: #C4A1B5;
+    --color-tertiary: #7F3C56;
     --font-primary: 'Nunito', sans-serif;
     --font-secondary: 'Quicksand', sans-serif;
 }
