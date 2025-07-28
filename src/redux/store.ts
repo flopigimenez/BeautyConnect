@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit'
+import reseñaReducer from "../redux/store/reseñaSlice"
 
 export const store = configureStore({
   reducer: {
-    
+     reseñas: reseñaReducer,
   },
 })
 
