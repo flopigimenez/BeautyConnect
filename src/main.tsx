@@ -1,13 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-// import Landing from './pages/Landing'
-// import PendienteAprobacion from './pages/PendienteAprobacion'
-import Calificaciones from './pages/Calificaciones'
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
 import '../styles.css'
+import App from './App'
+import { store } from './redux/store';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {/* <Landing /> */}
-    {/* <PendienteAprobacion /> */}
-    <Calificaciones />
+    <BrowserRouter>
+      {/* Envolvemos la aplicación en Provider y pasamos la tienda de Redux como prop */}
+      <Provider store={store}>
+        <App /> {/* Renderizamos el componente principal de la aplicación */}
+      </Provider>
+       </BrowserRouter>
   </StrictMode>,
 )
