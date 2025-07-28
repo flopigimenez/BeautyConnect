@@ -1,6 +1,6 @@
 import type { ClienteResponseDTO } from "../cliente/ClienteResponseDTO";
 import type { Estado } from "../enums/Estado";
-import type { PrestadorDeServicioResponseDTO } from "../prestadorDeServicio/PrestadorDeServicioResponseDTO";
+import type { PrestadorServicioResponseDTO } from "../prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ServicioResponseDTO } from "../servicio/ServicioResponseDTO";
 
 export interface TurnoResponseDTO{
@@ -9,7 +9,7 @@ export interface TurnoResponseDTO{
     hora: Date;
     clienteResponseDTO: ClienteResponseDTO;
     servicioResponseDTO: ServicioResponseDTO;
-    prestadorDeServicioResponseDTO: PrestadorDeServicioResponseDTO;
+    prestadorServicioResponseDTO: PrestadorServicioResponseDTO;
     estado: Estado;
     
 }

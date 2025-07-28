@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Landing from "../pages/Landing";
+import Turnos from "../pages/Turnos";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -10,6 +11,7 @@ export const AppRouter = () => {
       <Routes>
         {/* Ruta para la pantalla de personas */}
         <Route path="/" element={<Landing />} />
+        <Route path="/Turnos" element={<Turnos/>}/>
       </Routes>
     </>
   );

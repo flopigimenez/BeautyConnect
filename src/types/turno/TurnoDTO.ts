@@ -1,5 +1,5 @@
 import type { ClienteDTO } from "../cliente/ClienteDTO";
-import type { Estado } from "../enums/estado";
+import type { Estado } from "../enums/Estado";
 import type { PrestadorServicioDTO } from "../prestadorDeServicio/PestadorServicioDTO";
 import type { ServicioDTO } from "../servicio/ServicioDTO";
 

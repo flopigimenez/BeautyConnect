@@ -2,27 +2,28 @@ import { useState } from "react"
 import Navbar from "../components/Navbar"
 import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { ServicioDTO } from "../types/servicio/ServicioDTO"
-import type { PrestadorDeServicioDTO } from "../types/prestadorDeServicio/PrestadorDeServicioDTO"
+import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO"
+
 
 
 
 const Turnos = () => {
     const servicios: ServicioDTO[] = [
-        { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500 },
-        { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 60, precio: 3000 },
-        { id: 3, tipoDeServicio: TipoDeServicio.BARBERIA, duracion: 45, precio: 2000 },
-        { id: 4, tipoDeServicio: TipoDeServicio.BRONCEADO, duracion: 30, precio: 1000 },
+        { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
+        { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
+        { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
+        { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
     ]
 
-    const prestadores: PrestadorDeServicioDTO[] = [
-        { id: 1, nombre: "Juan Perez", telefono: "123456789" },
-        { id: 2, nombre: "Maria Lopez", telefono: "987654321" },
-        { id: 3, nombre: "Carlos Gomez", telefono: "456789123" },
-        { id: 4, nombre: "Ana Torres", telefono: "321654987" },
+    const prestadores: PrestadorServicioDTO[] = [
+        { id: 1, nombre: "Juan Perez", telefono: 123456789,  },
+        { id: 2, nombre: "Maria Lopez", telefono: 987654321 },
+        { id: 3, nombre: "Carlos Gomez", telefono: 456789123 },
+        { id: 4, nombre: "Ana Torres", telefono: 321654987 },
     ]
 
     const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioDTO | null>(null);
-    const [prestadorSeleccionado, setPrestadorSeleccionado] = useState<PrestadorDeServicioDTO | null>(null);
+    const [prestadorSeleccionado, setPrestadorSeleccionado] = useState<PrestadorServicioDTO | null>(null);
     const [pasos, setPasos] = useState<number>(1);
 
     return (
