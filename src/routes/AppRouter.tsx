@@ -1,6 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import Landing from "../pages/Landing";
 import Turnos from "../pages/Turnos";
+import PendienteAprobacion from "../pages/PendienteAprobacion";
+import MiPerfil from "../pages/MiPerfil";
+import Calificaciones from "../pages/Calificaciones";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -12,6 +15,11 @@ export const AppRouter = () => {
         {/* Ruta para la pantalla de personas */}
         <Route path="/" element={<Landing />} />
         <Route path="/Turnos" element={<Turnos/>}/>
+        <Route path="/PendienteAprobacion" element={<PendienteAprobacion />} />
+        <Route path="/Miperfil" element={<MiPerfil/>} />
+        <Route path="/calificaciones" element={<Calificaciones />} />
+
+
       </Routes>
     </>
   );
