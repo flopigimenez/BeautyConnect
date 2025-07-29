@@ -21,7 +21,7 @@ const Landing = () => {
     <>
       <Navbar />
       {/* HERO */}
-      <div className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+      <div className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden mt-15">
         <img
           src={fondo}
           alt="Fondo"

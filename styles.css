@@ -8,3 +8,48 @@
     --font-primary: 'Nunito', sans-serif;
     --font-secondary: 'Quicksand', sans-serif;
 }
+
+html {
+    scroll-behavior: smooth;
+
+}
+
+::-webkit-scrollbar-track {
+    background: #FFFBFA;
+    /* Color del fondo de la barra */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #C4A1B5;
+    /* Color del thumb (la parte móvil) */
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    /* Ancho de la barra vertical */
+    height: 8px;
+    /* Alto de la barra horizontal */
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Elimina la X en Firefox */
+input[type="search"]::-moz-search-clear-button {
+    display: none;
+}
+
+.edit-overlay {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-upload-area:hover .edit-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
