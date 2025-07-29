@@ -1,8 +1,10 @@
-import { TipoDeServicio } from "../enums/TipoDeServicio";
+import type { TipoDeServicio } from "../enums/TipoDeServicio";
+
 export interface ServicioDTO {
     id: number;
-    tipoServicio: TipoDeServicio;
+    tipoDeServicio: TipoDeServicio;
     descripcion: string;
-    precio: number;
-    duracion: number; // Duración en minutos
-    }
+    duracion: number;
+    precio: number; 
+    // centroDeEsteticaDTO: CentroDeEsteticaDTO;
+}

@@ -3,7 +3,7 @@ import { FaInstagram, FaXTwitter, FaFacebookF } from 'react-icons/fa6'; // Insta
 
 const Footer = () => {
   return (
-    <footer className="bg-[#C19BA8] text-white py-4">
+    <footer className="bg-secondary text-white py-4">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between px-6">
         {/* Logo */}
         <div className="mb-4 sm:mb-0">

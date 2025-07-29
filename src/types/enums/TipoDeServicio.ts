@@ -1,12 +1,11 @@
-export const TipoDeServicio = {
-    PELUQUERIA: "PELUQUERIA",
-    MANICURA: "MANICURA",
-    PEDICURA: "PEDICURA",
-    LIMPIEZAFACIAL: "LIMPIEZAFACIAL",
-    MASAJES: "MASAJES",
-    DEPILACION: "DEPILACION",
-    MAQUILLAJE: "MAQUILLAJE",
-    BRONCEADO: "BRONCEADO",
-    BARBERIA: "BARBERIA",
-} as const;
-export type TipoDeServicio = typeof TipoDeServicio[keyof typeof TipoDeServicio];
+export enum TipoDeServicio {
+    PELUQUERIA = "PELUQUERIA",
+    MANICURA = "MANICURA",
+    PEDICURA = "PEDICURA",
+    LIMPIEZA_FACIAL = "LIMPIEZA_FACIAL",
+    MASAJES = "MASAJES",
+    DEPILACION = "DEPILACION",
+    MAQUILLAJE = "MAQUILLAJE",
+    BRONCEADO = "BRONCEADO",
+    BARBERIA = "BARBERIA",
+}
