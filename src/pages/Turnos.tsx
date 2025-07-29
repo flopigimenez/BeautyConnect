@@ -59,7 +59,7 @@ const Turnos = () => {
                         ))}
                     </select>
 
-                    <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profecional</h2>
+                    <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
                     <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
                         onChange={(e) => {
                             const encontrarPrestador = prestadores.find(t => t.id === parseInt(e.target.value)) || null;
