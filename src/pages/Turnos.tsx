@@ -19,14 +19,15 @@ const Turnos = () => {
 
 
     const profesionales: ProfesionalDTO[] = [
-        { id: 1, nombre: "Ana Pérez", disponibilidades: [], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
-        { id: 2, nombre: "Luis Gómez", disponibilidades: [], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
+        { id: 1, nombre: "Ana Pérez", disponibilidades: [{ id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" }, { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" }], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
+        { id: 2, nombre: "Luis Gómez", disponibilidades: [{ id: 1, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" }, { id: 2, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" }], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
     ]
 
     const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioDTO | null>(null);
     const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalDTO | null>(null);
     const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
     const [horaSeleccionada, setHoraSeleccionada] = useState<Date | null>(null);
+    const [disponibilidadSeleccionada, setDisponibilidadSeleccionada] = useState<any>(null); // Puedes definir un tipo más específico si lo deseas
     const [pasos, setPasos] = useState<number>(1);
     const navigate = useNavigate();
 
@@ -44,6 +45,7 @@ const Turnos = () => {
                     </div>
 
                     <h2 className="mt-13 font-secondary text-l font-bold">{pasos == 1 ? "Selecciona el servicio" : "Selecciona la fecha"}</h2>
+
                     <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
                         onChange={(e) => {
                             const encontrarServicio = servicios.find(s => s.id === parseInt(e.target.value)) || null;
@@ -52,7 +54,7 @@ const Turnos = () => {
                             const encontrarFecha = profesionales.find(p => p.id === profesionalSeleccionado?.id)?.disponibilidades.find(d => d.id === parseInt(e.target.value)) || null;
                             setFechaSeleccionada(encontrarFecha ? new Date(encontrarFecha.fecha) : null);
                         }}
-                        value={pasos == 1 ? (servicioSeleccionado ? servicioSeleccionado.id : "") : (fechaSeleccionada ? fechaSeleccionada.toISOString().split('T')[0] : "")}
+                        value={pasos == 1 ? (servicioSeleccionado ? servicioSeleccionado.id : "") : (fechaSeleccionada ? fechaSeleccionada.toISOString() : "")}
                     >
                         <option value='' disabled>{pasos == 1 ? "Seleccionar servicio" : "Seleccionar fecha"}</option>
                         {pasos == 1 ?
@@ -63,7 +65,7 @@ const Turnos = () => {
                             )) :
                             profesionales.find(p => p.id === profesionalSeleccionado?.id)?.disponibilidades.map((d) => (
                                 <option key={d.id} value={d.id}>
-                                    {d.fecha.toLocaleDateString()} - {d.horaInicio} a {d.horaFin}
+                                    {d.fecha.toLocaleDateString()}
                                 </option>
                             ))}
                     </select>
@@ -74,12 +76,12 @@ const Turnos = () => {
                             const encontrarProfesional = profesionales.find(t => t.id === parseInt(e.target.value)) || null;
                             setProfesionalSeleccionado(encontrarProfesional);
 
-                            const encontrarHora = encontrarProfesional?.disponibilidades.find(d => d.horaInicio === fechaSeleccionada?.toISOString().split('T')[1].slice(0, 5)) || null;
+                            const encontrarHora = encontrarProfesional?.disponibilidades.find(d => d.horaInicio === e.target.value) || null;
                             setHoraSeleccionada(encontrarHora ? new Date(encontrarHora.horaInicio) : null);
                         }}
                         value={pasos == 1 ? (profesionalSeleccionado ? profesionalSeleccionado.id : "") : (horaSeleccionada ? horaSeleccionada.toISOString().split('T')[1].slice(0, 5) : "")}
                     >
-                        <option value='' disabled>{pasos == 1 ? "Seleccionar servicio" : "Seleccionar hora"}</option>
+                        <option value='' disabled>{pasos == 1 ? "Seleccionar profesional" : "Seleccionar hora"}</option>
                         {pasos == 1 ?
                             profesionales.map((p) => (
                                 <option key={p.id} value={p.id}>
@@ -92,6 +94,7 @@ const Turnos = () => {
                                 </option>
                             ))}
                     </select>
+
                     <div className="flex justify-center items-center mt-15 gap-15">
                         <button className="rounded-full bg-secondary px-33 py-2 font-primary"
                             onClick={() => {
@@ -102,7 +105,7 @@ const Turnos = () => {
                                     setFechaSeleccionada(null);
                                     setHoraSeleccionada(null);
                                     alert("Turno cancelado");
-                                    navigate("/"); 
+                                    navigate("/");
                                 } else {
                                     setPasos(1);
                                 }
