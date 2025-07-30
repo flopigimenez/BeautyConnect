@@ -2,7 +2,8 @@ import { useState } from "react"
 import Navbar from "../components/Navbar"
 import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { ServicioDTO } from "../types/servicio/ServicioDTO"
-import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO"
+import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO"
+import { useNavigate } from "react-router-dom"
 
 
 
@@ -15,16 +16,19 @@ const Turnos = () => {
         { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
     ]
 
-    const prestadores: PrestadorServicioDTO[] = [
-        { id: 1, nombre: "Juan Perez", telefono: 123456789,  },
-        { id: 2, nombre: "Maria Lopez", telefono: 987654321 },
-        { id: 3, nombre: "Carlos Gomez", telefono: 456789123 },
-        { id: 4, nombre: "Ana Torres", telefono: 321654987 },
+
+
+    const profesionales: ProfesionalDTO[] = [
+        { id: 1, nombre: "Ana Pérez", disponibilidades: [], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
+        { id: 2, nombre: "Luis Gómez", disponibilidades: [], servicios: servicios, centroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "", domicilios: [], imagen: "", docValido: "", cuit: 2131243214, servicios: [], turnos: [], reseñas: [] } },
     ]
 
     const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioDTO | null>(null);
-    const [prestadorSeleccionado, setPrestadorSeleccionado] = useState<PrestadorServicioDTO | null>(null);
+    const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalDTO | null>(null);
+    const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
+    const [horaSeleccionada, setHoraSeleccionada] = useState<Date | null>(null);
     const [pasos, setPasos] = useState<number>(1);
+    const navigate = useNavigate();
 
     return (
         <>
@@ -39,59 +43,86 @@ const Turnos = () => {
                         <div className={`w-1/2 ${pasos == 1 ? "bg-gray-300" : "bg-secondary"} `}></div>
                     </div>
 
-                    <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el servicio</h2>
+                    <h2 className="mt-13 font-secondary text-l font-bold">{pasos == 1 ? "Selecciona el servicio" : "Selecciona la fecha"}</h2>
                     <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
                         onChange={(e) => {
-                            const encontrarServicio = servicios.find(t => t.id === parseInt(e.target.value)) || null;
+                            const encontrarServicio = servicios.find(s => s.id === parseInt(e.target.value)) || null;
                             setServicioSeleccionado(encontrarServicio);
-                            if (servicioSeleccionado) {
-                                console.log(`Servicio seleccionado: ${servicioSeleccionado.tipoDeServicio}`);
 
-                            }
+                            const encontrarFecha = profesionales.find(p => p.id === profesionalSeleccionado?.id)?.disponibilidades.find(d => d.id === parseInt(e.target.value)) || null;
+                            setFechaSeleccionada(encontrarFecha ? new Date(encontrarFecha.fecha) : null);
                         }}
-                        value={servicioSeleccionado ? servicioSeleccionado.id : ""}
+                        value={pasos == 1 ? (servicioSeleccionado ? servicioSeleccionado.id : "") : (fechaSeleccionada ? fechaSeleccionada.toISOString().split('T')[0] : "")}
                     >
-                        <option value='' disabled>Seleccionar servicio</option>
-                        {servicios.map((s) => (
-                            <option key={s.id} value={s.id}>
-                                {s.tipoDeServicio}
-                            </option>
-                        ))}
+                        <option value='' disabled>{pasos == 1 ? "Seleccionar servicio" : "Seleccionar fecha"}</option>
+                        {pasos == 1 ?
+                            servicios.map((s) => (
+                                <option key={s.id} value={s.id}>
+                                    {s.tipoDeServicio}
+                                </option>
+                            )) :
+                            profesionales.find(p => p.id === profesionalSeleccionado?.id)?.disponibilidades.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                    {d.fecha.toLocaleDateString()} - {d.horaInicio} a {d.horaFin}
+                                </option>
+                            ))}
                     </select>
 
-                    <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
+                    <h2 className="mt-13 font-secondary text-l font-bold">{pasos == 1 ? "Selecciona el profesional" : "Selecciona la hora"}</h2>
                     <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
                         onChange={(e) => {
-                            const encontrarPrestador = prestadores.find(t => t.id === parseInt(e.target.value)) || null;
-                            setPrestadorSeleccionado(encontrarPrestador);
-                            if (prestadorSeleccionado) {
-                                console.log(`Prestador seleccionado: ${prestadorSeleccionado.nombre}`);
+                            const encontrarProfesional = profesionales.find(t => t.id === parseInt(e.target.value)) || null;
+                            setProfesionalSeleccionado(encontrarProfesional);
 
-                            }
+                            const encontrarHora = encontrarProfesional?.disponibilidades.find(d => d.horaInicio === fechaSeleccionada?.toISOString().split('T')[1].slice(0, 5)) || null;
+                            setHoraSeleccionada(encontrarHora ? new Date(encontrarHora.horaInicio) : null);
                         }}
-                        value={prestadorSeleccionado ? prestadorSeleccionado.id : ""}
+                        value={pasos == 1 ? (profesionalSeleccionado ? profesionalSeleccionado.id : "") : (horaSeleccionada ? horaSeleccionada.toISOString().split('T')[1].slice(0, 5) : "")}
                     >
-                        <option value='' disabled>Seleccionar servicio</option>
-                        {prestadores.map((p) => (
-                            <option key={p.id} value={p.id}>
-                                {p.nombre}
-                            </option>
-                        ))}
+                        <option value='' disabled>{pasos == 1 ? "Seleccionar servicio" : "Seleccionar hora"}</option>
+                        {pasos == 1 ?
+                            profesionales.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.nombre}
+                                </option>
+                            )) :
+                            profesionales.find(p => p.id === profesionalSeleccionado?.id)?.disponibilidades.map((d) => (
+                                <option key={d.id} value={d.id}>
+                                    {d.horaInicio} - {d.horaFin}
+                                </option>
+                            ))}
                     </select>
-                    <div className="flex justify-center items-center mt-15">
-                        <button className="rounded-full bg-secondary px-40 py-2 font-primary" 
+                    <div className="flex justify-center items-center mt-15 gap-15">
+                        <button className="rounded-full bg-secondary px-33 py-2 font-primary"
                             onClick={() => {
                                 if (pasos === 1) {
-                                    if (servicioSeleccionado && prestadorSeleccionado) {
+                                    setPasos(1);
+                                    setServicioSeleccionado(null);
+                                    setProfesionalSeleccionado(null);
+                                    setFechaSeleccionada(null);
+                                    setHoraSeleccionada(null);
+                                    alert("Turno cancelado");
+                                    navigate("/"); 
+                                } else {
+                                    setPasos(1);
+                                }
+                            }}
+                        >
+                            {pasos == 1 ? "Cancelar" : "Volver atras"}
+                        </button>
+                        <button className="rounded-full bg-secondary px-33 py-2 font-primary"
+                            onClick={() => {
+                                if (pasos === 1) {
+                                    if (servicioSeleccionado && profesionalSeleccionado) {
                                         setPasos(2);
                                     } else {
                                         alert("Por favor, selecciona un servicio y un prestador.");
                                     }
                                 } else {
-                                    alert(`Turno confirmado con ${prestadorSeleccionado?.nombre} para el servicio ${servicioSeleccionado?.tipoDeServicio}`);
+                                    alert(`Turno confirmado con ${profesionalSeleccionado?.nombre} para el servicio ${servicioSeleccionado?.tipoDeServicio}`);
                                 }
                             }}>
-                            Siguiente
+                            {pasos === 1 ? "Siguiente" : "Confirmar turno"}
                         </button>
                     </div>
                 </div>
