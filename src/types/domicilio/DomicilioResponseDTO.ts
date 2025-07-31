@@ -6,5 +6,4 @@ export interface DomicilioResponseDTO {
     numero: number;
     codigoPostal: number;
     localidad: string;
-    centroDeEstetica: CentroEsteticaResponseDTO;
 }

@@ -2,7 +2,7 @@ import type { DomicilioResponseDTO } from '../domicilio/DomicilioResponseDTO';
 import type { ServicioResponseDTO } from '../servicio/ServicioResponseDTO';
 import type { TurnoResponseDTO } from '../turno/TurnoResponseDTO';
 import type { ReseñaResponseDTO } from '../reseña/ReseñaResponseDTO';
-import { Estado } from '../enums/estado';
+import { Estado } from '../enums/Estado';
 
 export interface CentroEsteticaResponseDTO {
     id: number;

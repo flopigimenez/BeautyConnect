@@ -34,7 +34,7 @@ const Turnos = () => {
     return (
         <>
             <Navbar />
-            <div className="pt-10 bg-primary w-screen mt-15">
+            <div className="bg-primary w-screen pt-25">
                 <h1 className="font-secondary text-2xl font-bold text-center">Reserva tu turno en 2 simples pasos</h1>
 
                 <div className="px-[45vh] mt-10">
