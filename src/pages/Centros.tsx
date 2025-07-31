@@ -4,6 +4,8 @@ import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/Centro
 import { Estado } from "../types/enums/Estado";
 import { useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { IoFilterCircleOutline } from "react-icons/io5";
+import { RxCross2 } from "react-icons/rx";
 
 const Centros = () => {
     const centros: CentroEsteticaResponseDTO[] = [
@@ -110,8 +112,114 @@ const Centros = () => {
             turnos: [],
             reseñas: [],
             estado: Estado.CONFIRMADO
+        },
+        {
+            id: 9,
+            nombre: "Centro Belleza",
+            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido.pdf",
+            cuit: 2131243214,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 10,
+            nombre: "Spa Relax",
+            descripcion: "Spa de lujo con servicios de relajación y estética.",
+            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido-spa.pdf",
+            cuit: 2131243215,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 11,
+            nombre: "Centro Belleza",
+            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido.pdf",
+            cuit: 2131243214,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 12,
+            nombre: "Spa Relax",
+            descripcion: "Spa de lujo con servicios de relajación y estética.",
+            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido-spa.pdf",
+            cuit: 2131243215,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 13,
+            nombre: "Centro Belleza",
+            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido.pdf",
+            cuit: 2131243214,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 14,
+            nombre: "Spa Relax",
+            descripcion: "Spa de lujo con servicios de relajación y estética.",
+            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido-spa.pdf",
+            cuit: 2131243215,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 15,
+            nombre: "Centro Belleza",
+            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido.pdf",
+            cuit: 2131243214,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
+        },
+        {
+            id: 16,
+            nombre: "Spa Relax",
+            descripcion: "Spa de lujo con servicios de relajación y estética.",
+            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+            docValido: "https://example.com/doc-valido-spa.pdf",
+            cuit: 2131243215,
+            servicios: [],
+            turnos: [],
+            reseñas: [],
+            estado: Estado.CONFIRMADO
         }
     ];
+
+    const [modalFiltro, setModalFiltro] = useState(false);
     const [filtro, setFiltro] = useState<string>("");
 
     const filtrarCentros = (filtro: string) => {
@@ -123,7 +231,7 @@ const Centros = () => {
     const centrosFiltrados = filtro ? filtrarCentros(filtro) : centros;
 
     const [paginaActual, setPaginaActual] = useState(1);
-    const centrosPorPagina = 6;
+    const centrosPorPagina = 9;
 
     const indiceUltimoCentro = paginaActual * centrosPorPagina;
     const indicePrimerCentro = indiceUltimoCentro - centrosPorPagina;
@@ -135,22 +243,21 @@ const Centros = () => {
         <>
             <Navbar />
             <div className="bg-primary w-full pt-25 overflow-x-hidden">
-                <h1 className="font-secondary text-2xl font-bold text-center">Centros de Belleza</h1>
-                <div className="flex flex-col justify-center items-center">
-                    <div className="relative w-[50rem] mt-5">
+                <h1 className="font-secondary text-2xl font-bold text-center mb-5">Centros de Belleza</h1>
+                <div className="flex-wrap justify-center items-center px-[5vh] md:flex md:justify-around md:px-[10vh]">
+                    <div className="relative md:w-[55%] mt-5">
                         <CiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                         <input type="search" placeholder="Buscar centros o servicios" value={filtro}
-                            className="bg-gray-100 w-full h-10 rounded-md pl-10 font-primary focus:outline-none focus:ring-2 focus:ring-secondary"
+                            className="bg-gray-100 w-full h-10 rounded-full pl-10 font-primary focus:outline-none focus:ring-2 focus:ring-secondary"
                             onChange={(e) => { setPaginaActual(1); setFiltro(e.target.value); }} />
                     </div>
-                    <div className="flex gap-35 mt-10">
-                        <button className="bg-gray-100 rounded-full px-8 py-1 cursor-pointer">Servicios</button>
-                        <button className="bg-gray-100 rounded-full px-8 py-1 cursor-pointer">Ubicación</button>
-                        <button className="bg-gray-100 rounded-full px-8 py-1 cursor-pointer">Fecha</button>
+                    <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
+                        <button className="cursor-pointer text-tertiary" onClick={() => setModalFiltro(true)}><IoFilterCircleOutline size={40} /></button>
+                        <button className="cursor-pointer text-tertiary font-secondary font-black hover:underline">Borrar filtro</button>
                     </div>
                 </div>
-                <div className="mt-8 mx-[20vh]">
-                    <h2 className="font-secondary text-2xl font-bold">Centros cerca de ti</h2>
+                <div className="mt-8 mx-5 lg:mx-[20vh]">
+                    {/* <h2 className="font-secondary text-2xl font-bold">Centros cerca de ti</h2> */}
                     <div className="flex flex-wrap gap-5 mt-6">
                         {centrosActuales.length === 0 ? (
                             <p className="text-gray-600 mt-4">No se encontraron centros para tu búsqueda.</p>
@@ -184,6 +291,43 @@ const Centros = () => {
                             <IoIosArrowForward className="inline-block ml-2" />
                         </button>
                     </div>
+
+                    {modalFiltro && (
+                        <div className="fixed inset-0 bg-black/35 flex items-center justify-center z-50">
+                            <div className="bg-white p-3 rounded-lg shadow-lg w-[90%] max-w-md">
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setModalFiltro(false)}
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                    >
+                                        <RxCross2  size={24} />
+                                    </button>
+                                </div>
+                                 <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
+                                <div className="mx-3 mb-4">
+                                    <label className="block text-sm font-primary mb-2">Dirección</label>
+                                    <input
+                                        type="text"
+                                        // value={filtro}
+                                        // onChange={(e) => setFiltro(e.target.value)}
+                                        className="w-full h-10 px-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    />
+                                </div>
+                                <div className="mx-3 mb-4">
+                                    <label className="block text-sm font-primary mb-2">Fecha</label>
+                                    
+                                </div>
+                                <div className="flex justify-end mx-3">
+                                    <button
+                                        onClick={() =>{setModalFiltro(false); setPaginaActual(1); }}
+                                        className="font-primary px-4 py-2 bg-secondary text-white rounded-full hover:bg-secondary-dark transition"
+                                    >
+                                        Aplicar Filtro
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
