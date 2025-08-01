@@ -6,6 +6,8 @@ import { useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
+import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
+import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 
 const Centros = () => {
     const centros: CentroEsteticaResponseDTO[] = [
@@ -219,12 +221,13 @@ const Centros = () => {
         }
     ];
 
+
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtro, setFiltro] = useState<string>("");
 
     const filtrarCentros = (filtro: string) => {
         return filtro
-            ? centros.filter(centro => centro.nombre.toLowerCase().includes(filtro.toLowerCase()) || centro.servicios.some(servicio => servicio.tipoDeServicio.toLowerCase().includes(filtro.toLowerCase())))
+            ? centros.filter(centro => centro.nombre.toLowerCase().includes(filtro.toLowerCase()) || centro.domicilios.some(domicilio => domicilio.calle.toLowerCase().includes(filtro.toLowerCase())))
             : centros;
     }
 
@@ -242,12 +245,12 @@ const Centros = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-full pt-25 overflow-x-hidden">
+            <div className="bg-primary w-full pt-25">
                 <h1 className="font-secondary text-2xl font-bold text-center mb-5">Centros de Belleza</h1>
                 <div className="flex-wrap justify-center items-center px-[5vh] md:flex md:justify-around md:px-[10vh]">
                     <div className="relative md:w-[55%] mt-5">
                         <CiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
-                        <input type="search" placeholder="Buscar centros o servicios" value={filtro}
+                        <input type="search" placeholder="Buscar por nombre o direccion..." value={filtro}
                             className="bg-gray-100 w-full h-10 rounded-full pl-10 font-primary focus:outline-none focus:ring-2 focus:ring-secondary"
                             onChange={(e) => { setPaginaActual(1); setFiltro(e.target.value); }} />
                     </div>
@@ -300,27 +303,29 @@ const Centros = () => {
                                         onClick={() => setModalFiltro(false)}
                                         className="absolute right-2 text-gray-500 hover:text-gray-700"
                                     >
-                                        <RxCross2  size={24} />
+                                        <RxCross2 size={24} />
                                     </button>
                                 </div>
-                                 <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
-                                <div className="mx-3 mb-4">
-                                    <label className="block text-sm font-primary mb-2">Dirección</label>
-                                    <input
-                                        type="text"
-                                        // value={filtro}
-                                        // onChange={(e) => setFiltro(e.target.value)}
-                                        className="w-full h-10 px-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    />
+                                <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
+                                <div className="flex justify-around mx-3 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-primary mb-2 font-bold">Servicio</label>
+                                        <select name="" id="" className="border border-secondary text-sm font-primary mb-2 px-4 py-1 rounded-full hover:bg-secondary-dark transition">
+                                            {Object.values(TipoDeServicio).map((tipo) => (
+                                                <option key={tipo} value={tipo}>{tipo}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="mx-3 mb-4">
+                                        <label className="block text-sm font-primary mb-2 font-bold">Reseña</label>
+                                        <button className="border border-secondary text-sm font-primary mb-2 px-4 py-1 rounded-full hover:bg-secondary-dark transition">Mayor calificación</button>
+                                    </div>
                                 </div>
-                                <div className="mx-3 mb-4">
-                                    <label className="block text-sm font-primary mb-2">Fecha</label>
-                                    
-                                </div>
-                                <div className="flex justify-end mx-3">
+                                <div className="flex justify-center mx-3">
                                     <button
-                                        onClick={() =>{setModalFiltro(false); setPaginaActual(1); }}
-                                        className="font-primary px-4 py-2 bg-secondary text-white rounded-full hover:bg-secondary-dark transition"
+                                        onClick={() => { setModalFiltro(false); setPaginaActual(1); }}
+                                        className="font-primary px-4 py-2 bg-secondary text-white rounded-full hover:scale-105 transition"
                                     >
                                         Aplicar Filtro
                                     </button>
