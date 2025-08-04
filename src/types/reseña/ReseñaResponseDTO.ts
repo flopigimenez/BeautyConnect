@@ -6,6 +6,6 @@ export interface ReseñaResponseDTO {
    comentario: string;
     calificacion: number;
     fechaCreacion: string;
-    cliente: ClienteResponseDTO;
-    centroDeEstetica: CentroEsteticaResponseDTO;
+   //  cliente: ClienteResponseDTO;
+   //  centroDeEstetica: CentroEsteticaResponseDTO;
     }

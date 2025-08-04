@@ -6,7 +6,6 @@ import { useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
-import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 
 const Centros = () => {
@@ -15,13 +14,13 @@ const Centros = () => {
             id: 1,
             nombre: "Centro Belleza",
             descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" },{ id: 2, calle: "Calle 3", numero: 456, codigoPostal: 12345, localidad: "Ciudad de Flores" }],
             imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
             docValido: "https://example.com/doc-valido.pdf",
             cuit: 2131243214,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -34,7 +33,7 @@ const Centros = () => {
             cuit: 2131243215,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -47,7 +46,7 @@ const Centros = () => {
             cuit: 2131243214,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -60,7 +59,7 @@ const Centros = () => {
             cuit: 2131243215,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -73,7 +72,7 @@ const Centros = () => {
             cuit: 2131243214,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -203,7 +202,7 @@ const Centros = () => {
             cuit: 2131243214,
             servicios: [],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Mal servicio y atención.", calificacion: 1, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         },
         {
@@ -214,24 +213,57 @@ const Centros = () => {
             imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
             docValido: "https://example.com/doc-valido-spa.pdf",
             cuit: 2131243215,
-            servicios: [],
+            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo.", CentroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "Centro especializado en tratamientos de belleza y bienestar.", imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg", docValido: "https://example.com/doc-valido.pdf", cuit: 2131243214, domicilios: [], servicios: [], turnos: [], reseñas: [], estado: Estado.CONFIRMADO } },],
             turnos: [],
-            reseñas: [],
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
             estado: Estado.CONFIRMADO
         }
     ];
 
 
     const [modalFiltro, setModalFiltro] = useState(false);
+    const [filtroAplicado, setFiltroAplicado] = useState({
+        servicio: null as TipoDeServicio | null,
+        reseña: null as string | null,
+    });
+    const [filtroTemporal, setFiltroTemporal] = useState({
+        servicio: null as TipoDeServicio | null,
+        reseña: null as string | null,
+    });
     const [filtro, setFiltro] = useState<string>("");
 
-    const filtrarCentros = (filtro: string) => {
-        return filtro
-            ? centros.filter(centro => centro.nombre.toLowerCase().includes(filtro.toLowerCase()) || centro.domicilios.some(domicilio => domicilio.calle.toLowerCase().includes(filtro.toLowerCase())))
-            : centros;
-    }
+    const filtrarCentros = () => {
+        let resultado = [...centros];
 
-    const centrosFiltrados = filtro ? filtrarCentros(filtro) : centros;
+        if (filtroAplicado.servicio) {
+            resultado = resultado.filter(centro =>
+                centro.servicios.some(servicio =>
+                    servicio.tipoDeServicio === filtroAplicado.servicio
+                )
+            );
+        }
+
+        if (filtroAplicado.reseña === "true") {
+            resultado = resultado.filter(centro => centro.reseñas.length > 0);
+            resultado.sort((a, b) => {
+                const calificacionA = a.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / a.reseñas.length;
+                const calificacionB = b.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / b.reseñas.length;
+                return calificacionB - calificacionA;
+            });
+        }
+
+        if (filtro.trim() !== "") {
+            const filtroLower = filtro.toLowerCase();
+            resultado = resultado.filter(centro =>
+                centro.nombre.toLowerCase().includes(filtroLower) ||
+                centro.domicilios.some(d => d.calle.toLowerCase().includes(filtroLower))
+            );
+        }
+
+        return resultado;
+    };
+
+    const centrosFiltrados = filtrarCentros();
 
     const [paginaActual, setPaginaActual] = useState(1);
     const centrosPorPagina = 9;
@@ -256,7 +288,11 @@ const Centros = () => {
                     </div>
                     <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
                         <button className="cursor-pointer text-tertiary" onClick={() => setModalFiltro(true)}><IoFilterCircleOutline size={40} /></button>
-                        <button className="cursor-pointer text-tertiary font-secondary font-black hover:underline">Borrar filtro</button>
+                        <button className="cursor-pointer text-tertiary font-secondary font-black hover:underline"
+                            onClick={() => { setFiltroAplicado({ servicio: null, reseña: null }); setFiltroTemporal({ servicio: null, reseña: null }); setFiltro("") }}
+                        >
+                            Borrar filtro
+                        </button>
                     </div>
                 </div>
                 <div className="mt-8 mx-5 lg:mx-[20vh]">
@@ -270,6 +306,18 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
+                                     {centro.domicilios.map((domicilio) => (  
+                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> {/*select con las direcciones o comparar con la direccion del cliente*/}
+                                            {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
+                                        </p>
+                                    ))}
+                                    {centro.reseñas.length > 0 &&(
+                                            <p className="mt-2 text-yellow-500">
+                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
+                                            </p>
+                                        )}
                                 </div>
                             ))
                         )}
@@ -309,23 +357,38 @@ const Centros = () => {
                                 <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
                                 <div className="flex justify-around mx-3 mb-4">
                                     <div>
-                                        <label className="block text-sm font-primary mb-2 font-bold">Servicio</label>
-                                        <select name="" id="" className="border border-secondary text-sm font-primary mb-2 px-4 py-1 rounded-full hover:bg-secondary-dark transition">
+                                        <label className="block text-md font-primary mb-2 font-bold pl-2">Servicio</label>
+                                        <select
+                                            className="border border-secondary text-sm font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
+                                            value={filtroTemporal.servicio || ""}
+                                            onChange={(e) => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, servicio: e.target.value as TipoDeServicio })); }}
+                                        >
+                                            <option value="">Seleccionar servicio</option>
                                             {Object.values(TipoDeServicio).map((tipo) => (
-                                                <option key={tipo} value={tipo}>{tipo}</option>
+                                                <option key={tipo} value={tipo}>
+                                                    {tipo.toLowerCase()
+                                                        .split('_')
+                                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                        .join(' ')}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>
 
                                     <div className="mx-3 mb-4">
-                                        <label className="block text-sm font-primary mb-2 font-bold">Reseña</label>
-                                        <button className="border border-secondary text-sm font-primary mb-2 px-4 py-1 rounded-full hover:bg-secondary-dark transition">Mayor calificación</button>
+                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Reseña</label>
+                                        <button
+                                            onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, reseña: prev.reseña == "true" ? null : "true" })); }}
+                                            className={`border border-secondary text-sm font-primary px-4 py-1 rounded-full cursor-pointer hover:bg-secondary transition ${filtroTemporal.reseña === "true" ? "bg-secondary text-white" : ""}`}
+                                        >
+                                            Ordenar por reseña
+                                        </button>
                                     </div>
                                 </div>
                                 <div className="flex justify-center mx-3">
                                     <button
-                                        onClick={() => { setModalFiltro(false); setPaginaActual(1); }}
-                                        className="font-primary px-4 py-2 bg-secondary text-white rounded-full hover:scale-105 transition"
+                                        onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado(filtroTemporal); }}
+                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition"
                                     >
                                         Aplicar Filtro
                                     </button>
