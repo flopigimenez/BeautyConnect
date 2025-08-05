@@ -1,9 +1,11 @@
+import { useState } from "react";
 import Navbar from "../components/Navbar"
 
 const Registro = () => {
+    const [prestador, setPrestador] = useState<boolean>();
     return (
         <>
-            <Navbar /> 
+            <Navbar />
             <div className="bg-primary w-screen mt-25 flex flex-col items-center">
                 <h1 className="font-secondary text-2xl font-bold mb-3">¡Bienvenido a BeautyConnect!</h1>
                 <p className="font-primary">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
@@ -46,8 +48,18 @@ const Registro = () => {
                     </div>
                     <div className="flex flex-col items-center mb-10">
                         <div className="mb-8 grid grid-cols-2 gap-30">
-                            <button className="border border-secondary rounded-lg w-[25vh] h-[5vh] hover:scale-102">Soy cliente</button>
-                            <button className="border border-secondary rounded-lg w-[30vh] h-[5vh] hover:scale-102">Prestador de servicio</button>
+                            <button type="button"
+                                className={`border border-secondary rounded-lg w-[25vh] h-[5vh] hover:scale-102 hover:bg-secondary ${prestador == false ? "bg-secondary" : "bg-white"}`}
+                                onClick={() => setPrestador(false)}
+                            >
+                                Soy cliente
+                            </button>
+                            <button type="button"
+                                className={`border border-secondary rounded-lg w-[25vh] h-[5vh] hover:scale-102 hover:bg-secondary ${prestador == true ? "bg-secondary" : "bg-white"}`}
+                                onClick={() => setPrestador(true)}
+                            >
+                                Prestador de servicio
+                            </button>
                         </div>
                         <button
                             type="submit"
