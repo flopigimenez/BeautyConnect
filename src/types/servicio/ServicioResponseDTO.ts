@@ -7,5 +7,5 @@ export interface ServicioResponseDTO {
     descripcion: string;
     precio: number;
     duracion: number; // Duración en minutos
-    CentroDeEstetica: CentroEsteticaResponseDTO;
+    // CentroDeEstetica: CentroEsteticaResponseDTO;
     }

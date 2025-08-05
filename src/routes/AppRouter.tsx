@@ -15,7 +15,7 @@ export const AppRouter = () => {
       <Routes>
         {/* Ruta para la pantalla de personas */}
         <Route path="/" element={<Landing />} />
-        <Route path="/Turnos" element={<Turnos/>}/>
+        <Route  path="/turno/:id" element={<Turnos/>}/>
         <Route path="/Centros" element={<Centros/>}/>
         <Route path="/PendienteAprobacion" element={<PendienteAprobacion />} />
         <Route path="/Miperfil" element={<MiPerfil/>} />

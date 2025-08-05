@@ -40,7 +40,7 @@ const Navbar = () => {
               <a href="/centros" className="text-gray-600 hover:text-gray-900 font-primary">
                 Centros
               </a>
-              <a href="/turnos" className="text-gray-600 hover:text-gray-900 font-primary">
+              <a href="/MisTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
                 Turnos
               </a>
             </div>

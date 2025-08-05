@@ -2,11 +2,12 @@ import Navbar from "../components/Navbar"
 import { CiSearch } from "react-icons/ci";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
-import { useState } from "react";
+import { useState, type FC } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
+import { useNavigate } from "react-router-dom";
 
 const Centros = () => {
     const centros: CentroEsteticaResponseDTO[] = [
@@ -21,7 +22,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 2,
@@ -31,10 +33,11 @@ const Centros = () => {
             imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
             docValido: "https://example.com/doc-valido-spa.pdf",
             cuit: 2131243215,
-            servicios: [],
+            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
             turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 3,
@@ -47,7 +50,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 4,
@@ -60,7 +64,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 5,
@@ -73,7 +78,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 6,
@@ -86,7 +92,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 7,
@@ -99,7 +106,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 8,
@@ -112,7 +120,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 9,
@@ -125,7 +134,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 10,
@@ -138,7 +148,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 11,
@@ -151,7 +162,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 12,
@@ -164,7 +176,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 13,
@@ -177,7 +190,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 14,
@@ -190,7 +204,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 15,
@@ -203,7 +218,8 @@ const Centros = () => {
             servicios: [],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Mal servicio y atención.", calificacion: 1, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         },
         {
             id: 16,
@@ -213,10 +229,11 @@ const Centros = () => {
             imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
             docValido: "https://example.com/doc-valido-spa.pdf",
             cuit: 2131243215,
-            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo.", CentroDeEstetica: { id: 1, nombre: "Centro Belleza", descripcion: "Centro especializado en tratamientos de belleza y bienestar.", imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg", docValido: "https://example.com/doc-valido.pdf", cuit: 2131243214, domicilios: [], servicios: [], turnos: [], reseñas: [], estado: Estado.CONFIRMADO } },],
+            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
             turnos: [],
             reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO
+            estado: Estado.CONFIRMADO,
+            profesionales: []
         }
     ];
 
@@ -274,6 +291,8 @@ const Centros = () => {
 
     const totalPaginas = Math.ceil(centrosFiltrados.length / centrosPorPagina);
 
+    const navigate = useNavigate();
+
     return (
         <>
             <Navbar />
@@ -302,7 +321,9 @@ const Centros = () => {
                             <p className="text-gray-600 mt-4">No se encontraron centros para tu búsqueda.</p>
                         ) : (
                             centrosActuales.map((centro) => (
-                                <div key={centro.id} className="w-[22rem] shadow-md rounded-lg hover:shadow-lg transition-shadow bg-white p-3">
+                                <div key={centro.id} className="w-[22rem] shadow-md rounded-lg hover:shadow-lg transition-shadow bg-white p-3 cursor-pointer"
+                                    onClick={() => navigate(`/turno/${centro.id}`)}
+                                >
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
