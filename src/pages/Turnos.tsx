@@ -239,7 +239,6 @@ const Turnos = () => {
   const centroSeleccionado = centros.find((c) => c.id === Number(id));
   if (!centroSeleccionado) return <div>Centro no encontrado</div>;
 
-  // Estados tipados
   const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioResponseDTO | null>(null);
   const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalResponseDTO | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
@@ -271,7 +270,7 @@ const Turnos = () => {
       <Navbar />
       <div className="bg-primary w-screen pt-25">
         <h1 className="font-secondary text-2xl font-bold text-center"> Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos </h1>
-        <div className="px-[45vh] mt-10">
+        <div className="px-[20%] mt-10">
           <p className="font-primary text-left">
             {pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}
           </p>
