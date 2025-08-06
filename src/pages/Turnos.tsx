@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
 import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { ServicioDTO } from "../types/servicio/ServicioDTO"
@@ -27,9 +27,10 @@ const Turnos = () => {
     const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalDTO | null>(null);
     const [fechaSeleccionada, setFechaSeleccionada] = useState<Date | null>(null);
     const [horaSeleccionada, setHoraSeleccionada] = useState<Date | null>(null);
-    const [disponibilidadSeleccionada, setDisponibilidadSeleccionada] = useState<any>(null); // Puedes definir un tipo más específico si lo deseas
+    const [turno, setTurno] = useState<any>(null); // Puedes definir un tipo más específico si lo deseas
     const [pasos, setPasos] = useState<number>(1);
     const navigate = useNavigate();
+
 
     return (
         <>
