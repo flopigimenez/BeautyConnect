@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar"
 
 const Registro = () => {
     const [prestador, setPrestador] = useState<boolean>();
+    
     return (
         <>
             <Navbar />
