@@ -69,7 +69,7 @@ const Registro = () => {
                             className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"
                             onClick={() => {
                                 if(prestador){
-                                  navigate("/solicitudDeSalones");  
+                                  navigate("/RegistroDeSalon");  
                                 }else{
 
                                 }
