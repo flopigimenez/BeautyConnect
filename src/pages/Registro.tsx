@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar"
+import { useNavigate } from "react-router-dom";
 
 const Registro = () => {
+    const navigate = useNavigate();
     const [prestador, setPrestador] = useState<boolean>();
     
     return (
@@ -65,6 +67,13 @@ const Registro = () => {
                         <button
                             type="submit"
                             className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"
+                            onClick={() => {
+                                if(prestador){
+                                  navigate("/solicitudDeSalones");  
+                                }else{
+
+                                }
+                            }}
                         >
                             Registrarse
                         </button>
@@ -72,8 +81,6 @@ const Registro = () => {
 
                 </form>
             </div>
-
-
         </>
     )
 }
