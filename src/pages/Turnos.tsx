@@ -268,9 +268,9 @@ const Turnos = () => {
   return (
     <>
       <Navbar />
-      <div className="bg-primary w-screen pt-25">
-        <h1 className="font-secondary text-2xl font-bold text-center"> Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos </h1>
-        <div className="px-[20%] mt-10">
+      <div className="bg-primary w-screen pt-25 flex justify-center items-center flex-col">
+        <h1 className="font-secondary text-2xl font-bold"> Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos </h1>
+        <div className="mt-10">
           <p className="font-primary text-left">
             {pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}
           </p>
