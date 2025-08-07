@@ -1,243 +1,253 @@
 import Navbar from "../components/Navbar"
 import { CiSearch } from "react-icons/ci";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
-import { Estado } from "../types/enums/Estado";
-import { useState, type FC } from "react";
+import { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
+import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { fetchCentros } from "../redux/store/centroSlice";
 
 const Centros = () => {
-    const centros: CentroEsteticaResponseDTO[] = [
-        {
-            id: 1,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" },{ id: 2, calle: "Calle 3", numero: 456, codigoPostal: 12345, localidad: "Ciudad de Flores" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 2,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 3,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 4,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 5,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 6,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 7,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 8,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 9,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 10,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 11,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 12,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 13,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 14,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [],
-            turnos: [],
-            reseñas: [],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 15,
-            nombre: "Centro Belleza",
-            descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
-            domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido.pdf",
-            cuit: 2131243214,
-            servicios: [],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Mal servicio y atención.", calificacion: 1, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        },
-        {
-            id: 16,
-            nombre: "Spa Relax",
-            descripcion: "Spa de lujo con servicios de relajación y estética.",
-            domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
-            imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
-            docValido: "https://example.com/doc-valido-spa.pdf",
-            cuit: 2131243215,
-            servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
-            turnos: [],
-            reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
-            estado: Estado.CONFIRMADO,
-            profesionales: []
-        }
-    ];
+    // const centros: CentroEsteticaResponseDTO[] = [
+    //     {
+    //         id: 1,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" },{ id: 2, calle: "Calle 3", numero: 456, codigoPostal: 12345, localidad: "Ciudad de Flores" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 2,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 3,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 4,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 4, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 5,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 2, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 6,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 7,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 8,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 9,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 10,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 11,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 12,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 13,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 14,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 15,
+    //         nombre: "Centro Belleza",
+    //         descripcion: "Centro especializado en tratamientos de belleza y bienestar.",
+    //         domicilios: [{ id: 1, calle: "Calle Falsa 123", numero: 456, codigoPostal: 12345, localidad: "Ciudad Belleza" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido.pdf",
+    //         cuit: 2131243214,
+    //         servicios: [],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Mal servicio y atención.", calificacion: 1, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     },
+    //     {
+    //         id: 16,
+    //         nombre: "Spa Relax",
+    //         descripcion: "Spa de lujo con servicios de relajación y estética.",
+    //         domicilios: [{ id: 2, calle: "Avenida del Spa 456", numero: 789, codigoPostal: 67890, localidad: "Ciudad Relax" }],
+    //         imagen: "https://i.pinimg.com/1200x/f0/1f/11/f01f113af00d3cdd2d3d1f6f18b5ed6f.jpg",
+    //         docValido: "https://example.com/doc-valido-spa.pdf",
+    //         cuit: 2131243215,
+    //         servicios: [{ id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, precio: 1500, duracion: 30, descripcion: "Corte de cabello con estilo."},],
+    //         turnos: [],
+    //         reseñas: [{ id: 1, comentario: "Excelente servicio y atención.", calificacion: 5, fechaCreacion: "2023-10-01T10:00:00Z" }],
+    //         estado: Estado.CONFIRMADO,
+    //         profesionales: []
+    //     }
+    // ];
 
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { centros, loading, error } = useAppSelector((state) => state.centros);
 
+    useEffect(() => {
+        dispatch(fetchCentros());
+    }, [dispatch]);
+
+    //Filtros
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
         servicio: null as TipoDeServicio | null,
@@ -282,6 +292,7 @@ const Centros = () => {
 
     const centrosFiltrados = filtrarCentros();
 
+    //Paginación
     const [paginaActual, setPaginaActual] = useState(1);
     const centrosPorPagina = 9;
 
@@ -291,7 +302,10 @@ const Centros = () => {
 
     const totalPaginas = Math.ceil(centrosFiltrados.length / centrosPorPagina);
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        //Cada vez que cambie el filtro, reiniciar a la primera página
+        setPaginaActual(1);
+    }, [filtro, filtroAplicado]);
 
     return (
         <>
@@ -315,7 +329,6 @@ const Centros = () => {
                     </div>
                 </div>
                 <div className="mt-8 mx-5 lg:mx-[20vh]">
-                    {/* <h2 className="font-secondary text-2xl font-bold">Centros cerca de ti</h2> */}
                     <div className="flex flex-wrap gap-5 mt-6">
                         {centrosActuales.length === 0 ? (
                             <p className="text-gray-600 mt-4">No se encontraron centros para tu búsqueda.</p>
@@ -327,18 +340,19 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
-                                     {centro.domicilios.map((domicilio) => (  
-                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> {/*select con las direcciones o comparar con la direccion del cliente*/}
+                                    {/*select con las direcciones o comparar con la direccion del cliente*/}
+                                    {/* {centro.domicilios.map((domicilio) => (  
+                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> 
                                             {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
                                         </p>
-                                    ))}
-                                    {centro.reseñas.length > 0 &&(
+                                    ))} */}
+                                    {/* {centro.reseñas.length > 0 &&(
                                             <p className="mt-2 text-yellow-500">
                                                 {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
                                                     + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
                                                 } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
                                             </p>
-                                        )}
+                                        )} */}
                                 </div>
                             ))
                         )}

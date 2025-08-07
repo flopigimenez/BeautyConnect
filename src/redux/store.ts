@@ -1,8 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import reseñaReducer from "../redux/store/reseñaSlice"
+import centroReducer from "../redux/store/centroSlice"
 
 export const store = configureStore({
   reducer: {
+    centros: centroReducer,
      reseñas: reseñaReducer,
   },
 })
