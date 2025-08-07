@@ -8,6 +8,8 @@ import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { fetchCentros } from "../redux/store/centroSlice";
 
 const Centros = () => {
     // const centros: CentroEsteticaResponseDTO[] = [
@@ -237,7 +239,13 @@ const Centros = () => {
     //     }
     // ];
 
-    const [centros, setCentros] = useState<CentroEsteticaResponseDTO[]>([]);
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { centros, loading, error } = useAppSelector((state) => state.centros);
+
+    useEffect(() => {
+        dispatch(fetchCentros());
+    }, [dispatch]);
 
     //Filtros
     const [modalFiltro, setModalFiltro] = useState(false);
@@ -294,27 +302,6 @@ const Centros = () => {
 
     const totalPaginas = Math.ceil(centrosFiltrados.length / centrosPorPagina);
 
-    const navigate = useNavigate();
-
-    const centroDeEsteticaService = new CentroDeEsteticaService();
-
-    useEffect(() => {
-        const fetchCentros = async () => {
-            //Obtener los centros de estética
-            try {
-                const response = await centroDeEsteticaService.getAll();
-                if (!response || response.length === 0) {
-                    console.warn("No se encontraron centros de estética.");
-                }   
-                setCentros(response);
-            }
-            catch (error) {
-                console.error("Error fetching centros:", error);
-            }
-        };
-        fetchCentros();
-    }, [centroDeEsteticaService]);
-
     useEffect(() => {
         //Cada vez que cambie el filtro, reiniciar a la primera página
         setPaginaActual(1);
@@ -354,7 +341,7 @@ const Centros = () => {
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
                                     {/*select con las direcciones o comparar con la direccion del cliente*/}
-                                     {/* {centro.domicilios.map((domicilio) => (  
+                                    {/* {centro.domicilios.map((domicilio) => (  
                                         <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> 
                                             {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
                                         </p>
