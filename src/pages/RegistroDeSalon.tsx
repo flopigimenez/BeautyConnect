@@ -1,8 +1,12 @@
+import { TipoDeServicio } from "../types/enums/TipoDeServicio"
+
 const RegistroDeSalon = () => {
+
+
     return (
         <>
-            <div className="bg-primary w-screen pt-10 flex flex-col items-center">
-                <h1 className="font-secondary text-2xl font-bold mb-3">Registra tu salón</h1>
+            <div className="bg-primary w-screen pt-8 flex flex-col items-center">
+                <h1 className="font-secondary text-2xl font-bold">Registra tu salón</h1>
                 <form className="mt-5 w-[45rem]">
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre del salón</label>
@@ -19,7 +23,6 @@ const RegistroDeSalon = () => {
                             type="file"
                             id="file"
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            placeholder="Selecciona un archivo"
                         />
                     </div>
                     <div className="mb-5">
@@ -31,19 +34,35 @@ const RegistroDeSalon = () => {
                             placeholder="Ingresa la dirección de tu salon"
                         />
                     </div>
-                    <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
-                        <select name="" id="servicios">
-                            {
+                    <div className="flex justify-between mb-5">
+                        <div>
+                            <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
+                            <select name="" id="servicios" className="border border-secondary text-sm font-primary p-1 rounded-full hover:bg-secondary-dark transition">
+                                <option value="">Seleccionar servicio</option>
+                                {Object.values(TipoDeServicio).map((tipo) => (
+                                    <option key={tipo} value={tipo}>
+                                        {tipo.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                            }
-                        </select>
-                        {/* <input
-                            type="text"
-                            id="confirmPassword"
-                            className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            placeholder="Selecciona al menos un servicio"
-                        /> */}
+                        <div>
+                            <label className="block text-gray-700 font-primary mb-2" htmlFor="DescripcionDeServicios">Descripcion de servicios</label>
+                            <input
+                                type="text"
+                                id="DescripcionDeServicios"
+                                className="w-[60vh] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                            />
+                        </div>
+                        <div>
+                            <button className="border bg-tertiary text-white w-full px-5 py-1 mt-8.5 rounded-lg hover:scale-102">
+                                Agregar servicio
+                            </button>
+                        </div>
                     </div>
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="cuit">CUIT</label>
@@ -55,26 +74,18 @@ const RegistroDeSalon = () => {
                         />
                     </div>
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="DescripcionDeServicios">Descripcion de servicios</label>
-                        <input
-                            type="text"
-                            id="DescripcionDeServicios"
-                            className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                        />
-                    </div>
-                    <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="HorarioComercial">Horario comercial</label>
                         <input
-                            type="datetime-local"
+                            type="text"
                             id="HorarioComercial"
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             placeholder="Ej. Lun-Vie: 9 AM - 7 PM, Sáb: 10 AM - 6 PM"
                         />
                     </div>
-                    <div className="flex flex-col items-center mb-10">
+                    <div className="flex flex-col items-end mb-10">
                         <button
                             type="submit"
-                            className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"
+                            className="w-[30%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"
                         >
                             Enviar
                         </button>

@@ -52,13 +52,13 @@ const Registro = () => {
                     <div className="flex flex-col items-center mb-10">
                         <div className="mb-8 grid grid-cols-2 gap-30">
                             <button type="button"
-                                className={`border border-secondary rounded-lg w-[25vh] h-[5vh] hover:scale-102 hover:bg-secondary ${prestador == false ? "bg-secondary" : "bg-white"}`}
+                                className={`border border-tertiary rounded-lg w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == false ? "bg-tertiary text-white" : "bg-white"}`}
                                 onClick={() => setPrestador(false)}
                             >
                                 Soy cliente
                             </button>
                             <button type="button"
-                                className={`border border-secondary rounded-lg w-[25vh] h-[5vh] hover:scale-102 hover:bg-secondary ${prestador == true ? "bg-secondary" : "bg-white"}`}
+                                className={`border border-tertiary rounded-lg w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
                                 onClick={() => setPrestador(true)}
                             >
                                 Prestador de servicio
