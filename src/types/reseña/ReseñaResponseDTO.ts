@@ -4,8 +4,8 @@ import type { ClienteResponseDTO } from "../cliente/ClienteResponseDTO";
 export interface ReseñaResponseDTO {
    id: number;
    comentario: string;
-    calificacion: number;
-    fechaCreacion: string;
-   //  cliente: ClienteResponseDTO;
-   //  centroDeEstetica: CentroEsteticaResponseDTO;
-    }
+   calificacion: number;
+   fechaCreacion: string;
+   cliente: ClienteResponseDTO;
+   centroDeEstetica: CentroEsteticaResponseDTO;
+}
