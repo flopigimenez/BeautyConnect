@@ -1,3 +1,4 @@
+import type { CentroDeEsteticaDTO } from "../centroDeEstetica/CentroDeEsteticaDTO";
 import type { TipoDeServicio } from "../enums/TipoDeServicio";
 
 export interface ServicioDTO {
@@ -6,5 +7,5 @@ export interface ServicioDTO {
     descripcion: string;
     duracion: number;
     precio: number; 
-    // centroDeEsteticaDTO: CentroDeEsteticaDTO;
+    centroDeEsteticaDTO: CentroDeEsteticaDTO;
 }

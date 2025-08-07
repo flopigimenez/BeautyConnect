@@ -7,5 +7,5 @@ export interface ProfesionalResponseDTO {
     nombre: string;
     disponibilidades: DisponibilidadResponseDTO[];
     servicios: ServicioResponseDTO[];
-    // centroDeEstetica: CentroEsteticaResponseDTO;
+    centroDeEstetica: CentroEsteticaResponseDTO;
 }
