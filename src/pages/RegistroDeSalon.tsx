@@ -68,7 +68,7 @@ const RegistroDeSalon = () => {
                             onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, cuit: parseInt(e.target.value) }))}
                         />
                     </div>
-                    <div className="mb-5">
+                    {/* <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="HorarioComercial">Horario comercial</label>
                         <input
                             type="text"
@@ -76,7 +76,7 @@ const RegistroDeSalon = () => {
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             placeholder="Ej. Lun-Vie: 9 AM - 7 PM, Sáb: 10 AM - 6 PM"
                         />
-                    </div>
+                    </div> */}
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
                         {/* <div>
@@ -103,7 +103,7 @@ const RegistroDeSalon = () => {
                             />
                         </div> */}
                         <div>
-                            <button className="border bg-tertiary text-white w-full px-5 py-1 rounded-lg hover:scale-102">
+                            <button className="border bg-tertiary text-white w-[60%] px-5 py-1 rounded-lg hover:scale-102">
                                 Agregar servicios
                             </button>
                         </div>
