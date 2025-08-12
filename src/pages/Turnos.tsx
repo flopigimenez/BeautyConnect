@@ -381,7 +381,7 @@ const Turnos = () => {
                                     setFechaSeleccionada(null);
                                     setHoraSeleccionada(null);
                                     alert("Turno cancelado");
-                                    navigate("/");
+                                    navigate("/centros");
                                 } else {
                                     setPasos(1);
                                 }
