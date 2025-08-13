@@ -1,4 +1,3 @@
-import type { CentroDeEsteticaDTO } from "../centroDeEstetica/CentroDeEsteticaDTO";
 
 export interface DomicilioDTO {
     id: number;

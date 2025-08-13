@@ -9,7 +9,7 @@ export interface CentroDeEsteticaDTO {
   imagen: string;
   docValido: string;
   cuit: number;
-  domicilios: DomicilioDTO[];
+  domicilio: DomicilioDTO;
   servicios: ServicioDTO[];
   turnos: TurnoDTO[];
   reseñas: ReseñaDTO[];
