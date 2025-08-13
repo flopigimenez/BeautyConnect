@@ -189,12 +189,12 @@ const Centros = () => {
                                         )} */}
 
                                     <div className="flex justify-around mt-3 mb-2">
-                                        <button className="bg-secondary rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
+                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
                                             onClick={() => navigate(`/calificaciones/${centroSeleccionado.id}`)}
                                         >
                                             Ver reseñas
                                         </button>
-                                        <button className="bg-secondary rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
+                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
                                             onClick={() => navigate(`/turno/${centroSeleccionado.id}`)}
                                         >
                                             Pedir turno
