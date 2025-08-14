@@ -3,11 +3,9 @@ import Navbar from "../components/Navbar"
 import { useNavigate } from "react-router-dom";
 import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from '../firebase/config';
-import { ClienteService } from "../services/ClienteService";
 import type { ClienteDTO } from "../types/cliente/ClienteDTO";
 import type { UsuarioDTO } from "../types/usuario/UsuarioDTO";
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
-import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { Rol } from "../types/enums/Rol";
 import { FcGoogle } from "react-icons/fc";
 
