@@ -15,7 +15,7 @@ const Registro = () => {
     const [prestador, setPrestador] = useState<boolean>();
     const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE })
     const [confirmPassword, setConfirmPassword] = useState<string>("");
-    const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: 0, usuario: usuario });
+    const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: "", usuario: usuario });
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
@@ -186,7 +186,7 @@ const Registro = () => {
                                 className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                 placeholder="Ingresa tu número de teléfono"
                                 value={registro.telefono || ""}
-                                onChange={(e) => setRegistro(prev => ({ ...prev, telefono: Number(e.target.value) }))}
+                                onChange={(e) => setRegistro(prev => ({ ...prev, telefono: e.target.value }))}
                             />
                         </div>
                         <div className="mb-5">
