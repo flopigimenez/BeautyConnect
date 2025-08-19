@@ -3,14 +3,12 @@ import { CustomTable } from "../components/CustomTable";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/SideBar";
-import AgregarServicio from "../components/modals/agregarServicio";
+import AgregarServicio from "../components/modals/AgregarServicio";
 import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 
-// Ejemplo de tipos de servicio
 import { TipoDeServicio as TipoDeServicioEnum } from "../types/enums/TipoDeServicio";
 
-// Ejemplo de profesionales
 const profesionalesEjemplo: ProfesionalDTO[] = [
   {
     id: 1,
