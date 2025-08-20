@@ -7,6 +7,7 @@ import MiPerfil from "../pages/MiPerfil";
 import Calificaciones from "../pages/Calificaciones";
 import Registro from "../pages/Registro";
 import RegistroDeSalon from "../pages/RegistroDeSalon";
+import RegistroGoogle from "../pages/RegistroGoogle";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -24,6 +25,7 @@ export const AppRouter = () => {
         <Route path="/calificaciones" element={<Calificaciones />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
+        <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle/>}/>
       </Routes>
     </>
   );
