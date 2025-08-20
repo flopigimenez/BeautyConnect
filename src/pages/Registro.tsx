@@ -8,16 +8,21 @@ import type { UsuarioDTO } from "../types/usuario/UsuarioDTO";
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
 import { Rol } from "../types/enums/Rol";
 import { FcGoogle } from "react-icons/fc";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { setUser } from "../redux/store/authSlice";
+import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
+import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 
 const Registro = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [prestador, setPrestador] = useState<boolean>();
-    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE })
+    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE });
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: "", usuario: usuario });
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
+    const dispatch = useAppDispatch();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -51,7 +56,6 @@ const Registro = () => {
             const user = result.user;
             const idToken = await user.getIdToken();
 
-
             const resp = await fetch("http://localhost:8080/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -59,7 +63,6 @@ const Registro = () => {
                     idToken,
                     mail: usuario.mail,
                     rol: prestador ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE,
-                    uid: user.uid,
                     clienteDTO: prestador ? null : {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
@@ -75,6 +78,9 @@ const Registro = () => {
 
             if (!resp.ok) throw new Error(await resp.text());
             alert("Usuario registrado correctamente en backend");
+
+            const data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
+            dispatch(setUser(data));
 
             if (prestador) {
                 navigate("/RegistroDeSalon");
@@ -98,7 +104,6 @@ const Registro = () => {
             const user = result.user;
             const idToken = await user.getIdToken();
 
-
             const resp = await fetch("http://localhost:8080/api/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -106,7 +111,6 @@ const Registro = () => {
                     idToken,
                     mail: user.email,
                     rol: prestador ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE,
-                    uid: user.uid, // uid de Firebase
                     clienteDTO: prestador ? null : {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
@@ -120,18 +124,13 @@ const Registro = () => {
                 })
             });
 
+            let data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
 
-            if (!resp.ok) throw new Error(await resp.text());
-            alert("Usuario registrado con Google y guardado en backend");
+            dispatch(setUser(data));
 
-            // Redirigir según el rol
-            if (prestador) {
-                navigate("/RegistroDeSalon");
-            } else {
-                navigate("/");
-            }
+            // completar datos registro
+            navigate("/FinalizarRegistroGoogle")
         } catch (err: any) {
-            console.error(err);
             setError(err.message || "Error en el inicio con Google");
         }
     };
@@ -139,10 +138,10 @@ const Registro = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-screen pt-25 flex flex-col items-center">
-                <h1 className="font-secondary text-2xl font-bold mb-3">¡Bienvenido a BeautyConnect!</h1>
-                <p className="font-primary">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
-                {error ? (<p className="text-red-500">{error}</p>) : (
+            {error ? (<p className="text-red-500">{error}</p>) : (
+                <div className="bg-primary w-screen pt-25 flex flex-col items-center">
+                    <h1 className="font-secondary text-2xl font-bold mb-3">¡Bienvenido a BeautyConnect!</h1>
+                    <p className="font-primary">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre</label>
@@ -243,10 +242,11 @@ const Registro = () => {
                             </button>
                         </div>
                     </form>
-                )}
-                <p className="mb-10">¿Ya tienes una cuenta? <a href="/iniciarSesion" className="font-bold">Iniciar sesión</a></p>
 
-            </div>
+                    <p className="mb-10">¿Ya tienes una cuenta? <a href="/iniciarSesion" className="font-bold">Iniciar sesión</a></p>
+
+                </div>
+            )}
         </>
     )
 }
