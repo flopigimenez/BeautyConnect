@@ -16,7 +16,7 @@ const initialState: CentroState = {
     error: null,
 };
 
-export const fetchCentros = createAsyncThunk("centros/fetchAll", async () => {
+export const fetchCentros = createAsyncThunk<CentroEsteticaResponseDTO[]>("centros/fetchAll", async () => {
     return await centroService.getAll();
 });
 

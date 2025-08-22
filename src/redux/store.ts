@@ -1,11 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit'
 import reseñaReducer from "../redux/store/reseñaSlice"
 import centroReducer from "../redux/store/centroSlice"
+import userReducer from '../redux/store/authSlice'
+import clienteReducer from '../redux/store/clienteSlice'
 
 export const store = configureStore({
   reducer: {
+    user: userReducer,
+    clientes: clienteReducer,
     centros: centroReducer,
-     reseñas: reseñaReducer,
+    reseñas: reseñaReducer,
   },
 })
 
