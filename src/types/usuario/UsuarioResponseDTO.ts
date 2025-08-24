@@ -5,4 +5,5 @@ export interface UsuarioResponseDTO{
     mail: string;
     contraseña: string;
     rol: Rol;
+    uid: string;
 }

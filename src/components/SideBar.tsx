@@ -1,12 +1,9 @@
 import { NavLink } from "react-router-dom";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  Users2,
-  Scissors,
-  Settings
-} from "lucide-react";
-
+import { CiCalendarDate } from "react-icons/ci";
+import { LuPanelsLeftBottom } from "react-icons/lu";
+import { PiUsers } from "react-icons/pi";
+import { RiScissorsLine } from "react-icons/ri";
+import { IoSettingsOutline } from "react-icons/io5";
 type Item = {
   to: string;
   label: string;
@@ -14,11 +11,11 @@ type Item = {
 };
 
 const items: Item[] = [
-  { to: "/panel",       label: "Panel",        icon: LayoutDashboard },
-  { to: "/calendario",  label: "Calendario",   icon: CalendarDays },
-  { to: "/clientes",    label: "Clientes",     icon: Users2 },
-  { to: "/servicio",   label: "Servicios",    icon: Scissors },
-  { to: "/config",      label: "Configuración",icon: Settings },
+  { to: "/panel",       label: "Panel", icon: LuPanelsLeftBottom },
+  { to: "/calendario",  label: "Calendario", icon: CiCalendarDate },
+  { to: "/clientes",    label: "Clientes", icon: PiUsers },
+  { to: "/servicio",   label: "Servicios", icon: RiScissorsLine },
+  { to: "/config",      label: "Configuración", icon: IoSettingsOutline },
 ];
 
 export default function Sidebar() {
