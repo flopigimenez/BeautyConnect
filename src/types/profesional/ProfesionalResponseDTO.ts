@@ -5,6 +5,7 @@ import type { ServicioResponseDTO } from "../servicio/ServicioResponseDTO";
 export interface ProfesionalResponseDTO {
     id: number;
     nombre: string;
+    apellido: string;
     disponibilidades: DisponibilidadResponseDTO[];
     servicios: ServicioResponseDTO[];
     centroDeEstetica: CentroEsteticaResponseDTO;

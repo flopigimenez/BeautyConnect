@@ -1,244 +1,18 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
-import { TipoDeServicio } from "../types/enums/TipoDeServicio";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
-import { Estado } from "../types/enums/Estado";
 import type { DisponibilidadResponseDTO } from "../types/disponibilidad/DisponibilidadResponseDTO";
 import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalResponseDTO";
 import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
 import { fetchCentros } from "../redux/store/centroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 
-/*const centros: CentroEsteticaResponseDTO[] = [
-    {
-        id: 1,
-        nombre: "Centro Belleza",
-        servicios: [
-            { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-            { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-            { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-            { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-        ],
-        profesionales: [
-            {
-                id: 1,
-                nombre: "Ana Pérez",
-                disponibilidades: [
-                    { id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 1, tipoDeServicio: TipoDeServicio.BARBERIA, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-                    { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-                ]
-            },
-            {
-                id: 2,
-                nombre: "Luis Gómez",
-                disponibilidades: [
-                    { id: 3, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 4, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 3, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-                    { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-                ],
-            },
-        ],
-        descripcion: "Centro de estética especializado en depilación, manicura y masajes.",
-        imagen: "https://example.com/imagen.jpg",
-        docValido: "https://example.com/doc_valido.pdf",
-        cuit: 2131243214,
-        domicilios: [],
-        turnos: [],
-        reseñas: [],
-        estado: Estado.CONFIRMADO,
-    },
-    {
-        id: 2,
-        nombre: "Centro Belleza",
-        servicios: [
-            { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-            { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-            { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-            { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-        ],
-        profesionales: [
-            {
-                id: 1,
-                nombre: "Ana Pérez",
-                disponibilidades: [
-                    { id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-                    { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-                ]
-            },
-            {
-                id: 2,
-                nombre: "Luis Gómez",
-                disponibilidades: [
-                    { id: 3, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 4, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-                    { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-                ],
-            },
-        ],
-        descripcion: "Centro de estética especializado en depilación, manicura y masajes.",
-        imagen: "https://example.com/imagen.jpg",
-        docValido: "https://example.com/doc_valido.pdf",
-        cuit: 2131243214,
-        domicilios: [],
-        turnos: [],
-        reseñas: [],
-        estado: Estado.CONFIRMADO,
-    },
-    {
-        id: 3,
-        nombre: "Centro Belleza",
-        servicios: [
-            { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-            { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-            { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-            { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-        ],
-        profesionales: [
-            {
-                id: 1,
-                nombre: "Ana Pérez",
-                disponibilidades: [
-                    { id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-                    { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-                ]
-            },
-            {
-                id: 2,
-                nombre: "Luis Gómez",
-                disponibilidades: [
-                    { id: 3, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 4, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-                    { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-                ],
-            },
-        ],
-        descripcion: "Centro de estética especializado en depilación, manicura y masajes.",
-        imagen: "https://example.com/imagen.jpg",
-        docValido: "https://example.com/doc_valido.pdf",
-        cuit: 2131243214,
-        domicilios: [],
-        turnos: [],
-        reseñas: [],
-        estado: Estado.CONFIRMADO,
-    },
-    {
-        id: 4,
-        nombre: "Centro Belleza",
-        servicios: [
-            { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-            { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-            { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-            { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-        ],
-        profesionales: [
-            {
-                id: 2,
-                nombre: "Ana Pérez",
-                disponibilidades: [
-                    { id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-                    { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-                ]
-            },
-            {
-                id: 2,
-                nombre: "Luis Gómez",
-                disponibilidades: [
-                    { id: 3, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 4, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-                    { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-                ],
-            },
-        ],
-        descripcion: "Centro de estética especializado en depilación, manicura y masajes.",
-        imagen: "https://example.com/imagen.jpg",
-        docValido: "https://example.com/doc_valido.pdf",
-        cuit: 2131243214,
-        domicilios: [],
-        turnos: [],
-        reseñas: [],
-        estado: Estado.CONFIRMADO,
-    }, {
-        id: 5,
-        nombre: "Centro Belleza",
-        servicios: [
-            { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-            { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-            { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-            { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-        ],
-        profesionales: [
-            {
-                id: 1,
-                nombre: "Ana Pérez",
-                disponibilidades: [
-                    { id: 1, fecha: new Date("2025-07-30"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 2, fecha: new Date("2025-07-30"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 1, tipoDeServicio: TipoDeServicio.DEPILACION, duracion: 30, precio: 1500, descripcion: "Depilación con cera" },
-                    { id: 2, tipoDeServicio: TipoDeServicio.MANICURA, duracion: 45, precio: 2000, descripcion: "Manicura completa" },
-                ]
-            },
-            {
-                id: 2,
-                nombre: "Luis Gómez",
-                disponibilidades: [
-                    { id: 3, fecha: new Date("2025-07-31"), horaInicio: "9:30", horaFin: "10:00" },
-                    { id: 4, fecha: new Date("2025-07-31"), horaInicio: "10:00", horaFin: "10:30" },
-                ],
-                servicios: [
-                    { id: 3, tipoDeServicio: TipoDeServicio.PEDICURA, duracion: 60, precio: 2500, descripcion: "Pedicura spa" },
-                    { id: 4, tipoDeServicio: TipoDeServicio.MASAJES, duracion: 90, precio: 4000, descripcion: "Masaje relajante" },
-                ],
-            },
-        ],
-        descripcion: "Centro de estética especializado en depilación, manicura y masajes.",
-        imagen: "https://example.com/imagen.jpg",
-        docValido: "https://example.com/doc_valido.pdf",
-        cuit: 2131243214,
-        domicilios: [],
-        turnos: [],
-        reseñas: [],
-        estado: Estado.CONFIRMADO,
-    }
-    // puedes agregar más centros
-];*/
-
 const Turnos = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const dispatch = useAppDispatch();
     const { centros, loading, error } = useAppSelector((state) => state.centros);
-    
+
     useEffect(() => {
         dispatch(fetchCentros());
     }, [dispatch]);
@@ -277,6 +51,8 @@ const Turnos = () => {
         <>
             <Navbar />
             <div className="bg-primary w-screen pt-25 flex justify-center items-center flex-col">
+                {loading && <p>Cargando...</p>}
+                {error && <p className="text-red-500">{error}</p>}
                 <h1 className="font-secondary text-2xl font-bold"> Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos </h1>
                 <div className="mt-10">
                     <p className="font-primary text-left">
