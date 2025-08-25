@@ -13,6 +13,7 @@ const profesionalesEjemplo: ProfesionalDTO[] = [
   {
     id: 1,
     nombre: "Carla",
+    apellido: "Campos",
     disponibilidades: [],
     servicios: [],
     centroDeEstetica: { id: 1, nombre: "Belleza Total", domicilio: { id: 1, calle: "Calle Falsa 123", localidad: "Ciudad Falsa", numero: 123, codigoPostal: 12345 }, descripcion: "Centro de estética de ejemplo", imagen: "https://via.placeholder.com/150", docValido: "Documento válido", cuit: 12345678, servicios: [], turnos: [], reseñas: [] },
@@ -20,6 +21,7 @@ const profesionalesEjemplo: ProfesionalDTO[] = [
   {
     id: 2,
     nombre: "Marta",
+    apellido: "Campos",
     disponibilidades: [],
     servicios: [],
     centroDeEstetica: { id: 1, nombre: "Belleza Total",  domicilio: { id: 2, calle: "Calle Falsa 123", localidad: "Ciudad Falsa", numero: 123, codigoPostal: 12345 }, descripcion: "Centro de estética de ejemplo", imagen: "https://via.placeholder.com/150", docValido: "Documento válido", cuit: 12345678, servicios: [], turnos: [], reseñas: [] },
