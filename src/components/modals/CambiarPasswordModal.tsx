@@ -38,10 +38,20 @@ export default function CambiarPasswordModal({ isOpen, onClose }: Props) {
       });
 
       onClose();
-    } catch (err: any) {
-      if (err.code === "auth/wrong-password") setError("La contraseña actual es incorrecta.");
-      else if (err.code === "auth/weak-password") setError("La nueva contraseña es muy débil.");
-      else setError(err.message || "Error al cambiar la contraseña.");
+    } catch (err: unknown) {
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        typeof (err as { code: string }).code === "string"
+      ) {
+        const code = (err as { code: string }).code;
+        if (code === "auth/wrong-password") setError("La contraseña actual es incorrecta.");
+        else if (code === "auth/weak-password") setError("La nueva contraseña es muy débil.");
+        else setError((err as { message?: string }).message || "Error al cambiar la contraseña.");
+      } else {
+        setError("Error al cambiar la contraseña.");
+      }
     } finally {
       setLoading(false);
     }

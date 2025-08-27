@@ -50,15 +50,18 @@ export default function MiPerfil() {
           setMailVista(found.usuario?.mail ?? user.email ?? "");
 
         } else {
-          // No existe cliente: prellenamos con mail/uid de Firebase
           setCliente(null);
           setNombre("");
           setApellido("");
           setTelefono("");
           setMailVista(user.email ?? "");
         }
-      } catch (e: any) {
-        setError(e.message || "Error al cargar el perfil.");
+      } catch (e: unknown) {
+        if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
+          setError((e as { message: string }).message);
+        } else {
+          setError("Error al cargar el perfil.");
+        }
       } finally {
         setLoading(false);
       }
@@ -103,12 +106,14 @@ export default function MiPerfil() {
       setCliente(updated);
       setNombre(updated.nombre ?? "");
       setApellido(updated.apellido ?? "");
-      setTelefono(updated.telefono ?? "");
-      setMailVista(updated.usuario?.mail ?? mailVista);
-    } catch (e: any) {
-      setError(e.message || "No se pudo guardar.");
+      setTelefono(updated.usuario?.mail ?? mailVista);
+    } catch (e: unknown) {
+      if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
+        setError((e as { message: string }).message);
+      } else {
+        setError("No se pudo guardar.");
+      }
     } finally {
-
       setSaving(false);
     }
   };
