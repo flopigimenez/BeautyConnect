@@ -7,12 +7,12 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { fetchCliente } from "../redux/store/clienteSlice";
 import { Switch } from "@mui/material";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
-import { UsuarioService } from "../services/UsuarioService";
+import { ClienteService } from "../services/ClienteService";
 
 export default function Clientes() {
   const clientes = useAppSelector((state) => state.clientes);
   const dispatch = useAppDispatch();
-  const usuarioService = new UsuarioService();
+  const clienteService = new ClienteService();
 
   useEffect(() => {
     dispatch(fetchCliente());
@@ -36,19 +36,20 @@ export default function Clientes() {
               { header: "Rol", accessor: "usuario", render: row => `${row.usuario.rol}` },
               {
                 header: "Acciones",
+                accessor: "active",
                 render: (cliente: ClienteResponseDTO) => (
                   <Switch
-                    checked={cliente.usuario.activo}
+                    checked={cliente.active}
                     onChange={async () => {
-                      cliente
                       try {
-                        await usuarioService.patch(cliente.usuario.id, cliente.usuario);
+                        await clienteService.cambiarEstadoActivo(cliente.id);
+                        dispatch(fetchCliente());
                       } catch (error) {
-                        // Swal.fire(
-                        //   error instanceof Error ? error.message : String(error),
-                        //   "No se pudo actualizar el estado",
-                        //   "error"
-                        // );
+                        /*Swal.fire(
+                          error instanceof Error ? error.message : String(error),
+                          "No se pudo actualizar el estado",
+                          "error"
+                        );*/
                       }
                     }}
                     color="secondary"

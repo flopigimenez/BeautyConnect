@@ -5,5 +5,4 @@ export interface UsuarioResponseDTO{
     mail: string;
     contraseña: string;
     rol: Rol;
-    activo: boolean;
 }

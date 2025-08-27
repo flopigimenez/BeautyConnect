@@ -6,4 +6,5 @@ export interface ClienteResponseDTO {
     apellido: string;
     telefono: string;
     usuario: UsuarioResponseDTO;
+    active: boolean;
 }

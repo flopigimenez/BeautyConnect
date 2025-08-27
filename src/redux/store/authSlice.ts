@@ -25,11 +25,11 @@ const initialState: AuthState = {
 export const updateUserCliente = createAsyncThunk<ClienteResponseDTO, Partial<ClienteDTO>, { state: RootState }>("auth/updateUserCliente",
     async (cliente, { getState }) => {
         const state = getState();
-        const userId = state.user.user?.id;
+        const userId = state.user.user?.id; 
         if (!userId) throw new Error("No hay usuario logueado");
 
         const response = await clienteService.put(userId, cliente as ClienteDTO);
-        return response
+        return response;
     }
 );
 
