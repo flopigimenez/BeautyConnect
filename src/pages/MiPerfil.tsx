@@ -9,7 +9,6 @@ import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { Rol } from "../types/enums/Rol";
 const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
-import swal from "sweetalert2";
 
 
 
@@ -65,11 +64,6 @@ export default function MiPerfil() {
       }
     });
     return () => unsub();
-    swal.fire({
-      title: "Éxito",
-      text: "Perfil actualizado correctamente.",
-      icon: "success",
-    }); 
 
   }, []);
 
@@ -81,7 +75,6 @@ export default function MiPerfil() {
       return;
     }
 
-    // Armamos el DTO de cliente con usuario anidado (según tus interfaces)
     const payload: ClienteDTO = {
       nombre,
       apellido,
