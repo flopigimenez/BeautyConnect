@@ -4,6 +4,7 @@ import { LuPanelsLeftBottom } from "react-icons/lu";
 import { PiUsers } from "react-icons/pi";
 import { RiScissorsLine } from "react-icons/ri";
 import { IoSettingsOutline } from "react-icons/io5";
+import { CiUser } from "react-icons/ci";
 type Item = {
   to: string;
   label: string;
@@ -15,7 +16,9 @@ const items: Item[] = [
   { to: "/calendario",  label: "Calendario", icon: CiCalendarDate },
   { to: "/clientes",    label: "Clientes", icon: PiUsers },
   { to: "/servicio",   label: "Servicios", icon: RiScissorsLine },
+  { to: "/profesionales", label: "Profesionales", icon: CiUser },
   { to: "/config",      label: "Configuración", icon: IoSettingsOutline },
+  
 ];
 
 export default function Sidebar() {
