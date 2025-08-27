@@ -168,9 +168,6 @@ export default function MiPerfil() {
                         disabled
                         className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 text-gray-500 shadow-sm px-3 py-2 text-sm"
                       />
-                      <p className="mt-1 text-[11px] text-gray-500">
-                        El email se gestiona desde tu cuenta (Firebase).
-                      </p>
                     </div>
 
                     <div>
@@ -184,7 +181,6 @@ export default function MiPerfil() {
                       />
                     </div>
 
-                    {/* Si tenés domicilio como relación/objeto, agregalo acá como necesites */}
                   </div>
                 </section>
 

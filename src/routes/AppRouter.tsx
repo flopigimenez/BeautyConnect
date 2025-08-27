@@ -9,6 +9,7 @@ import Registro from "../pages/Registro";
 import RegistroDeSalon from "../pages/RegistroDeSalon";
 import RegistroGoogle from "../pages/RegistroGoogle";
 import  ServiciosPage from "../pages/Servicio";
+import Profesionales from "../pages/Profesionales";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -28,6 +29,7 @@ export const AppRouter = () => {
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
         <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle/>}/>
         <Route path="/servicio" element={<ServiciosPage />} />
+        <Route path="/profesionales" element={<Profesionales />} />
       </Routes>
     </>
   );
