@@ -6,10 +6,11 @@ import PendienteAprobacion from "../pages/PendienteAprobacion";
 import MiPerfil from "../pages/MiPerfil";
 import Calificaciones from "../pages/Calificaciones";
 import Registro from "../pages/Registro";
-import Servicio from "../pages/Servicio";
 import RegistroDeSalon from "../pages/RegistroDeSalon";
 import RegistroGoogle from "../pages/RegistroGoogle";
 import Clientes from "../pages/Clientes";
+import  ServiciosPage from "../pages/Servicio";
+import Profesionales from "../pages/Profesionales";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -29,6 +30,8 @@ export const AppRouter = () => {
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
         <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle/>}/>
         <Route path="/clientes" element={<Clientes/>}/>
+        <Route path="/servicio" element={<ServiciosPage />} />
+        <Route path="/profesionales" element={<Profesionales />} />
       </Routes>
     </>
   );

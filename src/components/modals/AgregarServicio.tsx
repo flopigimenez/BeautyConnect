@@ -14,7 +14,6 @@ type Props = {
 
 const schema = Yup.object({
   tipoDeServicio: Yup.string().required("El tipo de servicio es obligatorio"),
-  descripcion: Yup.string().required("La descripción es obligatoria"),
   duracion: Yup.number().required("La duración es obligatoria").min(1, "Debe ser mayor a 0"),
   precio: Yup.number().required("El precio es obligatorio").min(0, "No puede ser negativo"),
   profesionalId: Yup.number().required("El profesional es obligatorio"),
@@ -47,7 +46,6 @@ export default function AgregarServicio({
           <Formik
             initialValues={{
               tipoDeServicio: "",
-              descripcion: "",
               duracion: 30,
               precio: 0,
               profesionalId: profesionales[0]?.id ?? "",
@@ -59,7 +57,6 @@ export default function AgregarServicio({
               const nuevoServicio: ServicioDTO = {
                 id: Date.now(), // temporal
                 tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
-                descripcion: values.descripcion,
                 duracion: values.duracion,
                 precio: values.precio,
                 centroDeEsteticaDTO: profesional.centroDeEstetica,
@@ -83,14 +80,6 @@ export default function AgregarServicio({
                     ))}
                   </Field>
                   <ErrorMessage name="tipoDeServicio" component="p" className="text-sm text-red-600 mt-1" />
-                </div>
-                {/* Descripción */}
-                <div>
-                  <label className="block text-sm font-medium text-[#3c2e35] mb-1">
-                    Descripción
-                  </label>
-                  <Field name="descripcion" placeholder="Ej: Corte de cabello" className="w-full rounded-xl border border-[#E9DDE1] bg-white px-3 py-2" />
-                  <ErrorMessage name="descripcion" component="p" className="text-sm text-red-600 mt-1" />
                 </div>
                 {/* Duración */}
                 <div>
