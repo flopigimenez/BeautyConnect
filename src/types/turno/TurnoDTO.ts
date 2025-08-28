@@ -1,6 +1,6 @@
 import type { ClienteDTO } from "../cliente/ClienteDTO";
 import type { Estado } from "../enums/Estado";
-import type { PrestadorServicioDTO } from "../prestadorDeServicio/PestadorServicioDTO";
+import type { ProfesionalDTO } from "../profesional/ProfesionalDTO";
 import type { ServicioDTO } from "../servicio/ServicioDTO";
 
 export interface TurnoDTO{
@@ -9,7 +9,7 @@ export interface TurnoDTO{
     hora: Date;
     cliente: ClienteDTO;
     servicio: ServicioDTO;
-    prestadorDeServicio: PrestadorServicioDTO;
+    profesional: ProfesionalDTO;
     estado: Estado;
 
 }
