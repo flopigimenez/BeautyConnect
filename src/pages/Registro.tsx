@@ -17,7 +17,7 @@ const Registro = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [prestador, setPrestador] = useState<boolean>();
-    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE });
+    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE, uid: "" });
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: "", usuario: usuario });
     const auth = getAuth(app);
