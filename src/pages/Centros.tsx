@@ -161,7 +161,7 @@ const Centros = () => {
                                 <div className="relative">
                                     <button
                                         onClick={() => setModalFiltro(false)}
-                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
                                     >
                                         <RxCross2 size={24} />
                                     </button>
@@ -200,7 +200,7 @@ const Centros = () => {
                                 <div className="flex justify-center mx-3">
                                     <button
                                         onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado(filtroTemporal); }}
-                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition"
+                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"
                                     >
                                         Aplicar Filtro
                                     </button>

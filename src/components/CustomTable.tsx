@@ -1,5 +1,4 @@
 import React from "react";
-import { CiSearch } from "react-icons/ci";
 import { IoFilterCircleOutline } from "react-icons/io5";
 
 interface Column<T> {
@@ -42,11 +41,11 @@ export function CustomTable<T extends object>({
             </button>
           )}
           {filtros && (
-            <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
+            <div className="flex justify-center items-center gap-2 md:pr-[15vh] mt-5">
               <button className="cursor-pointer text-tertiary"
-              onClick={filtros.onClick}
+                onClick={filtros.onClick}
               >
-                <IoFilterCircleOutline size={25} />
+                <IoFilterCircleOutline size={35} />
               </button>
             </div>
           )}
