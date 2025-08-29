@@ -1,9 +1,11 @@
 import React from "react";
+import { CiSearch } from "react-icons/ci";
+import { IoFilterCircleOutline } from "react-icons/io5";
 
 interface Column<T> {
   header: string;
   accessor?: keyof T;
-  render?: (row: T) => React.ReactNode; 
+  render?: (row: T) => React.ReactNode;
 }
 
 interface CustomTableProps<T> {
@@ -14,6 +16,9 @@ interface CustomTableProps<T> {
     label: string;
     onClick: () => void;
   };
+  filtros?: {
+    onClick: () => void;
+  };
 }
 
 export function CustomTable<T extends object>({
@@ -21,6 +26,7 @@ export function CustomTable<T extends object>({
   data,
   title,
   actionButton,
+  filtros,
 }: CustomTableProps<T>) {
   return (
     <div className="p-4">
@@ -34,6 +40,15 @@ export function CustomTable<T extends object>({
             >
               {actionButton.label}
             </button>
+          )}
+          {filtros && (
+            <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
+              <button className="cursor-pointer text-tertiary"
+              onClick={filtros.onClick}
+              >
+                <IoFilterCircleOutline size={25} />
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -60,8 +75,8 @@ export function CustomTable<T extends object>({
                     {col.render
                       ? col.render(row)
                       : col.accessor
-                      ? (row[col.accessor] as React.ReactNode)
-                      : null}
+                        ? (row[col.accessor] as React.ReactNode)
+                        : null}
                   </td>
                 ))}
               </tr>

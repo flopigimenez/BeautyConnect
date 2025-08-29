@@ -53,8 +53,15 @@ const Centros = () => {
         if (filtro.trim() !== "") {
             const filtroLower = filtro.toLowerCase();
             resultado = resultado.filter(centro =>
-                centro.nombre.toLowerCase().includes(filtroLower) ||
-                centro.domicilios.some(d => d.calle.toLowerCase().includes(filtroLower))
+                centro.nombre.toLowerCase().includes(filtroLower)
+                || (
+                    centro.domicilio &&
+                    (
+                        `${centro.domicilio.calle} ${centro.domicilio.numero}, ${centro.domicilio.localidad}`
+                            .toLowerCase()
+                            .includes(filtroLower)
+                    )
+                )
             );
         }
 
@@ -111,19 +118,18 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
-                                    {/*select con las direcciones o comparar con la direccion del cliente*/}
-                                    {/* {centro.domicilios.map((domicilio) => (  
-                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> 
-                                            {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
+                                    {centro.domicilio && (
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            {centro.domicilio.calle} {centro.domicilio.numero}, {centro.domicilio.localidad} - CP: {centro.domicilio.codigoPostal}
                                         </p>
-                                    ))} */}
-                                    {/* {centro.reseñas.length > 0 &&(
-                                            <p className="mt-2 text-yellow-500">
-                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                            </p>
-                                        )} */}
+                                    )}
+                                    {/* {centro.reseñas.length > 0 && (
+                                        <p className="mt-2 text-yellow-500">
+                                            {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                            } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
+                                        </p>
+                                    )} */}
                                 </div>
                             ))
                         )}
