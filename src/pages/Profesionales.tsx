@@ -1,11 +1,10 @@
 import Sidebar from "../components/SideBar";
-import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CustomTable } from "../components/CustomTable";
 import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 import { useEffect, useState } from "react";
 import AgregarProfesional from "../components/modals/AgregarProfesional";
-
+import NavbarPrestador from "../components/NavbarPrestador";
 const diasSemana: Record<string, string> = {
   MONDAY: "Lunes",
   TUESDAY: "Martes",
@@ -41,7 +40,7 @@ export default function Profesionales() {
 
   return (
     <>
-      <Navbar />
+      <NavbarPrestador />
       <div className="bg-[#FFFBFA] min-h-screen flex">
         <Sidebar />
         <main className="flex-1 px-6 py-21">

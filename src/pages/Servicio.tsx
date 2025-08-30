@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import NavbarPrestador from "../components/NavbarPrestador";
 import Sidebar from "../components/SideBar";
 import AgregarServicio from "../components/modals/AgregarServicio";
 import { ServicioService } from "../services/ServicioService";
@@ -10,8 +10,6 @@ import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import { TipoDeServicio as TipoDeServicioEnum } from "../types/enums/TipoDeServicio";
-import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
-import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalResponseDTO";
 
 const servicioService = new ServicioService();
 const profesionalService = new ProfesionalService();
@@ -23,8 +21,8 @@ export default function ServiciosPage() {
 
   useEffect(() => {
     // Adaptar ServicioResponseDTO a ServicioDTO
-    servicioService.getAll().then((respuestas: ServicioResponseDTO[]) => {
-      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: ServicioResponseDTO) => ({
+    servicioService.getAll().then((respuestas) => {
+      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: any) => ({
         id: servicio.id,
         tipoDeServicio: servicio.tipoDeServicio,
         duracion: servicio.duracion,
@@ -32,7 +30,7 @@ export default function ServiciosPage() {
         centroDeEsteticaDTO: {
           ...servicio.centroDeEstetica,
           servicios: servicio.centroDeEstetica?.servicios
-            ? servicio.centroDeEstetica.servicios.map((s: ServicioResponseDTO) => ({
+            ? servicio.centroDeEstetica.servicios.map((s: any) => ({
                 ...s,
                 centroDeEsteticaDTO: servicio.centroDeEstetica,
               }))
@@ -43,11 +41,11 @@ export default function ServiciosPage() {
     });
 
     // Adaptar ProfesionalResponseDTO a ProfesionalDTO
-    profesionalService.getAll().then((respuestas: ProfesionalResponseDTO[]) => {
-      const profesionalesAdaptados: ProfesionalDTO[] = respuestas.map((profesional: ProfesionalResponseDTO) => ({
+    profesionalService.getAll().then((respuestas) => {
+      const profesionalesAdaptados: ProfesionalDTO[] = respuestas.map((profesional: any) => ({
         ...profesional,
         servicios: profesional.servicios
-          ? profesional.servicios.map((servicio: ServicioResponseDTO) => ({
+          ? profesional.servicios.map((servicio: any) => ({
               ...servicio,
               centroDeEsteticaDTO: servicio.centroDeEstetica,
             }))
@@ -72,7 +70,7 @@ export default function ServiciosPage() {
 
   return (
     <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
-      <Navbar />
+      <NavbarPrestador />
       <div className="flex flex-1 overflow-hidden">
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
