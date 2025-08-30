@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 
@@ -72,6 +73,7 @@ const FieldBox = ({ label, name, type = "text", placeholder, disabled = false }:
 );
 
 const ConfigPrestador = () => {
+  const [showPwd, setShowPwd] = useState(false);
   const [tab, setTab] = useState<"prestador" | "centro">("prestador");
   const [loading, setLoading] = useState(true);
   const [uid, setUid] = useState<string>("");
@@ -190,7 +192,16 @@ const ConfigPrestador = () => {
                     <FieldBox label="Nombre" name="nombre" />
                     <FieldBox label="Apellido" name="apellido" />
                     <FieldBox label="Teléfono" name="telefono" />
+                    <div>
                     <FieldBox label="Email (usuario)" name="usuario.mail" type="email" disabled />
+                     <button
+                        type="button"
+                        onClick={() => setShowPwd(true)}
+                        className="text-sm text-[#C19BA8] hover:underline"
+                      >
+                        Cambiar contraseña
+                      </button>
+                      </div>
 
                     <div className="md:col-span-2 flex justify-end gap-2 mt-4">
                       <button
@@ -202,7 +213,9 @@ const ConfigPrestador = () => {
                       </button>
                     </div>
                   </Form>
-                )}
+
+                )
+                }
               </Formik>
             )}
 
@@ -241,11 +254,10 @@ const ConfigPrestador = () => {
       
             };
 
-if (centro?.id) {
-  await centroService.update(centro.id, payload);          // PUT /update/{id}
-} else {
-  await centroService.create(payload);                     // POST /
-}
+                    if (centro?.id) {
+                      await centroService.update(centro.id, payload);
+                      await centroService.create(payload);
+                    }
 
                     let saved: CentroEsteticaResponseDTO;
                     if (centro?.id) {
@@ -308,7 +320,11 @@ if (centro?.id) {
                   </Form>
                 )}
               </Formik>
-            )}
+              
+            )
+            }
+                                <CambiarPasswordModal isOpen={showPwd} onClose={() => setShowPwd(false)} />
+
           </div>
         </main>
       </div>
