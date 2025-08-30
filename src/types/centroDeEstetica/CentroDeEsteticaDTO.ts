@@ -4,16 +4,16 @@ import type { TurnoDTO } from '../turno/TurnoDTO';
 import type { ReseñaDTO } from '../reseña/ReseñaDTO';
 import type { ProfesionalDTO } from '../profesional/ProfesionalDTO';
 export interface CentroDeEsteticaDTO {
-  id: number;
+  id?: number;
   nombre: string;
   descripcion: string;
   imagen: string;
   docValido: string;
   cuit: number;
   domicilio: DomicilioDTO;
-  servicios: ServicioDTO[];
-  turnos: TurnoDTO[];
-  reseñas: ReseñaDTO[];
-  profesionales: ProfesionalDTO[];
+  servicios?: ServicioDTO[];
+  turnos?: TurnoDTO[];
+  reseñas?: ReseñaDTO[];
+  profesionales?: ProfesionalDTO[];
 }
 
