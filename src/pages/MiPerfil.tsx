@@ -9,6 +9,7 @@ import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { Rol } from "../types/enums/Rol";
 const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
+import Swal from "sweetalert2";
 
 
 
@@ -107,12 +108,24 @@ export default function MiPerfil() {
       setNombre(updated.nombre ?? "");
       setApellido(updated.apellido ?? "");
       setTelefono(updated.usuario?.mail ?? mailVista);
+    Swal.fire({
+    icon: "success",
+    title: "¡Éxito!",
+    text: "Los cambios se guardaron correctamente.",
+    confirmButtonColor: "#C19BA8",
+  });
     } catch (e: unknown) {
       if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
         setError((e as { message: string }).message);
       } else {
         setError("No se pudo guardar.");
       }
+    Swal.fire({
+    icon: "error",
+    title: "Error",
+    text: "No se pudo guardar los cambios.",
+    confirmButtonColor: "#C19BA8",
+  });
     } finally {
       setSaving(false);
     }
