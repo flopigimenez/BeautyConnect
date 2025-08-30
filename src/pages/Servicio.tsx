@@ -10,6 +10,8 @@ import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import { TipoDeServicio as TipoDeServicioEnum } from "../types/enums/TipoDeServicio";
+import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
+import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalResponseDTO";
 
 const servicioService = new ServicioService();
 const profesionalService = new ProfesionalService();
@@ -21,8 +23,8 @@ export default function ServiciosPage() {
 
   useEffect(() => {
     // Adaptar ServicioResponseDTO a ServicioDTO
-    servicioService.getAll().then((respuestas) => {
-      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: any) => ({
+    servicioService.getAll().then((respuestas: ServicioResponseDTO[]) => {
+      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: ServicioResponseDTO) => ({
         id: servicio.id,
         tipoDeServicio: servicio.tipoDeServicio,
         duracion: servicio.duracion,
@@ -30,7 +32,7 @@ export default function ServiciosPage() {
         centroDeEsteticaDTO: {
           ...servicio.centroDeEstetica,
           servicios: servicio.centroDeEstetica?.servicios
-            ? servicio.centroDeEstetica.servicios.map((s: any) => ({
+            ? servicio.centroDeEstetica.servicios.map((s: ServicioResponseDTO) => ({
                 ...s,
                 centroDeEsteticaDTO: servicio.centroDeEstetica,
               }))
@@ -41,11 +43,11 @@ export default function ServiciosPage() {
     });
 
     // Adaptar ProfesionalResponseDTO a ProfesionalDTO
-    profesionalService.getAll().then((respuestas) => {
-      const profesionalesAdaptados: ProfesionalDTO[] = respuestas.map((profesional: any) => ({
+    profesionalService.getAll().then((respuestas: ProfesionalResponseDTO[]) => {
+      const profesionalesAdaptados: ProfesionalDTO[] = respuestas.map((profesional: ProfesionalResponseDTO) => ({
         ...profesional,
         servicios: profesional.servicios
-          ? profesional.servicios.map((servicio: any) => ({
+          ? profesional.servicios.map((servicio: ServicioResponseDTO) => ({
               ...servicio,
               centroDeEsteticaDTO: servicio.centroDeEstetica,
             }))
