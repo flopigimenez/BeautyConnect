@@ -26,11 +26,11 @@ export function CustomTable<T extends object>({
     <div className="p-4">
       {title && (
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">{title}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">{title}</h2>
           {actionButton && (
             <button
               onClick={actionButton.onClick}
-              className="bg-[#C19BA8] px-4 py-2 rounded-full hover:bg-[#C4A1B5]"
+              className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
             >
               {actionButton.label}
             </button>

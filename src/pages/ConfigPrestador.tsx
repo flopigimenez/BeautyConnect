@@ -1,4 +1,3 @@
-// pages/ConfigPrestador.tsx
 import { useEffect, useMemo, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Formik, Form, Field, ErrorMessage } from "formik";
