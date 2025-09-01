@@ -6,5 +6,6 @@ export interface ServicioResponseDTO {
     tipoDeServicio: TipoDeServicio;
     precio: number;
     duracion: number; // Duración en minutos
-    CentroDeEstetica: CentroEsteticaResponseDTO | null;
+    CentroDeEstetica: CentroEsteticaResponseDTO;
+    servicioResponseDTO: ServicioResponseDTO;
     }

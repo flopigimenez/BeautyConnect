@@ -31,7 +31,7 @@ const Centros = () => {
     const [filtro, setFiltro] = useState<string>("");
 
     const filtrarCentros = () => {
-        let resultado = [...centros];
+        let resultado = [...centros.filter(centro => centro.estado === "ACEPTADO")];
 
         if (filtroAplicado.servicio) {
             resultado = resultado.filter(centro =>

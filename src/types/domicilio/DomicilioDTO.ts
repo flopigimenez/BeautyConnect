@@ -5,4 +5,4 @@ export interface DomicilioDTO {
     numero: number;
     codigoPostal: number;
     localidad: string;
-    }
+}

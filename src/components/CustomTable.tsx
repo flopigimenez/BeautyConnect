@@ -55,12 +55,12 @@ export function CustomTable<T extends object>({
             </div>
           )}
           {busqueda && (
-            <input
-              type="text"
-              onChange={(e) => busqueda.onChange(e.target.value)}              
-              placeholder={busqueda.placeholder || "Buscar..."}
-              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-            />
+              <input
+                type="text"
+                onChange={(e) => busqueda.onChange(e.target.value)}
+                placeholder={busqueda.placeholder || "Buscar..."}
+                className="w-80 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+              />
           )}
         </div>
       )}

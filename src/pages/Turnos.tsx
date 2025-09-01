@@ -6,6 +6,8 @@ import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalRes
 import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
 import { fetchCentros } from "../redux/store/centroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import Swal from "sweetalert2";
+import { AlertTitle } from "@mui/material";
 
 const Turnos = () => {
     const navigate = useNavigate();
@@ -78,9 +80,10 @@ const Turnos = () => {
                                 value={servicioSeleccionado ? servicioSeleccionado.id : ""}
                             >
                                 <option value="" disabled>Seleccionar servicio</option>
-                                {centroSeleccionado.servicios.map((s) => (
+                                { 
+                                centroSeleccionado.servicios.map((s) => (
                                     <option key={s.id} value={s.id}>
-                                        {s.tipoDeServicio}
+                                        {s.tipoDeServicio} - ${s.precio}
                                     </option>
                                 ))}
                             </select>

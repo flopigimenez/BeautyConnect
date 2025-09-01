@@ -125,7 +125,6 @@ const Registro = () => {
             });
 
             let data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
-
             dispatch(setUser(data));
 
             // completar datos registro

@@ -7,4 +7,5 @@ export interface ServicioDTO {
     duracion: number;
     precio: number; 
     centroDeEsteticaDTO: CentroDeEsteticaDTO;
+    servicioDTO: ServicioDTO;
 }

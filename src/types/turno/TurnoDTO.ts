@@ -5,8 +5,8 @@ import type { ServicioDTO } from "../servicio/ServicioDTO";
 
 export interface TurnoDTO{
     id: number;
-    fecha: Date;
-    hora: Date;
+    fecha: string;
+    hora: string;
     cliente: ClienteDTO;
     servicio: ServicioDTO;
     profesional: ProfesionalDTO;

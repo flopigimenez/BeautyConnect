@@ -11,10 +11,9 @@ import { RxCross2 } from "react-icons/rx";
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
-    const turnos = useAppSelector((state) => state.turnos.turnos);
+    const turnos = useAppSelector((state) => state.turnos.turnos ?? []);
     const user = useAppSelector((state) => state.user.user);
 
-    const [filtro, setFiltro] = useState("");
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
         servicio: null as TipoDeServicio | null,
@@ -28,6 +27,7 @@ export default function MisTurnos() {
     });
 
     const filtrarTurnos = () => {
+
         let turnosFiltrados = turnos ?? [];
 
         if (filtroAplicado.servicio) {
@@ -35,7 +35,12 @@ export default function MisTurnos() {
         }
 
         if (filtroAplicado.profesional) {
-            turnosFiltrados = turnosFiltrados.filter(turno => `${turno.profesionalResponseDTO.nombre} ${turno.profesionalResponseDTO.apellido}`.toLowerCase().includes(filtroAplicado.profesional!.toLowerCase()));
+            turnosFiltrados = turnosFiltrados.filter(turno => {
+                const nombre = turno.profesionalResponseDTO
+                    ? `${turno.profesionalResponseDTO.nombre} ${turno.profesionalResponseDTO.apellido}`.toLowerCase()
+                    : "";
+                return nombre.includes(filtroAplicado.profesional!.toLowerCase());
+            });
         }
 
         if (filtroAplicado.estado) {
@@ -46,8 +51,9 @@ export default function MisTurnos() {
     }
 
     useEffect(() => {
-        if (user && user.usuario.rol === "CLIENTE") {
+        if (user?.usuario?.rol === "CLIENTE" && user) {
             dispatch(fetchTurnosCliente(user.id));
+            console.log(user.nombre);
         }
     }, [dispatch, user]);
 
@@ -61,11 +67,38 @@ export default function MisTurnos() {
                         columns={[
                             { header: "Fecha", accessor: "fecha" },
                             { header: "Hora", accessor: "hora" },
-                            { header: "Servicio", accessor: "servicioResponseDTO", render: row => row.servicioResponseDTO.tipoDeServicio },
-                            { header: "Profesional", accessor: "profesionalResponseDTO", render: row => `${row.profesionalResponseDTO.nombre} ${row.profesionalResponseDTO.apellido}` },
-                            { header: "Estado", accessor: "estado" },
+                            {
+                                header: "Servicio", accessor: "servicioResponseDTO", render: row => row.servicioResponseDTO
+                                    ? row.servicioResponseDTO.tipoDeServicio.toLowerCase()
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ')
+                                    : "—"
+                            },
+                            
+                            {
+                                header: "Profesional", accessor: "profesionalResponseDTO", render: row => row.profesionalResponseDTO
+                                    ? `${row.profesionalResponseDTO.nombre} ${row.profesionalResponseDTO.apellido}`
+                                    : "—"
+                            },
+
+                            {
+                                header: "Estado", accessor: "estado", render: row => {
+                                    switch (row.estado) {
+                                        case "PENDIENTE":
+                                            return "Pendiente";
+                                        case "ACEPTADO":
+                                            return "Aceptado";
+                                        case "RECHAZADO":
+                                            return "Rechazado";
+                                        default:
+                                            return row.estado;
+
+                                    }
+                                }
+                            },
                         ]}
-                        data={turnos ?? []}
+                        data={filtrarTurnos()}
                         filtros={{
                             onClick: () => setModalFiltro(true),
                         }}
@@ -88,16 +121,20 @@ export default function MisTurnos() {
                             <label className="block text-md font-primary mb-2 font-bold pl-2">Tipo de Servicio</label>
                             <select
                                 value={filtroTemporal.servicio ?? ""}
-                                onChange={(e) => setFiltroTemporal(prev => ({ ...prev, servicio: e.target.value as TipoDeServicio || null }))}
+                                onChange={(e) => setFiltroTemporal(prev => ({
+                                    ...prev,
+                                    servicio: (e.target.value || null) as TipoDeServicio | null
+                                }))}
+
                                 className="w-full border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
                             >
                                 <option value="">Todos</option>
                                 {Object.values(TipoDeServicio).map((tipo) => (
                                     <option key={tipo} value={tipo}>
                                         {tipo.toLowerCase()
-                                        .split('_')
-                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ')}
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}
                                     </option>
                                 ))}
                             </select>

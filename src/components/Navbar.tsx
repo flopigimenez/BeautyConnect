@@ -47,7 +47,7 @@ const Navbar = () => {
                   <Link to="/Miperfil" className="text-sm text-gray-700 font-primary">
                     Mi perfil
                   </Link>
-                  <Link to="/MisTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
+                  <Link to="/misTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
                     Turnos
                   </Link>
                 </>

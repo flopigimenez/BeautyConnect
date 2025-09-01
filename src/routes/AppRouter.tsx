@@ -12,6 +12,7 @@ import Clientes from "../pages/Clientes";
 import  ServiciosPage from "../pages/Servicio";
 import Profesionales from "../pages/Profesionales";
 import MisTurnos from "../pages/MisTurnos";
+import SolicitudDeSalones from "../pages/SolicitudDeSalones";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -34,6 +35,7 @@ export const AppRouter = () => {
         <Route path="/servicio" element={<ServiciosPage />} />
         <Route path="/profesionales" element={<Profesionales />} />
         <Route path="/misTurnos" element={<MisTurnos/>}/>
+        <Route path="/solicitudDeSalones" element={<SolicitudDeSalones/>}/>
       </Routes>
     </>
   );
