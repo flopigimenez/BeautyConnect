@@ -1,4 +1,3 @@
-import type { CentroDeEsteticaDTO } from "../centroDeEstetica/CentroDeEsteticaDTO";
 
 export interface DomicilioDTO {
     id: number;
@@ -6,5 +5,4 @@ export interface DomicilioDTO {
     numero: number;
     codigoPostal: number;
     localidad: string;
-    centroDeEstetica: CentroDeEsteticaDTO;
     }
