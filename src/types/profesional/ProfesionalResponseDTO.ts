@@ -1,4 +1,3 @@
-import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroEsteticaResponseDTO";
 import type { DisponibilidadResponseDTO } from "../disponibilidad/DisponibilidadResponseDTO";
 import type { TipoDeServicio } from "../enums/TipoDeServicio";
 
@@ -8,5 +7,4 @@ export interface ProfesionalResponseDTO {
     apellido: string;
     disponibilidades: DisponibilidadResponseDTO[];
     servicios: TipoDeServicio[];
-    centroDeEstetica: CentroEsteticaResponseDTO;
 }

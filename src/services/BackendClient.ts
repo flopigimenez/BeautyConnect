@@ -28,8 +28,27 @@ export abstract class BackendClient<RequestType, ResponseType> extends AbstractB
       },
       body: JSON.stringify(data),
     });
-    const newData = await response.json();
-    return newData as ResponseType;
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(errorText || `Error HTTP ${response.status}`);
+    }
+
+    // Manejo seguro de respuesta: puede venir vac o no-JSON (201/204)
+    const contentType = response.headers.get("content-type") || "";
+    try {
+      if (contentType.includes("application/json")) {
+        return (await response.json()) as ResponseType;
+      }
+      const text = await response.text();
+      if (text) {
+        return JSON.parse(text) as ResponseType;
+      }
+    } catch (_) {
+      // Ignorar parseo fallido y continuar con fallback
+    }
+    // Fallback: devolver el mismo payload tipado como respuesta
+    return (data as unknown) as ResponseType;
   }
 
   async put(id: number, data: RequestType): Promise<ResponseType> {

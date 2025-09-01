@@ -2,12 +2,17 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import * as Yup from "yup";
 import type { ProfesionalDTO } from "../../types/profesional/ProfesionalDTO";
 import { useMemo } from "react";
-import { TipoDeServicio } from "../../types/enums/TipoDeServicio"; // ajustá el path si difiere
+import { TipoDeServicio } from "../../types/enums/TipoDeServicio"; 
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  onSave: (nuevo: ProfesionalDTO) => void;
+  /** (Opcional) lo usabas en modo alta, ya no es necesario si usás onSubmit del padre */
+  onSave?: (nuevo: ProfesionalDTO) => void;
+  /** Handler que el padre define: en add hace POST; en edit hace PUT */
+  onSubmit: (values: ProfesionalDTO) => Promise<void> | void;
+  mode?: "add" | "edit";
+  initialValues?: ProfesionalDTO;
 };
 
 const DIAS = [
@@ -51,35 +56,54 @@ const schema = Yup.object({
 });
 
 const toHHmmss = (t: string) => (t?.length === 5 ? `${t}:00` : t || "");
+const fromHHmmss = (t?: string) => {
+  if (!t) return "";
+  // acepta "HH:mm:ss" o "HH:mm"
+  if (t.length >= 5) return t.slice(0, 5);
+  return t;
+};
 
-export default function AgregarProfesional({ open, onClose, onSave }: Props) {
+export default function AgregarProfesional({
+  open,
+  onClose,
+  onSubmit,
+  mode = "add",
+  initialValues,
+}: Props) {
   if (!open) return null;
 
-  // Opciones de servicios a partir del enum
-  const serviciosOptions = useMemo(() => {
-    // Para string enums: Object.values devuelve los valores directamente.
-    return Object.values(TipoDeServicio) as string[];
-  }, []);
+  // Normalizamos initialValues para edición (horarios "HH:mm")
+  const normalizedInitial: ProfesionalDTO =
+    initialValues
+      ? {
+          ...initialValues,
+          servicios: (initialValues.servicios ?? []) as any,
+          disponibilidades: (initialValues.disponibilidades ?? []).map((d: any) => ({
+            ...d,
+            horaInicio: fromHHmmss(d?.horaInicio),
+            horaFinalizacion: fromHHmmss(d?.horaFinalizacion),
+          })) as any,
+        }
+      : {
+          nombre: "",
+          apellido: "",
+          servicios: [],
+          disponibilidades: [{ dia: "MONDAY", horaInicio: "09:00", horaFinalizacion: "18:00" }],
+        };
 
-  const crearProfesional = async (payload: Partial<ProfesionalDTO>) => {
-    const res = await fetch("http://localhost:8080/api/profesional/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(text || "No se pudo crear el profesional");
-    }
-    return (await res.json()) as ProfesionalDTO;
-  };
+  const titulo = mode === "add" ? "Agregar profesional" : "Editar profesional";
+  const submitText = mode === "add" ? "Guardar" : "Actualizar";
+
+  const serviciosOptions = useMemo(() => {
+    return Object.values(TipoDeServicio) as string[]; // enum → string[]
+  }, []);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative w-full max-w-2xl mx-4 rounded-2xl bg-white shadow-xl border border-[#E9DDE1]">
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E9DDE1]">
-          <h3 className="text-lg font-semibold text-[#3c2e35]">Agregar profesional</h3>
+          <h3 className="text-lg font-semibold text-[#3c2e35]">{titulo}</h3>
           <button
             onClick={onClose}
             className="px-3 py-1 rounded-full hover:bg-[#F7EFF1] text-[#3c2e35]"
@@ -91,34 +115,27 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
 
         <div className="p-5">
           <Formik
-            initialValues={{
-              nombre: "",
-              apellido: "",
-              servicios: [] as string[],
-              disponibilidades: [
-                { dia: "MONDAY", horaInicio: "09:00", horaFinalizacion: "18:00" },
-              ],
-            }}
+            enableReinitialize
+            initialValues={normalizedInitial}
             validationSchema={schema}
-            onSubmit={async (values, { resetForm, setSubmitting, setStatus }) => {
+            onSubmit={async (values, { setSubmitting, setStatus }) => {
               setStatus(undefined);
               try {
-                const payload: Partial<ProfesionalDTO> = {
+                const payload: ProfesionalDTO = {
                   nombre: values.nombre.trim(),
                   apellido: values.apellido.trim(),
                   servicios: values.servicios as any, // string[] (enum) → TipoDeServicio[]
-                  disponibilidades: values.disponibilidades.map((d) => ({
+                  disponibilidades: values.disponibilidades.map((d: any) => ({
                     dia: d.dia,
                     horaInicio: toHHmmss(d.horaInicio),
                     horaFinalizacion: toHHmmss(d.horaFinalizacion),
                   })) as any,
                 };
-                const created = await crearProfesional(payload);
-                onSave(created);
-                resetForm();
+                // delega en el padre: en add hará POST; en edit hará PUT
+                await onSubmit(payload);
                 onClose();
               } catch (e: any) {
-                setStatus(e?.message || "Error al crear el profesional");
+                setStatus(e?.message || "Error al guardar el profesional");
               } finally {
                 setSubmitting(false);
               }
@@ -165,7 +182,7 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
                     {({ push, remove }) => (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                         {serviciosOptions.map((srv) => {
-                          const checked = values.servicios.includes(srv);
+                          const checked = (values.servicios as string[]).includes(srv);
                           const label = srv
                             .toString()
                             .toLowerCase()
@@ -184,9 +201,10 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
                                 className="accent-[#C19BA8]"
                                 checked={checked}
                                 onChange={(e) => {
-                                  if (e.target.checked) push(srv);
-                                  else {
-                                    const idx = values.servicios.indexOf(srv);
+                                  if (e.target.checked) {
+                                    push(srv);
+                                  } else {
+                                    const idx = (values.servicios as string[]).indexOf(srv);
                                     if (idx > -1) remove(idx);
                                   }
                                 }}
@@ -223,7 +241,7 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
                   <FieldArray name="disponibilidades">
                     {({ remove }) => (
                       <div className="mt-2 space-y-2">
-                        {values.disponibilidades.map((_, idx) => (
+                        {values.disponibilidades.map((_: any, idx: number) => (
                           <div
                             key={idx}
                             className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end rounded-xl border border-[#E9DDE1] p-3"
@@ -303,7 +321,7 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
                     disabled={isSubmitting}
                     className="rounded-full px-4 py-2 bg-[#C19BA8] text-white hover:bg-[#b78fa0] disabled:opacity-60"
                   >
-                    {isSubmitting ? "Guardando..." : "Guardar"}
+                    {isSubmitting ? "Guardando..." : submitText}
                   </button>
                   <button
                     type="button"
@@ -321,3 +339,4 @@ export default function AgregarProfesional({ open, onClose, onSave }: Props) {
     </div>
   );
 }
+

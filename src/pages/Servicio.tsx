@@ -6,37 +6,40 @@ import Sidebar from "../components/SideBar";
 import AgregarServicio from "../components/modals/AgregarServicio";
 import { ServicioService } from "../services/ServicioService";
 import { ProfesionalService } from "../services/ProfesionalService";
+import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import { TipoDeServicio as TipoDeServicioEnum } from "../types/enums/TipoDeServicio";
+import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import { useAppSelector } from "../redux/store/hooks";
+import type { RootState } from "../redux/store";
 
 const servicioService = new ServicioService();
 const profesionalService = new ProfesionalService();
+const centroService = new CentroDeEsteticaService();
 
 export default function ServiciosPage() {
   const [servicios, setServicios] = useState<ServicioDTO[]>([]);
   const [profesionales, setProfesionales] = useState<ProfesionalDTO[]>([]);
   const [openAdd, setOpenAdd] = useState(false);
+  const [centroId, setCentroId] = useState<number | null>(null);
+
+  const user = useAppSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
-    // Adaptar ServicioResponseDTO a ServicioDTO
+    // Adaptar ServicioResponseDTO a ServicioDTO, respetando las claves del backend
     servicioService.getAll().then((respuestas) => {
-      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: any) => ({
-        id: servicio.id,
-        tipoDeServicio: servicio.tipoDeServicio,
-        duracion: servicio.duracion,
-        precio: servicio.precio,
-        centroDeEsteticaDTO: {
-          ...servicio.centroDeEstetica,
-          servicios: servicio.centroDeEstetica?.servicios
-            ? servicio.centroDeEstetica.servicios.map((s: any) => ({
-                ...s,
-                centroDeEsteticaDTO: servicio.centroDeEstetica,
-              }))
-            : [],
-        } as CentroDeEsteticaDTO,
-      }));
+      const serviciosAdaptados: ServicioDTO[] = (respuestas as ServicioResponseDTO[]).map(
+        (servicio) => ({
+          id: servicio.id,
+          tipoDeServicio: servicio.tipoDeServicio,
+          duracion: servicio.duracion,
+          precio: servicio.precio,
+          centroDeEsteticaDTO: mapCentro(servicio.CentroDeEstetica),
+        })
+      );
       setServicios(serviciosAdaptados);
     });
 
@@ -55,6 +58,85 @@ export default function ServiciosPage() {
       setProfesionales(profesionalesAdaptados);
     });
   }, []);
+
+  // Detectar centro del prestador logueado por UID
+  useEffect(() => {
+    const uid = (user as any)?.usuario?.uid as string | undefined;
+    if (!uid) return;
+    centroService
+      .getByPrestadorUid(uid)
+      .then((centro) => {
+        if (centro) setCentroId(centro.id);
+      })
+      .catch(() => setCentroId(null));
+  }, [user]);
+
+  function mapCentro(centro: CentroEsteticaResponseDTO | null): CentroDeEsteticaDTO {
+    if (!centro) {
+      // En caso de que el backend retorne null, devolvemos un objeto minimo coherente
+      return {
+        id: 0,
+        nombre: "",
+        descripcion: "",
+        imagen: "",
+        docValido: "",
+        cuit: 0,
+        domicilio: { calle: "", numero: 0, codigoPostal: 0, localidad: "" },
+      } as CentroDeEsteticaDTO;
+    }
+    return {
+      id: centro.id,
+      nombre: centro.nombre,
+      descripcion: centro.descripcion,
+      imagen: centro.imagen,
+      docValido: centro.docValido,
+      cuit: centro.cuit,
+      domicilio: centro.domicilio,
+    } as CentroDeEsteticaDTO;
+  }
+
+  const handleSaveWithCentro = async (nuevo: ServicioDTO) => {
+    try {
+      let cid = centroId;
+      // Si aún no tenemos centroId, inténtalo resolver on-demand
+      if (!cid) {
+        const uid = (user as any)?.usuario?.uid as string | undefined;
+        if (uid) {
+          const centro = await centroService.getByPrestadorUid(uid);
+          if (centro) {
+            cid = centro.id;
+            setCentroId(centro.id);
+          }
+        }
+      }
+
+      if (!cid) throw new Error("No se pudo determinar el centro del prestador");
+
+      // Crear servicio usando el endpoint /api/servicio/save con clave CentroDeEstetica.id
+      await servicioService.create(
+        {
+          tipoDeServicio: nuevo.tipoDeServicio,
+          duracion: nuevo.duracion,
+          precio: nuevo.precio,
+        },
+        cid
+      );
+
+      const respuestas = await servicioService.getAll();
+      const serviciosAdaptados: ServicioDTO[] = (respuestas as ServicioResponseDTO[]).map(
+        (servicio) => ({
+          id: servicio.id,
+          tipoDeServicio: servicio.tipoDeServicio,
+          duracion: servicio.duracion,
+          precio: servicio.precio,
+          centroDeEsteticaDTO: mapCentro(servicio.CentroDeEstetica),
+        })
+      );
+      setServicios(serviciosAdaptados);
+    } catch (error) {
+      console.error("Error al guardar el servicio:", error);
+    }
+  };
 
   const handleSave = async (nuevo: ServicioDTO) => {
     try {
@@ -105,7 +187,7 @@ export default function ServiciosPage() {
       <AgregarServicio
         open={openAdd}
         onClose={() => setOpenAdd(false)}
-        onSave={handleSave}
+        onSave={handleSaveWithCentro}
         profesionales={profesionales}
         tiposDeServicio={tiposDeServicio}
       />
