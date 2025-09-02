@@ -6,12 +6,18 @@ import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalRes
 import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
 import { fetchCentros } from "../redux/store/centroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs, { Dayjs } from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import logo from '../assets/logo.png';
 
 const Turnos = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const dispatch = useAppDispatch();
     const { centros, loading, error } = useAppSelector((state) => state.centros);
+    const [value, setValue] = useState<Dayjs | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentros());
@@ -19,7 +25,10 @@ const Turnos = () => {
 
     // Busca el centro según el id
     const centroSeleccionado = centros.find((c) => c.id === Number(id));
-    if (!centroSeleccionado) return <div>Centro no encontrado</div>;
+    if (!centroSeleccionado) return <div className="flex justify-center items-center pt-30 flex-col">
+        <p className="text-2xl font-primary font-bold text-tertiary">Centro no encontrado</p>
+        <img src={logo} alt="" />
+    </div>;
 
     const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioResponseDTO | null>(null);
     const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalResponseDTO | null>(null);
@@ -81,7 +90,10 @@ const Turnos = () => {
                                 <option value="" disabled>Seleccionar servicio</option>
                                 {centroSeleccionado.servicios.map((s) => (
                                     <option key={s.id} value={s.id}>
-                                        {s.tipoDeServicio}
+                                        {s.tipoDeServicio.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')} - ${s.precio}
                                     </option>
                                 ))}
                             </select>
@@ -110,7 +122,7 @@ const Turnos = () => {
                     {pasos === 2 && (
                         <>
                             <h2 className="mt-13 font-secondary text-l font-bold"> Selecciona la fecha </h2>
-                            <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                            {/* <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
                                 onChange={(e) => {
                                     const fecha = new Date(e.target.value);
                                     setFechaSeleccionada(fecha);
@@ -130,7 +142,30 @@ const Turnos = () => {
                                         </option>
                                     )
                                 )}
-                            </select>
+                            </select> */}
+
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DatePicker
+                                    label="Elegí una fecha"
+                                    value={value}
+                                    onChange={(newValue) => { setValue(newValue); setFechaSeleccionada(newValue ? newValue.toDate() : null); }}
+                                    shouldDisableDate={(date) => {
+                                        // Ejemplo 1: no dejar elegir sábados ni domingos
+                                        const day = date.day();
+                                        if (day === 0 || day === 6) return true;
+
+                                        // Ejemplo 2: no dejar elegir fechas anteriores a hoy
+                                        if (date.isBefore(dayjs(), "day")) return true;
+
+                                        // Ejemplo 3: bloquear días específicos
+                                        const blocked = fechasDisponibles.map((d) => d.fecha.toISOString().split("T")[0]);
+                                        if (!blocked.includes(date.format("YYYY-MM-DD"))) return true;
+
+                                        return false;
+                                    }}
+                                    className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                                />
+                            </LocalizationProvider>
 
                             <h2 className="mt-13 font-secondary text-l font-bold"> Selecciona la hora </h2>
                             <select className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
@@ -169,7 +204,7 @@ const Turnos = () => {
                         <button className="rounded-full bg-secondary px-33 py-2 font-primary"
                             onClick={() => {
                                 if (pasos === 1) {
-                                    if (servicioSeleccionado && profesionalSeleccionado) {
+                                    if (servicioSeleccionado) {
                                         setPasos(2);
                                     } else {
                                         alert(
