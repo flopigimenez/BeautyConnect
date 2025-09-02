@@ -1,6 +1,5 @@
 import type { DomicilioDTO } from '../domicilio/DomicilioDTO';
 import type { ServicioDTO } from '../servicio/ServicioDTO';
-import type { TurnoDTO } from '../turno/TurnoDTO';
 import type { ReseñaDTO } from '../reseña/ReseñaDTO';
 import type { ProfesionalDTO } from '../profesional/ProfesionalDTO';
 export interface CentroDeEsteticaDTO {
@@ -12,7 +11,6 @@ export interface CentroDeEsteticaDTO {
   cuit: number;
   domicilio: DomicilioDTO;
   servicios: ServicioDTO[];
-  turnos: TurnoDTO[];
   reseñas: ReseñaDTO[];
   profesionales: ProfesionalDTO[];
 }
