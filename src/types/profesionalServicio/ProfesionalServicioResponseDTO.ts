@@ -1,11 +1,11 @@
 import type { DisponibilidadResponseDTO } from "../disponibilidad/DisponibilidadResponseDTO";
-import type { ProfesionalResponseDTO } from "../profesional/ProfesionalResponseDTO";
-import type { ServicioResponseDTO } from "../servicio/ServicioResponseDTO";
+import type { ProfesionalResponseDTOSimple } from "../profesional/ProfesionalResponseDTOSimple";
+import type { ServicioResponseDTOSimple } from "../servicio/ServicioResponseDTOSimple";
 
 export interface ProfesionalServicioResponseDTO {
     id: number;
     duracion: number; 
-    servicioDTO: ServicioResponseDTO; 
-    profesionalDTO: ProfesionalResponseDTO; 
-    disponibilidadDTO: DisponibilidadResponseDTO; 
+    servicio: ServicioResponseDTOSimple; 
+    profesional: ProfesionalResponseDTOSimple; 
+    disponibilidades: DisponibilidadResponseDTO[]; 
 }

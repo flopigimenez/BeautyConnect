@@ -1,10 +1,6 @@
-import type { ClienteDTO } from "../cliente/ClienteDTO";
-import type { Estado } from "../enums/Estado";
-
 export interface TurnoDTO{
-    id: number;
-    fecha: string;
+    fecha: Date;
     hora: string;
-    cliente: ClienteDTO;
-    estado: Estado;
+    cliente: number;
+    profesionalServicio: number;
 }

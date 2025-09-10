@@ -1,6 +1,7 @@
 export interface DisponibilidadResponseDTO {
     id: number;
-    dia: string; // Ejemplo: "Lunes", "Martes", etc.
+    fecha: string; // Formato "YYYY-MM-DD"
     horaInicio: string; // Formato "HH:mm"
-    horaFinlizacion: string; // Formato "HH:mm"
+    horaFinalizacion: string; // Formato "HH:mm"
+    disponible: boolean;
 }

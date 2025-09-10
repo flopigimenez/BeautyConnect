@@ -4,5 +4,5 @@ export interface ProfesionalDTO {
     id: number;
     nombre: string;
     apellido: string;
-    centroDeEstitica: CentroDeEsteticaDTO
+    centroDeEstitica: CentroDeEsteticaDTO;
 }
