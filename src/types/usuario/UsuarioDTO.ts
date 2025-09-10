@@ -2,7 +2,7 @@ import type { Rol } from "../enums/Rol";
 
 export interface UsuarioDTO{
     mail: string;
-    contraseña: string;
+    contrasenia: string;
     rol: Rol;
     uid: string;
 }

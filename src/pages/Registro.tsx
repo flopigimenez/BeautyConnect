@@ -8,7 +8,7 @@ import type { UsuarioDTO } from "../types/usuario/UsuarioDTO";
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
 import { Rol } from "../types/enums/Rol";
 import { FcGoogle } from "react-icons/fc";
-import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { useAppDispatch } from "../redux/store/hooks";
 import { setUser } from "../redux/store/authSlice";
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
@@ -17,7 +17,7 @@ const Registro = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [prestador, setPrestador] = useState<boolean>();
-    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contraseña: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE, uid: "" });
+    const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contrasenia: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE, uid: "" });
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: "", usuario: usuario });
     const auth = getAuth(app);
@@ -33,7 +33,7 @@ const Registro = () => {
             !registro.nombre ||
             !registro.telefono ||
             !usuario.mail ||
-            !usuario.contraseña ||
+            !usuario.contrasenia ||
             !confirmPassword
         ) {
             alert("Por favor, completa todos los campos.");
@@ -46,17 +46,17 @@ const Registro = () => {
         }
 
         // Validación de contraseñas iguales
-        if (usuario.contraseña !== confirmPassword) {
+        if (usuario.contrasenia !== confirmPassword) {
             setError("Las contraseñas no coinciden.");
             return;
         }
 
         try {
-            const result = await createUserWithEmailAndPassword(auth, usuario.mail, usuario.contraseña);
+            const result = await createUserWithEmailAndPassword(auth, usuario.mail, usuario.contrasenia);
             const user = result.user;
             const idToken = await user.getIdToken();
 
-            const resp = await fetch("http://localhost:8080/api/auth/register", {
+            const resp = await fetch("http://localhost:8080/api/usuario/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -104,7 +104,7 @@ const Registro = () => {
             const user = result.user;
             const idToken = await user.getIdToken();
 
-            const resp = await fetch("http://localhost:8080/api/auth/google", {
+            const resp = await fetch("http://localhost:8080/api/usuario/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -195,7 +195,7 @@ const Registro = () => {
                                 id="password"
                                 className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                 placeholder="Ingresa tu contraseña"
-                                value={usuario.contraseña}
+                                value={usuario.contrasenia}
                                 onChange={(e) => setUsuario(prev => ({ ...prev, contraseña: e.target.value }))}
                                 required
                             />

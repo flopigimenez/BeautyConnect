@@ -3,6 +3,7 @@ import reseñaReducer from "../redux/store/reseñaSlice"
 import centroReducer from "../redux/store/centroSlice"
 import userReducer from '../redux/store/authSlice'
 import clienteReducer from '../redux/store/clienteSlice'
+import turnoReducer from '../redux/store/turnoSlice'
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     clientes: clienteReducer,
     centros: centroReducer,
     reseñas: reseñaReducer,
+    turno: turnoReducer,
   },
 })
 
