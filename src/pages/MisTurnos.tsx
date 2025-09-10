@@ -4,7 +4,7 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { TurnoResponseDTO } from "../types/turno/TurnoResponseDTO";
-import { fetchTurnosCliente } from "../redux/store/turnosSlice";
+import { fetchTurnosCliente } from "../redux/store/misTurnosSlice";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { Estado } from "../types/enums/Estado";
 import { RxCross2 } from "react-icons/rx";
