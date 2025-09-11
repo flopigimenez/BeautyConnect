@@ -1,3 +1,4 @@
+import type { DomicilioDTO } from "../domicilio/DomicilioDTO";
 import type { UsuarioDTO } from "../usuario/UsuarioDTO";
 
 export interface ClienteDTO {
@@ -5,4 +6,5 @@ export interface ClienteDTO {
     apellido: string;
     telefono: string;
     usuario: UsuarioDTO;
+    domicilio: DomicilioDTO;
 }

@@ -1,13 +1,8 @@
 import { useState } from "react"
-import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
-import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
-import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 
 const RegistroDeSalon = () => {
-    const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({ id: 0, nombre: "", descripcion: "", imagen: "", docValido: "", cuit: parseInt(""), domicilios: [], servicios: [], turnos: [], reseñas: [] });
-    const [direcciones, setDirecciones] = useState<DomicilioDTO>({ id: parseInt(""), calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
-    const [servicios, setServicios] = useState<ServicioDTO>();
+    const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({ id: 0, nombre: "", descripcion: "", imagen: "", docValido: "", cuit: parseInt(""), domicilio_id: 0 , servicios: [], reseñas: [] });
 
     return (
         <>

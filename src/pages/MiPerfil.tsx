@@ -86,7 +86,6 @@ export default function MiPerfil() {
         mail: mailVista || user.email || "",
         uid: user.uid,
         rol: cliente?.usuario?.rol ?? DEFAULT_ROL,
-        
         contrasenia: cliente?.usuario?.contrasenia ?? "",
       },
     };

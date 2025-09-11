@@ -9,15 +9,16 @@ import { useNavigate } from "react-router-dom";
 
 const RegistroGoogle = () => {
     const navigate = useNavigate();
-    const { user, loading, error } = useAppSelector((state) => state.user);
+    const { user, error } = useAppSelector((state) => state.user);
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({
         nombre: user?.nombre ?? "",
         apellido: user?.apellido ?? "",
         telefono: user?.telefono ?? "",
         usuario: {
             mail: user?.usuario.mail ?? "",
-            contraseña: user?.usuario.contraseña ?? "",
+            contrasenia: user?.usuario.contrasenia ?? "",
             rol: user?.usuario.rol ?? Rol.CLIENTE,
+            uid: user?.usuario.uid ?? "",
         },
     });
     const dispatch = useAppDispatch();

@@ -1,4 +1,4 @@
-import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 export interface ProfesionalResponseDTO {
     id: number;

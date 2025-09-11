@@ -10,7 +10,7 @@ import logo from '../assets/logo.png';
 import { Link } from 'react-router-dom';
 import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
 import { useEffect, useState } from 'react';
-import type { CentroEsteticaResponseDTO } from '../types/centroDeEstetica/CentroEsteticaResponseDTO';
+import type { CentroEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
 
 // const categorias = [
 //   { nombre: 'Makeup artist', imagen: carrousel_1 },

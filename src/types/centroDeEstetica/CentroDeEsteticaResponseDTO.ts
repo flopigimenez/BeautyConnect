@@ -1,9 +1,9 @@
 import type { DomicilioResponseDTO } from '../domicilio/DomicilioResponseDTO';
-import type { ServicioResponseDTO } from '../servicio/ServicioResponseDTO';
-import type { ReseñaResponseDTO } from '../reseña/ReseñaResponseDTO';
 import { Estado } from '../enums/Estado';
-import type { ProfesionalResponseDTO } from '../profesional/ProfesionalResponseDTO';
 import type { HorarioCentroResponseDTO } from '../horarioCentro/HorarioCentroResponseDTO';
+import type { ServicioResponseDTOSimple } from '../servicio/ServicioResponseDTOSimple';
+import type { ProfesionalResponseDTOSimple } from '../profesional/ProfesionalResponseDTOSimple';
+import type { ReseniaResponseDTOSimple } from '../resenia/ReseniaResponseDTOSimple';
 
 export interface CentroEsteticaResponseDTO {
     id: number;
@@ -12,10 +12,10 @@ export interface CentroEsteticaResponseDTO {
     imagen: string;
     docValido: string;
     cuit: number;
-    domicilio: DomicilioResponseDTO;
-    servicios: ServicioResponseDTO[];
-    reseñas: ReseñaResponseDTO[];
     estado: Estado;
-    profesionales: ProfesionalResponseDTO[];
+    domicilio: DomicilioResponseDTO;
+    servicios: ServicioResponseDTOSimple[];
+    resenias: ReseniaResponseDTOSimple[];
+    profesionales: ProfesionalResponseDTOSimple[];
     horarioCentro: HorarioCentroResponseDTO;
 }
