@@ -56,7 +56,7 @@ const Centros = () => {
             resultado = resultado.filter(centro =>
                 centro.nombre.toLowerCase().includes(filtroLower) ||
                 centro.domicilio.calle.includes(filtroLower) ||
-                centro.domicilio.localidad.includes(filtroLower) 
+                centro.domicilio.localidad.includes(filtroLower)
             );
         }
 
@@ -128,13 +128,25 @@ const Centros = () => {
                                             {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
                                         </p>
                                     ))} */}
-                                    {/* {centro.reseñas.length > 0 &&(
-                                            <p className="mt-2 text-yellow-500">
-                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                            </p>
-                                        )} */}
+                                    {Array.isArray(centro.reseñas) && centro.reseñas.length > 0 && (
+                                        <p className="mt-2 text-yellow-500">
+                                             {(() => {
+                                                const sumCalificaciones = centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0);
+                                                const promedio = sumCalificaciones / centro.reseñas.length;
+                                                console.log("Centro:", centro.nombre);
+                                                console.log(promedio);
+                                                return (
+                                                    "★".repeat(Math.round(promedio)) +
+                                                    "☆".repeat(5 - Math.round(promedio)) +
+                                                    ` (${promedio.toFixed(1)})`
+                                                );
+
+                                            })()}
+                                            {/* {"★".repeat(Math.round(centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length))
+                                                + "☆".repeat(5 - Math.round(centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length))
+                                            } ({centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length}) */}
+                                        </p>
+                                    )}
                                 </div>
                             ))
                         )}
