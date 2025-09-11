@@ -11,10 +11,9 @@ import { RxCross2 } from "react-icons/rx";
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
-    const turnos = useAppSelector((state) => state.turnos.turnos);
+    const misTurnos = useAppSelector((state) => state.misTurnos.misTurnos);
     const user = useAppSelector((state) => state.user.user);
 
-    const [filtro, setFiltro] = useState("");
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
         servicio: null as TipoDeServicio | null,
@@ -27,22 +26,27 @@ export default function MisTurnos() {
         estado: null as Estado | null,
     });
 
-    const filtrarTurnos = () => {
-        let turnosFiltrados = turnos ?? [];
+    let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
 
-        if (filtroAplicado.servicio) {
-            turnosFiltrados = turnosFiltrados.filter(turno => turno.servicioResponseDTO.tipoDeServicio === filtroAplicado.servicio);
-        }
+    if (filtroAplicado.servicio) {
+        turnosFiltrados = turnosFiltrados.filter(
+            turno => turno.profesionalServicio.servicio.tipoDeServicio === filtroAplicado.servicio
+        );
+    }
 
-        if (filtroAplicado.profesional) {
-            turnosFiltrados = turnosFiltrados.filter(turno => `${turno.profesionalResponseDTO.nombre} ${turno.profesionalResponseDTO.apellido}`.toLowerCase().includes(filtroAplicado.profesional!.toLowerCase()));
-        }
+    if (filtroAplicado.profesional) {
+        turnosFiltrados = turnosFiltrados.filter(
+            turno =>
+                `${turno.profesionalServicio.profesional.nombre} ${turno.profesionalServicio.profesional.apellido}`
+                    .toLowerCase()
+                    .includes(filtroAplicado.profesional?.toLocaleLowerCase() as string)
+        );
+    }
 
-        if (filtroAplicado.estado) {
-            turnosFiltrados = turnosFiltrados.filter(turno => turno.estado === filtroAplicado.estado);
-        }
-
-        return turnosFiltrados;
+    if (filtroAplicado.estado) {
+        turnosFiltrados = turnosFiltrados.filter(
+            turno => turno.estado === filtroAplicado.estado
+        );
     }
 
     useEffect(() => {
@@ -59,13 +63,40 @@ export default function MisTurnos() {
                     <CustomTable<TurnoResponseDTO>
                         title="Mis Turnos"
                         columns={[
-                            { header: "Fecha", accessor: "fecha" },
+                            {
+                                header: "Fecha", accessor: "fecha", render: row => {
+                                    const fecha = new Date(row.fecha);
+                                    return fecha.toLocaleDateString("es-AR");
+                                }
+                            },
                             { header: "Hora", accessor: "hora" },
-                            { header: "Servicio", accessor: "servicioResponseDTO", render: row => row.servicioResponseDTO.tipoDeServicio },
-                            { header: "Profesional", accessor: "profesionalResponseDTO", render: row => `${row.profesionalResponseDTO.nombre} ${row.profesionalResponseDTO.apellido}` },
-                            { header: "Estado", accessor: "estado" },
+                            {
+                                header: "Servicio", accessor: "profesionalServicio", render: row =>
+                                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ')
+                            },
+                            {
+                                header: "Profesional", accessor: "profesionalServicio", render: row =>
+                                    `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
+                                    ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
+                            },
+                            {
+                                header: "Estado", accessor: "estado", render: row => (
+                                    <span className={row.estado === Estado.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === Estado.ACEPTADO ? "bg-green-600/45 text-primary py-1 px-2 rounded-full" : "bg-red-600/45  text-primary py-1 px-2 rounded-full"}>
+                                        {row.estado.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}
+                                    </span>
+                                )
+                            }
                         ]}
-                        data={turnos ?? []}
+                        data={turnosFiltrados ?? []}
+                        borrarFiltros={{
+                            onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
+                        }}
                         filtros={{
                             onClick: () => setModalFiltro(true),
                         }}
@@ -95,9 +126,9 @@ export default function MisTurnos() {
                                 {Object.values(TipoDeServicio).map((tipo) => (
                                     <option key={tipo} value={tipo}>
                                         {tipo.toLowerCase()
-                                        .split('_')
-                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ')}
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}
                                     </option>
                                 ))}
                             </select>
