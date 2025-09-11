@@ -1,5 +1,5 @@
-import type { ReseñaDTO } from "../types/reseña/ReseñaDTO";
-import type { ReseñaResponseDTO } from "../types/reseña/ReseñaResponseDTO";
+import type { ReseñaDTO } from "../types/resenia/ReseniaDTO";
+import type { ReseñaResponseDTO } from "../types/resenia/ReseniaResponseDTO";
 import { BackendClient } from "./BackendClient";
 
 export class ReseñaService extends BackendClient< ReseñaDTO, ReseñaResponseDTO>{

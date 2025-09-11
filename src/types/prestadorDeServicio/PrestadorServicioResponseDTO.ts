@@ -5,6 +5,6 @@ export interface PrestadorServicioResponseDTO {
     nombre: string;
     apellido: string;
     telefono: string;
-    usuario: UsuarioResponseDTO;
     active: boolean;
+    usuario: UsuarioResponseDTO;   
 }

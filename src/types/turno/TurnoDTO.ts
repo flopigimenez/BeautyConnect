@@ -1,6 +1,6 @@
 export interface TurnoDTO{
-    fecha: Date;
+    fecha: string;
     hora: string;
-    cliente: number;
-    profesionalServicio: number;
+    clienteId: number;
+    profesionalServicioId: number;
 }

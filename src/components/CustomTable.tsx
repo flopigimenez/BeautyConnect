@@ -1,9 +1,10 @@
 import React from "react";
+import { IoFilterCircleOutline } from "react-icons/io5";
 
 interface Column<T> {
   header: string;
   accessor?: keyof T;
-  render?: (row: T) => React.ReactNode; 
+  render?: (row: T) => React.ReactNode;
 }
 
 interface CustomTableProps<T> {
@@ -14,6 +15,16 @@ interface CustomTableProps<T> {
     label: string;
     onClick: () => void;
   };
+  filtros?: {
+    onClick: () => void;
+  };
+  borrarFiltros?: {
+    onClick: () => void;
+  };
+  busqueda?: {
+    onChange: (value: string) => void;
+    placeholder?: string;
+  };
 }
 
 export function CustomTable<T extends object>({
@@ -21,6 +32,9 @@ export function CustomTable<T extends object>({
   data,
   title,
   actionButton,
+  borrarFiltros,
+  filtros,
+  busqueda,
 }: CustomTableProps<T>) {
   return (
     <div className="p-4">
@@ -34,6 +48,28 @@ export function CustomTable<T extends object>({
             >
               {actionButton.label}
             </button>
+          )}
+          {borrarFiltros && filtros && (
+            <div className="flex justify-center items-center gap-2 md:pr-[15vh] mt-5">
+              <button className="cursor-pointer text-tertiary"
+                onClick={filtros.onClick}
+              >
+                <IoFilterCircleOutline size={35} />
+              </button>
+              <button className="cursor-pointer text-tertiary hover:underline"
+                onClick={borrarFiltros.onClick}
+              >
+                Borrar Filtros
+              </button>
+            </div>
+          )}
+          {busqueda && (
+            <input
+              type="text"
+              onChange={(e) => busqueda.onChange(e.target.value)}
+              placeholder={busqueda.placeholder || "Buscar..."}
+              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+            />
           )}
         </div>
       )}
@@ -60,8 +96,8 @@ export function CustomTable<T extends object>({
                     {col.render
                       ? col.render(row)
                       : col.accessor
-                      ? (row[col.accessor] as React.ReactNode)
-                      : null}
+                        ? (row[col.accessor] as React.ReactNode)
+                        : null}
                   </td>
                 ))}
               </tr>
