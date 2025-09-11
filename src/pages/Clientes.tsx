@@ -8,6 +8,7 @@ import { fetchCliente } from "../redux/store/clienteSlice";
 import { Switch } from "@mui/material";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import { ClienteService } from "../services/ClienteService";
+import Swal from "sweetalert2";
 
 export default function Clientes() {
   const clientes = useAppSelector((state) => state.clientes);
@@ -45,11 +46,11 @@ export default function Clientes() {
                         await clienteService.cambiarEstadoActivo(cliente.id);
                         dispatch(fetchCliente());
                       } catch (error) {
-                        /*Swal.fire(
+                        Swal.fire(
                           error instanceof Error ? error.message : String(error),
                           "No se pudo actualizar el estado",
                           "error"
-                        );*/
+                        );
                       }
                     }}
                     color="secondary"

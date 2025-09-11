@@ -11,6 +11,7 @@ import RegistroGoogle from "../pages/RegistroGoogle";
 import Clientes from "../pages/Clientes";
 import  ServiciosPage from "../pages/Servicio";
 import Profesionales from "../pages/Profesionales";
+import MisTurnos from "../pages/MisTurnos";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -32,6 +33,7 @@ export const AppRouter = () => {
         <Route path="/clientes" element={<Clientes/>}/>
         <Route path="/servicio" element={<ServiciosPage />} />
         <Route path="/profesionales" element={<Profesionales />} />
+        <Route path="/misTurnos" element={<MisTurnos/>}/>
       </Routes>
     </>
   );

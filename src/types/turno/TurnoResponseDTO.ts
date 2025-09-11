@@ -1,15 +1,12 @@
 import type { ClienteResponseDTO } from "../cliente/ClienteResponseDTO";
 import type { Estado } from "../enums/Estado";
-import type { PrestadorServicioResponseDTO } from "../prestadorDeServicio/PrestadorServicioResponseDTO";
-import type { ServicioResponseDTO } from "../servicio/ServicioResponseDTO";
+import type { ProfesionalServicioResponseDTO } from "../profesionalServicio/ProfesionalServicioResponseDTO";
 
 export interface TurnoResponseDTO{
-    id:number;
-    fecha: Date;
-    hora: Date;
-    clienteResponseDTO: ClienteResponseDTO;
-    servicioResponseDTO: ServicioResponseDTO;
-    prestadorServicioResponseDTO: PrestadorServicioResponseDTO;
+    id: number;
+    fecha: string;
+    hora: string;
     estado: Estado;
-    
+    cliente: ClienteResponseDTO;
+    profesionalServicio: ProfesionalServicioResponseDTO;
 }

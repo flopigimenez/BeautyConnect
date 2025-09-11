@@ -53,8 +53,15 @@ const Centros = () => {
         if (filtro.trim() !== "") {
             const filtroLower = filtro.toLowerCase();
             resultado = resultado.filter(centro =>
-                centro.nombre.toLowerCase().includes(filtroLower) ||
-                centro.domicilios.some(d => d.calle.toLowerCase().includes(filtroLower))
+                centro.nombre.toLowerCase().includes(filtroLower)
+                || (
+                    centro.domicilio &&
+                    (
+                        `${centro.domicilio.calle} ${centro.domicilio.numero}, ${centro.domicilio.localidad}`
+                            .toLowerCase()
+                            .includes(filtroLower)
+                    )
+                )
             );
         }
 
@@ -111,19 +118,18 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
-                                    {/*select con las direcciones o comparar con la direccion del cliente*/}
-                                    {/* {centro.domicilios.map((domicilio) => (  
-                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> 
-                                            {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
+                                    {centro.domicilio && (
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            {centro.domicilio.calle} {centro.domicilio.numero}, {centro.domicilio.localidad} - CP: {centro.domicilio.codigoPostal}
                                         </p>
-                                    ))} */}
-                                    {/* {centro.reseñas.length > 0 &&(
-                                            <p className="mt-2 text-yellow-500">
-                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                            </p>
-                                        )} */}
+                                    )}
+                                    {/* {centro.reseñas.length > 0 && (
+                                        <p className="mt-2 text-yellow-500">
+                                            {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                            } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
+                                        </p>
+                                    )} */}
                                 </div>
                             ))
                         )}
@@ -155,7 +161,7 @@ const Centros = () => {
                                 <div className="relative">
                                     <button
                                         onClick={() => setModalFiltro(false)}
-                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
                                     >
                                         <RxCross2 size={24} />
                                     </button>
@@ -194,7 +200,7 @@ const Centros = () => {
                                 <div className="flex justify-center mx-3">
                                     <button
                                         onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado(filtroTemporal); }}
-                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition"
+                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"
                                     >
                                         Aplicar Filtro
                                     </button>

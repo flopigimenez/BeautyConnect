@@ -16,16 +16,27 @@ interface AuthState {
     error: string | null;
 }
 
+const loadUserFromStorage = () => {
+    try {
+        const userData = localStorage.getItem('user');
+        return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+        console.error("Error loading user from storage:", error);
+        return null;
+    }
+};
+
 const initialState: AuthState = {
-    user: null,
+    user: loadUserFromStorage(),
     loading: false,
     error: null,
 };
 
+
 export const updateUserCliente = createAsyncThunk<ClienteResponseDTO, Partial<ClienteDTO>, { state: RootState }>("auth/updateUserCliente",
     async (cliente, { getState }) => {
         const state = getState();
-        const userId = state.user.user?.id; 
+        const userId = state.user.user?.id
         if (!userId) throw new Error("No hay usuario logueado");
 
         const response = await clienteService.put(userId, cliente as ClienteDTO);
@@ -51,9 +62,16 @@ const authSlice = createSlice({
         setUser: (state, action: PayloadAction<ClienteResponseDTO | PrestadorServicioResponseDTO>) => {
             state.user = action.payload;
             state.error = null;
+            if (action.payload) {
+                localStorage.setItem('user', JSON.stringify(action.payload));
+            } else {
+                localStorage.removeItem('user');
+            }
         },
         clearUser: (state) => {
             state.user = null;
+            state.error = null;
+            localStorage.removeItem('user');
         },
     },
     extraReducers: (builder) => {

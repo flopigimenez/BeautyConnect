@@ -1,7 +1,7 @@
 import type { ClienteDTO } from "../types/cliente/ClienteDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import { BackendClient } from "./BackendClient";
-const API = "http://localhost:8080/api/cliente";
+
 export class ClienteService extends BackendClient<ClienteDTO, ClienteResponseDTO> {
 
     constructor() {
@@ -16,13 +16,15 @@ export class ClienteService extends BackendClient<ClienteDTO, ClienteResponseDTO
         if (!resp.ok) throw new Error("No se pudo cambiar el estado activo");
         return await resp.json();
     }
+    
     async getByUid(uid: string): Promise<ClienteResponseDTO | null> {
         const res = await fetch(`${this.baseUrl}/by-uid/${uid}`);
         if (!res.ok) return null;
         return await res.json();
     }
+
     async update(id: number, data: ClienteDTO): Promise<ClienteResponseDTO> {
-        const res = await fetch(`${API}/update/${id}`, {
+        const res = await fetch(`${this.baseUrl}/update/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
@@ -32,7 +34,7 @@ export class ClienteService extends BackendClient<ClienteDTO, ClienteResponseDTO
     }
 
     async create(data: ClienteDTO): Promise<ClienteResponseDTO> {
-        const res = await fetch(`${API}`, {
+        const res = await fetch(`${this.baseUrl}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
