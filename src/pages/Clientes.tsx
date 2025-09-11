@@ -33,7 +33,7 @@ export default function Clientes() {
               { header: "Nombre y Apellido", accessor: "nombre", render: row => `${row.nombre} ${row.apellido}` },
               { header: "Telefono", accessor: "telefono" },
               { header: "Mail", accessor: "usuario", render: row => `${row.usuario.mail}` },
-              { header: "Rol", accessor: "usuario", render: row => `${row.usuario.rol}` },
+              { header: "Rol", accessor: "usuario", render: row => `${row.usuario.rol.charAt(0) + row.usuario.rol.slice(1).toLocaleLowerCase()}` },
               {
                 header: "Acciones",
                 accessor: "active",
