@@ -1,5 +1,5 @@
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { BackendClient } from "./BackendClient";
 
 export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, CentroEsteticaResponseDTO>{

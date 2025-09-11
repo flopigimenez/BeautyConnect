@@ -1,7 +1,8 @@
+import type { HorarioCentroDTO } from '../horarioCentro/HorarioCentroDTO';
+import type { ServicioDTOSimple } from '../servicio/ServicioDTOSimple';
+import type { ProfesionalDTOSimple } from '../profesional/ProfesionalDTOSimple';
 import type { DomicilioDTO } from '../domicilio/DomicilioDTO';
-import type { ServicioDTO } from '../servicio/ServicioDTO';
-import type { TurnoDTO } from '../turno/TurnoDTO';
-import type { ReseñaDTO } from '../reseña/ReseñaDTO';
+
 export interface CentroDeEsteticaDTO {
   id: number;
   nombre: string;
@@ -9,9 +10,8 @@ export interface CentroDeEsteticaDTO {
   imagen: string;
   docValido: string;
   cuit: number;
-  domicilios: DomicilioDTO[];
-  servicios: ServicioDTO[];
-  turnos: TurnoDTO[];
-  reseñas: ReseñaDTO[];
+  domicilio: DomicilioDTO;
+  servicios: ServicioDTOSimple[];
+  profesionales: ProfesionalDTOSimple[];
+  horarioCentro: HorarioCentroDTO;
 }
-

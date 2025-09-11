@@ -1,6 +1,6 @@
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 const centroService = new CentroDeEsteticaService();
 

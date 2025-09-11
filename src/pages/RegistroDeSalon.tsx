@@ -1,13 +1,25 @@
 import { useState } from "react"
-import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
+import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import type { ServicioDTO } from "../types/servicio/ServicioDTO";
 
 const RegistroDeSalon = () => {
-    const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({ id: 0, nombre: "", descripcion: "", imagen: "", docValido: "", cuit: parseInt(""), domicilios: [], servicios: [], turnos: [], reseñas: [] });
-    const [direcciones, setDirecciones] = useState<DomicilioDTO>({ id: parseInt(""), calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
-    const [servicios, setServicios] = useState<ServicioDTO>();
+    const [domicilio, setDomicilio] = useState<DomicilioDTO>({ calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
+    const [horarioCentro, setHorarioCentro] = useState<HorarioCentroDTO>({ diaDesde: "", diaHasta: "", horaInicio: "", horaFinalizacion: "" });
+    //const [servicio, setServicio] = useState<ServicioDTO[]>();
+    const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({
+        id: 0,
+        nombre: "",
+        descripcion: "",
+        imagen: "",
+        docValido: "",
+        cuit: parseInt(""),
+        domicilio: domicilio,
+        servicios: [],
+        profesionales: [],
+        horarioCentro: horarioCentro,
+    });
 
     return (
         <>
@@ -37,6 +49,61 @@ const RegistroDeSalon = () => {
                         />
                     </div>
                     <div className="mb-5">
+                        <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
+                        <div className="flex gap-2 mb-5">
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="calle">Calle</label>
+                                <input
+                                    type="text"
+                                    id="direccion"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Calle"
+                                    value={domicilio.calle}
+                                    onChange={(e) => setDomicilio(prev => ({ ...prev, calle: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="numero">Numero</label>
+                                <input
+                                    type="number"
+                                    id="numero"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Número"
+                                    value={domicilio.numero}
+                                    onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="localidad">Localidad</label>
+                                <input
+                                    type="text"
+                                    id="localidad"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Localidad"
+                                    value={domicilio.localidad}
+                                    onChange={(e) => setDomicilio(prev => ({ ...prev, localidad: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="codigoPostal">Código postal</label>
+                                <input
+                                    type="number"
+                                    id="codigoPostal"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Código postal"
+                                    value={domicilio.codigoPostal}
+                                    onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="file">Debes ingresar un documento que acredite la validez du salón:</label>
                         <input
                             type="file"
@@ -44,17 +111,6 @@ const RegistroDeSalon = () => {
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             value={registroDeSalon.docValido}
                             onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, docValido: e.target.value }))}
-                        />
-                    </div>
-                    <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Dirección</label>
-                        <input
-                            type="text"
-                            id="direccion"
-                            className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            placeholder="Ingresa la dirección de tu salon"
-                        // value={registroDeSalon.domicilios}
-                        // onChange={(e) => setRegistroDeSalon(prev => ({...prev, domicilios: e.target.value}))}
                         />
                     </div>
                     <div className="mb-5">
@@ -68,15 +124,61 @@ const RegistroDeSalon = () => {
                             onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, cuit: parseInt(e.target.value) }))}
                         />
                     </div>
-                    {/* <div className="mb-5">
+                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="HorarioComercial">Horario comercial</label>
-                        <input
-                            type="text"
-                            id="HorarioComercial"
-                            className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            placeholder="Ej. Lun-Vie: 9 AM - 7 PM, Sáb: 10 AM - 6 PM"
-                        />
-                    </div> */}
+                        <div className="flex gap-2 mb-5">
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="diaDesde">Día desde</label>
+                                <input
+                                    type="text"
+                                    id="diaDesde"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Día desde"
+                                    value={horarioCentro.diaDesde}
+                                    onChange={(e) => setHorarioCentro(prev => ({ ...prev, diaDesde: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="diaHasta">Día hasta</label>
+                                <input
+                                    type="text"
+                                    id="diaHasta"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Día hasta"
+                                    value={horarioCentro.diaHasta}
+                                    onChange={(e) => setHorarioCentro(prev => ({ ...prev, diaHasta: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="horaInicio">Hora inicio</label>
+                                <input
+                                    type="text"
+                                    id="horaInicio"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Hora inicio"
+                                    value={horarioCentro.horaInicio}
+                                    onChange={(e) => setHorarioCentro(prev => ({ ...prev, horaInicio: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                            <div className="w-[50%]">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="horaFin">Hora finalizacion</label>
+                                <input
+                                    type="text"
+                                    id="horaFin"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    placeholder="Hora finalizacion"
+                                    value={horarioCentro.horaFinalizacion}
+                                    onChange={(e) => setHorarioCentro(prev => ({ ...prev, horaFinalizacion: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
                         {/* <div>

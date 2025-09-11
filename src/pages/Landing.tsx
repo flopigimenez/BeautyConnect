@@ -1,24 +1,39 @@
 import fondo from '../assets/fondo.png';
-import carrousel_1 from '../assets/carrousel_1.png';
-import carrousel_2 from '../assets/carrousel_2.png';
-import carrousel_3 from '../assets/carrousel_3.png';
-import carrousel_4 from '../assets/carrousel_4.png';
-import carrousel_5 from '../assets/carrousel_5.png';
+// import carrousel_1 from '../assets/carrousel_1.png';
+// import carrousel_2 from '../assets/carrousel_2.png';
+// import carrousel_3 from '../assets/carrousel_3.png';
+// import carrousel_4 from '../assets/carrousel_4.png';
+// import carrousel_5 from '../assets/carrousel_5.png';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
-const categorias = [
-  { nombre: 'Makeup artist', imagen: carrousel_1 },
-  { nombre: 'Wellnesscenter', imagen: carrousel_2 },
-  { nombre: 'Barbershop', imagen: carrousel_3 },
-  { nombre: 'Masajistas', imagen: carrousel_4 },
-  { nombre: 'Fotomodel', imagen: carrousel_5 },
-];
+import { Link } from 'react-router-dom';
+import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
+import { useEffect, useState } from 'react';
+import type { CentroEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
+
+// const categorias = [
+//   { nombre: 'Makeup artist', imagen: carrousel_1 },
+//   { nombre: 'Wellnesscenter', imagen: carrousel_2 },
+//   { nombre: 'Barbershop', imagen: carrousel_3 },
+//   { nombre: 'Masajistas', imagen: carrousel_4 },
+//   { nombre: 'Fotomodel', imagen: carrousel_5 },
+// ];
 
 
 const Landing = () => {
+
+  const [centros, setCentros] = useState<CentroEsteticaResponseDTO[]>([]);
+  const centroService = new CentroDeEsteticaService();
+
+  useEffect(() => {
+    centroService.getAll().then(setCentros).catch(console.error);
+  }, []);
+
+  
   return (
     <>
+
       <Navbar />
       {/* HERO */}
       <div className="relative h-screen flex flex-col items-center justify-center text-center overflow-hidden mt-15">
@@ -35,14 +50,14 @@ const Landing = () => {
           en tu zona y a tu ritmo.
         </h1>
         <button className="mt-6 px-6 py-3 bg-[#C19BA8] text-white font-bold rounded-full hover:bg-[#a27e8f] transition font-secondary">
-          Buscá centros cercanos
+          <Link to="/centros">Buscá centros cercanos</Link>
         </button>
       </div>
 {/* INTRODUCCIÓN */}
 <section className="bg-[#FFFBFA] py-40 px-6">
   <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
     
-    {/* Imagen o ícono decorativo */}
+    {/* Imagen */}
     <div className="flex justify-center">
       <div className="bg-[#C19BA8] rounded-full w-48 h-48 flex items-center justify-center shadow-md">
         <img src={logo} alt="Logo" className="w-32 h-32 object-cover" />
@@ -67,7 +82,7 @@ const Landing = () => {
 
 
       {/* CATEGORÍAS */}
-      <section className="bg-[#FFFBFA] py-20">
+      {/* <section className="bg-[#FFFBFA] py-20">
         <h2 className="text-4xl font-secondary text-[#703F52] font-bold text-center mb-6">
           Categorías
         </h2>
@@ -86,22 +101,73 @@ const Landing = () => {
 </div>
     
 
-      {/* CARROUSEL */}
-      </section>
+      
+      </section> */}
             {/* SERVICIOS DESTACADOS */}
       <section className="bg-[#FFFBFA] py-12">
-        <h2 className="text-4xl font-secondary text-[#703F52] font-bold text-center mb-8">
-          Servicios destacados
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-[#C19BA8] h-32 rounded-xl shadow-md transition hover:scale-105"
-            ></div>
-          ))}
+  <h2 className="text-4xl font-secondary text-[#703F52] font-bold text-center mb-8">
+    Centros destacados
+  </h2>
+
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
+    {centros.map((centro) => (
+      <div
+        key={centro.id}
+        className="group relative overflow-hidden rounded-xl shadow-md"
+      >
+        {/* Imagen base */}
+        <img
+          src={centro.imagen}
+          alt={centro.nombre}
+          className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+
+        {/* Card blanca  */}
+        <div
+          className="
+            pointer-events-none
+            absolute inset-0
+            flex items-end
+            p-0
+          "
+        >
+          <div
+            className="
+              w-full
+              bg-white/95 backdrop-blur
+              translate-y-4 opacity-0
+              transition-all duration-300 ease-out
+              group-hover:opacity-100 group-hover:translate-y-0
+              group-focus-within:opacity-100 group-focus-within:translate-y-0
+              pointer-events-auto
+              p-4
+            "
+          >
+            <h3 className="text-lg font-semibold text-[#703F52]">
+              {centro.nombre}
+            </h3>
+            <p className="mt-1 text-sm text-[#703F52]/80 line-clamp-3">
+              {centro.descripcion}
+            </p>
+
+            <div className="mt-3">
+              <Link
+                to={`/centros/${centro.id}`}
+                className="inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+              >
+                Ver más
+              </Link>
+            </div>
+          </div>
         </div>
-      </section>
+
+        {/* Overlay  */}
+        <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
+      </div>
+    ))}
+  </div>
+</section>
+
 
 {/*como funciona mejorado*/}
 <section className="bg-[#FFFBFA] py-16">
@@ -141,4 +207,6 @@ const Landing = () => {
     </>
   );
 };
+
 export default Landing;
+
