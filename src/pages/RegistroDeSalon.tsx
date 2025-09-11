@@ -1,8 +1,15 @@
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { TipoDeServicio } from "../types/enums/TipoDeServicio"
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import type { ServicioDTO } from "../types/servicio/ServicioDTO";
+import { getImages, uploadImages, deleteImage } from "../http";
+import type { Image } from "../types/Image";
+import Swal from "sweetalert2";
+import { Button } from "@mui/material";
+import { Gallery } from "../components/gallery/Gallery";
+import { RxCross2 } from "react-icons/rx";
 
 const RegistroDeSalon = () => {
     const [domicilio, setDomicilio] = useState<DomicilioDTO>({ calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
@@ -21,13 +28,58 @@ const RegistroDeSalon = () => {
         horarioCentro: horarioCentro,
     });
 
+    // const [domicilio, setDomicilio] = useState<DomicilioDTO>({ id: parseInt(""), calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
+    // const [servicios, setServicios] = useState<ServicioDTO>();
+    // const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({ id: 0, nombre: "", descripcion: "", imagen: "", docValido: "", cuit: parseInt(""), domicilio: domicilio, servicios: [], turnos: [], reseñas: [] });
+    /*const [agregarServicios, setAgregarServicios] = useState<boolean>();
+
+
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "my_unsigned_preset"); // preset de cloudinary
+
+        const resp = await fetch(
+            `https://api.cloudinary.com/v1_1/<tu_cloud_name>/image/upload`,
+            {
+                method: "POST",
+                body: formData,
+            }
+        );
+
+        const data = await resp.json();
+        console.log("Cloudinary response:", data);
+
+        // guardás la url pública
+        setImageUrl(data.secure_url);
+
+        // ahora podés mandar la URL a tu backend
+        //     await fetch("http://localhost:8080/api/imagenes", {
+        //         method: "POST",
+        //         headers: { "Content-Type": "application/json" },
+        //         body: JSON.stringify({ url: data.secure_url }),
+        //     });
+    };*/
+
+    // return (
+    //     <div>
+    //         <input type="file" onChange={handleUpload} />
+    //         {imageUrl && <img src={imageUrl} alt="preview" />}
+    //     </div>
+    // );
+
     return (
         <>
             <div className="bg-primary w-screen pt-8 flex flex-col items-center">
                 <h1 className="font-secondary text-2xl font-bold">Registra tu salón</h1>
                 <form className="mt-5 w-[45rem]">
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre del salón</label>
+                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="nombre">Nombre del salón</label>
                         <input
                             type="nombre"
                             id="nombre"
@@ -38,7 +90,35 @@ const RegistroDeSalon = () => {
                         />
                     </div>
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="image">Ingresa una imagen de tu salon</label>
+                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="image">Ingresa una imagen de tu salon</label>
+                        {/* <div
+                            style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: "2vh",
+                                padding: ".4rem",
+                            }}
+                        >
+                            Campo de entrada de archivos 
+                            <input
+                                style={{
+                                    borderRadius: ".4rem",
+                                    border: "1px solid #ccc",
+                                    padding: ".4rem",
+                                }}
+                                type="file"
+                                multiple
+                                ref={inputRef}
+                                onChange={handleFileChange}
+                            />
+                             Botón para subir imágenes 
+                            <Button variant="outlined" onClick={uploadFiles}>
+                                Subir Imágenes
+                            </Button>
+                        </div> */}
+                        {/* Componente de galería para mostrar las imágenes*/}
+                        {/* <Gallery images={images} handleDeleteImg={handleDeleteImg} /> */}
                         <input
                             type="file"
                             accept="image/*"
@@ -124,7 +204,7 @@ const RegistroDeSalon = () => {
                             onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, cuit: parseInt(e.target.value) }))}
                         />
                     </div>
-                     <div className="mb-5">
+                    <div className="mb-5">
                         <label className="block text-gray-700 font-primary mb-2" htmlFor="HorarioComercial">Horario comercial</label>
                         <div className="flex gap-2 mb-5">
                             <div className="w-[50%]">
@@ -179,37 +259,53 @@ const RegistroDeSalon = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="mb-5">
-                        <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
-                        {/* <div>
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
-                            <select name="" id="servicios" className="border border-secondary text-sm font-primary p-1 rounded-full hover:bg-secondary-dark transition">
-                                <option value="">Seleccionar servicio</option>
-                                {Object.values(TipoDeServicio).map((tipo) => (
-                                    <option key={tipo} value={tipo}>
-                                        {tipo.toLowerCase()
-                                            .split('_')
-                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(' ')}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                    {/* <div className="mb-5">
+                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="servicios">Servicios</label>
+                        {agregarServicios && (
+                            <div className="fixed inset-0 bg-black/35 flex items-center justify-center z-50">
+                                <div className="bg-white p-3 rounded-lg shadow-lg w-[90%] max-w-md">
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setAgregarServicios(false)}
+                                            className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                        >
+                                            <RxCross2 size={24} />
+                                        </button>
+                                    </div>
+                                    <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
+                                    <div>
+                                        <label className="block text-gray-700 font-primary mb-2" htmlFor="servicios">Servicios</label>
+                                        <select name="" id="servicios" className="border border-secondary text-sm font-primary p-1 rounded-full hover:bg-secondary-dark transition">
+                                            <option value="">Seleccionar servicio</option>
+                                            {Object.values(TipoDeServicio).map((tipo) => (
+                                                <option key={tipo} value={tipo}>
+                                                    {tipo.toLowerCase()
+                                                        .split('_')
+                                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                        .join(' ')}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
+                                    <div>
+                                        <label className="block text-gray-700 font-primary mb-2" htmlFor="DescripcionDeServicios">Descripcion de servicios</label>
+                                        <input
+                                            type="text"
+                                            id="DescripcionDeServicios"
+                                            className="w-[60vh] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div>
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="DescripcionDeServicios">Descripcion de servicios</label>
-                            <input
-                                type="text"
-                                id="DescripcionDeServicios"
-                                className="w-[60vh] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
-                        </div> */}
-                        <div>
-                            <button className="border bg-tertiary text-white w-[60%] px-5 py-1 rounded-lg hover:scale-102">
+                            <button className="border bg-tertiary text-white w-[60%] px-5 py-1 rounded-lg hover:scale-102"
+                                onClick={() => setAgregarServicios(true)}>
                                 Agregar servicios
                             </button>
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="flex flex-col items-end mb-10">
                         <button
