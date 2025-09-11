@@ -12,6 +12,7 @@ import { useAppDispatch } from "../redux/store/hooks";
 import { setUser } from "../redux/store/authSlice";
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
+import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 
 const Registro = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Registro = () => {
     const [prestador, setPrestador] = useState<boolean>();
     const [usuario, setUsuario] = useState<UsuarioDTO>({ mail: "", contrasenia: "", rol: prestador === true ? Rol.PRESTADOR_DE_SERVICIO : Rol.CLIENTE, uid: "" });
     const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [domicilio, setDomicilio] = useState<DomicilioDTO>({ calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({ nombre: "", apellido: "", telefono: "", usuario: usuario });
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
@@ -66,7 +68,8 @@ const Registro = () => {
                     clienteDTO: prestador ? null : {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
-                        telefono: registro.telefono
+                        telefono: registro.telefono,
+                        domicilio: domicilio
                     },
                     prestadorDTO: prestador ? {
                         nombre: registro.nombre,
@@ -114,7 +117,8 @@ const Registro = () => {
                     clienteDTO: prestador ? null : {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
-                        telefono: registro.telefono
+                        telefono: registro.telefono,
+                        domicilio: domicilio
                     },
                     prestadorDTO: prestador ? {
                         nombre: registro.nombre,
@@ -187,6 +191,61 @@ const Registro = () => {
                                 value={registro.telefono || ""}
                                 onChange={(e) => setRegistro(prev => ({ ...prev, telefono: e.target.value }))}
                             />
+                        </div>
+                        <div className="mb-5">
+                            <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
+                            <div className="flex gap-2 mb-5">
+                                <div className="w-[50%]">
+                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="calle">Calle</label>
+                                    <input
+                                        type="text"
+                                        id="direccion"
+                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        placeholder="Calle"
+                                        value={domicilio.calle}
+                                        onChange={(e) => setDomicilio(prev => ({ ...prev, calle: e.target.value }))}
+                                        required
+                                    />
+                                </div>
+                                <div className="w-[50%]">
+                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="numero">Numero</label>
+                                    <input
+                                        type="number"
+                                        id="numero"
+                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        placeholder="Número"
+                                        value={domicilio.numero}
+                                        onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="w-[50%]">
+                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="localidad">Localidad</label>
+                                    <input
+                                        type="text"
+                                        id="localidad"
+                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        placeholder="Localidad"
+                                        value={domicilio.localidad}
+                                        onChange={(e) => setDomicilio(prev => ({ ...prev, localidad: e.target.value }))}
+                                        required
+                                    />
+                                </div>
+                                <div className="w-[50%]">
+                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="codigoPostal">Código postal</label>
+                                    <input
+                                        type="number"
+                                        id="codigoPostal"
+                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        placeholder="Código postal"
+                                        value={domicilio.codigoPostal}
+                                        onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
+                                        required
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div className="mb-5">
                             <label className="block text-gray-700 font-primary mb-2" htmlFor="password">Contraseña</label>

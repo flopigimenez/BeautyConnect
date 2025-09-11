@@ -1,6 +1,7 @@
 import type { HorarioCentroDTO } from '../horarioCentro/HorarioCentroDTO';
 import type { ServicioDTOSimple } from '../servicio/ServicioDTOSimple';
 import type { ProfesionalDTOSimple } from '../profesional/ProfesionalDTOSimple';
+import type { DomicilioDTO } from '../domicilio/DomicilioDTO';
 
 export interface CentroDeEsteticaDTO {
   id: number;
@@ -9,7 +10,7 @@ export interface CentroDeEsteticaDTO {
   imagen: string;
   docValido: string;
   cuit: number;
-  domicilio_id: number;
+  domicilio: DomicilioDTO;
   servicios: ServicioDTOSimple[];
   profesionales: ProfesionalDTOSimple[];
   horarioCentro: HorarioCentroDTO;

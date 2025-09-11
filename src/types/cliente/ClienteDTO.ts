@@ -5,6 +5,6 @@ export interface ClienteDTO {
     nombre: string;
     apellido: string;
     telefono: string;
-    usuario: UsuarioDTO;
     domicilio: DomicilioDTO;
+    usuario: UsuarioDTO;   
 }
