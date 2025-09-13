@@ -1,128 +1,192 @@
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
+// src/components/modals/AgregarServicio.tsx
+import { Formik } from "formik";
+import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { TipoDeServicio } from "../../types/enums/TipoDeServicio";
 import type { ServicioDTO } from "../../types/servicio/ServicioDTO";
-import type { TipoDeServicio } from "../../types/enums/TipoDeServicio";
-import type { ProfesionalDTO } from "../../types/profesional/ProfesionalDTO";
+import { ServicioService } from "../../services/ServicioService";
+import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  onSave: (nuevo: ServicioDTO) => void;
-  profesionales: ProfesionalDTO[];
-  tiposDeServicio: TipoDeServicio[];
+  onCreated?: (nuevo: any) => void;
+  onClose?: () => void;
 };
 
-const schema = Yup.object({
-  tipoDeServicio: Yup.string().required("El tipo de servicio es obligatorio"),
-  duracion: Yup.number().required("La duración es obligatoria").min(1, "Debe ser mayor a 0"),
-  precio: Yup.number().required("El precio es obligatorio").min(0, "No puede ser negativo"),
-  profesionalId: Yup.number().required("El profesional es obligatorio"),
-});
+const servicioService = new ServicioService();
+const centroService = new CentroDeEsteticaService();
 
-export default function AgregarServicio({
-  open,
-  onClose,
-  onSave,
-  profesionales,
-  tiposDeServicio,
-}: Props) {
-  if (!open) return null;
+const AgregarServicio = ({ onCreated, onClose }: Props) => {
+  const [submitting, setSubmitting] = useState(false);
+  const [centroId, setCentroId] = useState<number | null>(null);
+  const [loadingCentro, setLoadingCentro] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Obtener uid y luego centroId
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setError("No hay usuario autenticado.");
+        setLoadingCentro(false);
+        return;
+      }
+      try {
+        setLoadingCentro(true);
+        const id = await centroService.getMiCentroId(user.uid);
+        setCentroId(id);
+      } catch (e: any) {
+        setError(e?.message ?? "No se pudo obtener el centro.");
+      } finally {
+        setLoadingCentro(false);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // Evitar scroll del body mientras el modal está abierto
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  // Formik: solo los campos del DTO
+  type FormValues = {
+    tipoDeServicio: TipoDeServicio | "";
+    precio: number | "";
+  };
+
+  const initialValues: FormValues = {
+    tipoDeServicio: "",
+    precio: "",
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="relative w-full max-w-lg mx-4 rounded-2xl bg-[#FFFBFA] shadow-xl border border-[#E9DDE1]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E9DDE1]">
-          <h3 className="text-lg font-semibold text-[#3c2e35]">Agregar servicio</h3>
-          <button
-            onClick={onClose}
-            className="px-3 py-1 rounded-full hover:bg-[#F7EFF1] text-[#3c2e35]"
-            aria-label="Cerrar"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="p-5">
-          <Formik
-            initialValues={{
-              tipoDeServicio: "",
-              duracion: 30,
-              precio: 0,
-              profesionalId: profesionales[0]?.id ?? "",
-            }}
-            validationSchema={schema}
-            onSubmit={(values, { resetForm }) => {
-              const profesional = profesionales.find(p => p.id === Number(values.profesionalId));
-              if (!profesional) return;
-              const nuevoServicio: ServicioDTO = {
-                id: Date.now(), // temporal
-                tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
-                duracion: values.duracion,
-                precio: values.precio,
-                centroDeEsteticaDTO: profesional.centroDeEstetica,
-              };
-              onSave(nuevoServicio);
-              resetForm();
-              onClose();
-            }}
-          >
-            {({ isSubmitting }) => (
-              <Form className="space-y-4">
-                {/* Tipo de servicio */}
-                <div>
-                  <label className="block text-sm font-medium text-[#3c2e35] mb-1">
-                    Tipo de servicio
-                  </label>
-                  <Field as="select" name="tipoDeServicio" className="w-full rounded-xl border border-[#E9DDE1] bg-white px-3 py-2">
-                    <option value="">Selecciona...</option>
-                    {tiposDeServicio.map(tipo => (
-                      <option key={tipo} value={tipo}>{tipo}</option>
-                    ))}
-                  </Field>
-                  <ErrorMessage name="tipoDeServicio" component="p" className="text-sm text-red-600 mt-1" />
-                </div>
-                {/* Duración */}
-                <div>
-                  <label className="block text-sm font-medium text-[#3c2e35] mb-1">
-                    Duración (minutos)
-                  </label>
-                  <Field type="number" name="duracion" min={1} className="w-full rounded-xl border border-[#E9DDE1] bg-white px-3 py-2" />
-                  <ErrorMessage name="duracion" component="p" className="text-sm text-red-600 mt-1" />
-                </div>
-                {/* Precio */}
-                <div>
-                  <label className="block text-sm font-medium text-[#3c2e35] mb-1">
-                    Precio
-                  </label>
-                  <Field type="number" name="precio" min={0} className="w-full rounded-xl border border-[#E9DDE1] bg-white px-3 py-2" />
-                  <ErrorMessage name="precio" component="p" className="text-sm text-red-600 mt-1" />
-                </div>
-                {/* Profesional */}
-                <div>
-                  <label className="block text-sm font-medium text-[#3c2e35] mb-1">
-                    Profesional
-                  </label>
-                  <Field as="select" name="profesionalId" className="w-full rounded-xl border border-[#E9DDE1] bg-white px-3 py-2">
-                    {profesionales.map(p => (
-                      <option key={p.id} value={p.id}>{p.nombre}</option>
-                    ))}
-                  </Field>
-                  <ErrorMessage name="profesionalId" component="p" className="text-sm text-red-600 mt-1" />
-                </div>
-                {/* Acciones */}
-                <div className="pt-2 flex items-center gap-3">
-                  <button type="submit" disabled={isSubmitting} className="rounded-full px-4 py-2 bg-[#F2E8EA] hover:bg-[#E8DADD] disabled:opacity-60">
-                    Guardar
-                  </button>
-                  <button type="button" onClick={onClose} className="rounded-full px-4 py-2 hover:bg-[#F7EFF1]">
-                    Cancelar
-                  </button>
-                </div>
-              </Form>
-            )}
-          </Formik>
+    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+      {/* Backdrop con blur y oscurecimiento */}
+      <div
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Contenedor centrado del modal */}
+      <div className="fixed inset-0 z-50 grid place-items-center p-4" onClick={onClose}>
+        <div
+          className="w-[520px] max-w-[92vw] rounded-xl bg-white p-6 shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-secondary text-[#703F52] mb-4">Agregar Servicio</h2>
+
+          {loadingCentro && <p>Cargando datos del centro...</p>}
+          {error && <p className="text-red-600">{error}</p>}
+
+          {!loadingCentro && !error && centroId != null && (
+            <Formik<FormValues>
+              initialValues={initialValues}
+              validate={(v) => {
+                const errors: Partial<Record<keyof FormValues, string>> = {};
+                if (!v.tipoDeServicio) errors.tipoDeServicio = "Seleccioná un tipo";
+                const precioNum = Number(v.precio);
+                if (!v.precio || isNaN(precioNum) || precioNum <= 0) {
+                  errors.precio = "Ingresá un precio mayor a 0";
+                }
+                return errors;
+              }}
+              onSubmit={async (values, { setSubmitting: setF, resetForm }) => {
+                try {
+                  setSubmitting(true);
+                  const dto: ServicioDTO = {
+                    tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
+                    precio: Number(values.precio),
+                    centroDeEsteticaId: centroId, // clave
+                  };
+                  const creado = await servicioService.createServicio(dto);
+                  onCreated?.(creado);
+                  resetForm();
+                  onClose?.();
+                } catch (e: any) {
+                  alert(e?.message ?? "Error al crear el servicio");
+                } finally {
+                  setSubmitting(false);
+                  setF(false);
+                }
+              }}
+            >
+              {({ handleChange, handleSubmit, values, errors, touched }) => (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Tipo de servicio */}
+                  <div>
+                    <label htmlFor="tipoDeServicio" className="block mb-1 font-secondary">
+                      Tipo de Servicio
+                    </label>
+                    <select
+                      id="tipoDeServicio"
+                      name="tipoDeServicio"
+                      value={values.tipoDeServicio}
+                      onChange={handleChange}
+                      className="border p-2 rounded-full w-full"
+                    >
+                      <option value="" label="Seleccione tipo de servicio" className="font-secondary" />
+                      {Object.values(TipoDeServicio).map((tipo) => (
+                        <option key={tipo} value={tipo}>
+                          {tipo.replaceAll("_", " ")}
+                        </option>
+                      ))}
+                    </select>
+                    {touched.tipoDeServicio && errors.tipoDeServicio && (
+                      <p className="text-red-600 text-sm mt-1">
+                        {errors.tipoDeServicio}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Precio */}
+                  <div>
+                    <label htmlFor="precio" className="block mb-1 font-secondary">
+                      Precio
+                    </label>
+                    <input
+                      type="number"
+                      id="precio"
+                      name="precio"
+                      onChange={handleChange}
+                      value={values.precio}
+                      className="border p-2 rounded-full w-full"
+                      min={0}
+                      step="0.01"
+                      placeholder="0.00"
+                    />
+                    {touched.precio && errors.precio && (
+                      <p className="text-red-600 text-sm mt-1">{errors.precio}</p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                    >
+                      {submitting ? "Guardando..." : "Agregar Servicio"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              )}
+            </Formik>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default AgregarServicio;
