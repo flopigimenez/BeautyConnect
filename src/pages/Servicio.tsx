@@ -14,7 +14,7 @@ const servicioService = new ServicioService();
 const Servicio = () => {
   const [data, setData] = useState<ServicioResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState<number | null>(null);
+  const [busyId] = useState<number | null>(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<ServicioResponseDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -105,8 +105,12 @@ const Servicio = () => {
           {/* Modal fuera del CustomTable */}
           {openEdit && (
             <AgregarServicio
+              servicio={selected}
               onCreated={(nuevo) => {
                 setData((prev) => [nuevo, ...prev]);
+              }}
+              onUpdated={(actualizado) => {
+                setData((prev) => prev.map((s) => (s.id === actualizado.id ? actualizado : s)));
               }}
               onClose={() => setOpenEdit(false)}
             />

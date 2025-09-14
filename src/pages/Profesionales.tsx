@@ -1,188 +1,82 @@
+// src/pages/Profesionales.tsx
 import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import NavbarPrestador from "../components/NavbarPrestador";
 import Sidebar from "../components/SideBar";
 import Footer from "../components/Footer";
 import { CustomTable } from "../components/CustomTable";
-import AgregarProfesional from "../components/modals/AgregarProfesional";
-import NavbarPrestador from "../components/NavbarPrestador";
-import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 import { ProfesionalService } from "../services/ProfesionalService";
 import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalResponseDTO";
-import type { DisponibilidadDTO } from "../types/disponibilidad/DisponibilidadDTO";
-import  { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
-const diasSemana: Record<string, string> = {
-  MONDAY: "Lunes",
-  TUESDAY: "Martes",
-  WEDNESDAY: "Miércoles",
-  THURSDAY: "Jueves",
-  FRIDAY: "Viernes",
-  SATURDAY: "Sábado",
-  SUNDAY: "Domingo",
-};
+import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+import AgregarProfesional from "../components/modals/AgregarProfesional";
+import GestionJornadaLaboral from "../components/modals/GestionJornadaLaboral";
+import GestionProfesionalServicio from "../components/modals/GestionProfesionalServicio";
 
-const prettyEnum = (val?: string) =>
-  (val ?? "")
-    .toString()
-    .toLowerCase()
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-
-const cutHHmm = (t?: string) => (!t ? "" : t.length >= 5 ? t.slice(0, 5) : t);
-
-const svc = new ProfesionalService();
-const centroSvc = new CentroDeEsteticaService();
+const profesionalService = new ProfesionalService();
+const centroService = new CentroDeEsteticaService();
 
 export default function Profesionales() {
-  const [profesionales, setProfesionales] = useState<ProfesionalResponseDTO[]>([]);
+  const [data, setData] = useState<ProfesionalResponseDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [openAdd, setOpenAdd] = useState(false);
+  const [centroId, setCentroId] = useState<number | null>(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<ProfesionalResponseDTO | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<number | null>(null); // para deshabilitar botones mientras se opera
+    const [busyId] = useState<number | null>(null);
+  const [openSchedule, setOpenSchedule] = useState(false);
+  const [selectedForSchedule, setSelectedForSchedule] = useState<ProfesionalResponseDTO | null>(null);
+  const [openPS, setOpenPS] = useState(false);
+  const [selectedForPS, setSelectedForPS] = useState<ProfesionalResponseDTO | null>(null);
+
 
   useEffect(() => {
-    const fetchProfesionales = async () => {
+    const unsub = onAuthStateChanged(getAuth(), async (user) => {
+      if (!user) { setLoading(false); setError("No hay usuario autenticado."); return; }
       try {
-        setError(null);
-        const data = await svc.getAll(); // GET /api/profesional
-        setProfesionales(Array.isArray(data) ? data : []);
+        setLoading(true);
+        const uid = user.uid;
+        const [profes, cId] = await Promise.all([
+          profesionalService.findByUid(uid),
+          centroService.getMiCentroId(uid),
+        ]);
+        setData(profes);
+        setCentroId(cId);
       } catch (e: any) {
-        console.error("Error fetching profesionales:", e);
-        setError(e?.message ?? "Error cargando profesionales");
+        setError(e?.message ?? "Error al cargar profesionales");
+      } finally {
+        setLoading(false);
       }
-    };
-
-    fetchProfesionales();
+    });
+    return () => unsub();
   }, []);
 
-
-const handleCreate = async (nuevo: ProfesionalDTO) => {
-  try {
-    setError(null);
-    const centroActualizado = await centroSvc.agregarProfesional(1, nuevo); 
-    
-    const profesionalesActualizados = centroActualizado.profesionales; 
-    setProfesionales(profesionalesActualizados);
-
-    
-    setOpenAdd(false);
-  } catch (e: any) {
-    console.error(e);
-    setError(e?.message ?? "No se pudo crear el profesional");
-  }
-};
-
-  // Abrir edición
-  const handleOpenEdit = (row: ProfesionalResponseDTO) => {
-    setSelected(row);
-    setOpenEdit(true);
-  };
-
-  // Confirmar edición
-const handleUpdate = async (values: ProfesionalDTO) => {
-  if (!selected) return;
-  try {
-    setError(null);
-    setBusyId(selected.id);
-    const updated = await svc.update(selected.id, values); // POST /update?profesionalId=
-    setProfesionales(prev => prev.map(p => (p.id === updated.id ? updated : p)));
-    setOpenEdit(false);
-    setSelected(null);
-  } catch (e: any) {
-    setError(e?.message ?? "No se pudo actualizar el profesional");
-  } finally {
-    setBusyId(null);
-  }
-}
-  // Eliminar
-  // const handleDelete = async (row: ProfesionalResponseDTO) => {
-  //   const ok = window.confirm(`¿Eliminar a ${row.nombre} ${row.apellido}?`);
-  //   if (!ok) return;
-
-  //   try {
-  //     setError(null);
-  //     setBusyId(row.id);
-  //     await svc.deleteById(row.id); // DELETE
-  //     setProfesionales((prev) => prev.filter((p) => p.id !== row.id));
-  //   } catch (e: any) {
-  //     console.error(e);
-  //     setError(e?.message ?? "No se pudo eliminar el profesional");
-  //   } finally {
-  //     setBusyId(null);
-  //   }
-  // };
-
-  // Valores para precargar el modal en edición
-  const selectedAsDTO: ProfesionalDTO | undefined = selected
-    ? {
-        nombre: selected.nombre,
-        apellido: selected.apellido,
-        servicios: selected.servicios ?? [],
-        disponibilidades: selected.disponibilidades ?? [],
-      }
-    : undefined;
+   const handleOpenEdit = (row: ProfesionalResponseDTO) => {
+      setSelected(row);
+      setOpenEdit(true);
+    };
 
   return (
     <>
       <NavbarPrestador />
-      <div className="bg-[#FFFBFA] min-h-screen flex">
+      <div className="bg-[#FFFBFA] min-h-screen flex py-16">
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
         </aside>
 
-        <main className="flex-1 px-6 py-16">
-          <div className="max-w-6xl mx-auto">
-            {error && (
-              <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
+        <main className="container mx-auto px-4 py-8 min-h-screen">
+          {loading && <p>Cargando profesionales…</p>}
+          {error && <p className="text-red-600">{error}</p>}
 
+          {!loading && !error && (
             <CustomTable<ProfesionalResponseDTO>
               title="Profesionales"
               columns={[
                 { header: "Nombre", accessor: "nombre" },
                 { header: "Apellido", accessor: "apellido" },
-                {
-                  header: "Servicios",
-                  render: (row) =>
-                    row.servicios && row.servicios.length > 0
-                      ? row.servicios
-                          .map((s: any) => {
-                            const v =
-                              typeof s === "string"
-                                ? s
-                                : (s?.tipoDeServicio ??
-                                   s?.TipoDeServicio ??
-                                   s?.nombre);
-                            return (v ?? "")
-                              .toString()
-                              .toLowerCase()
-                              .split("_")
-                              .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
-                              .join(" ");
-                          })
-                          .join(", ")
-                      : "Sin servicios",
-                },
-                {
-                  header: "Disponibilidad",
-                  render: (row) => {
-                    const arr = row.disponibilidades ?? [];
-                    if (!Array.isArray(arr) || arr.length === 0)
-                      return "Sin disponibilidad";
-                    const slots = arr.map((d: DisponibilidadDTO) => {
-  const diaKey = d.dia ?? "";
-  const dia = diasSemana[diaKey] ?? prettyEnum(diaKey);
-  return `${dia}: ${cutHHmm(d.horaInicio)} - ${cutHHmm(d.horaFinalizacion)}`;
-});
-                    return slots.join(" | ");
-                  },
-                },
-                {
-                  header: "Acciones",
-                  render: (row) => (
-                    <div className="flex space-x-3">
+                { header: "Acciones", accessor: "acciones" as any,
+                    render: (row) => (
+                  <div className="flex space-x-3">
                       <button
                         className="text-blue-600 hover:underline disabled:opacity-50"
                         onClick={() => handleOpenEdit(row)}
@@ -190,47 +84,65 @@ const handleUpdate = async (values: ProfesionalDTO) => {
                       >
                         Editar
                       </button>
-                      {/* { <button
-                        className="text-red-600 hover:underline disabled:opacity-50"
-                        onClick={() => handleDelete(row)}
+                      <button
+                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        onClick={() => { setSelectedForSchedule(row); setOpenSchedule(true); }}
                         disabled={busyId === row.id}
                       >
-                        Eliminar
-                      </button> } */}
+                        Jornada laboral
+                      </button>
+                      <button
+                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        onClick={() => { setSelectedForPS(row); setOpenPS(true); }}
+                        disabled={busyId === row.id}
+                      >
+                        Servicios
+                      </button>
                     </div>
                   ),
-                },
+                }
               ]}
-              data={profesionales}
+              data={data}
               actionButton={{
                 label: "Agregar Profesional",
                 onClick: () => setOpenAdd(true),
               }}
             />
-          </div>
+          )}
+
+          {openAdd && centroId != null && (
+            <AgregarProfesional
+              centroId={centroId}
+              onCreated={(nuevo) => setData((prev) => [nuevo, ...prev])}
+              onClose={() => setOpenAdd(false)}
+            />
+          )}
+
+          {openEdit && selected && (
+            <AgregarProfesional
+              profesional={selected}
+              onUpdated={(actualizado) => {
+                setData((prev) => prev.map((p) => (p.id === actualizado.id ? actualizado : p)));
+              }}
+              onClose={() => setOpenEdit(false)}
+            />
+          )}
+
+          {openSchedule && selectedForSchedule && (
+            <GestionJornadaLaboral
+              profesional={selectedForSchedule}
+              onClose={() => setOpenSchedule(false)}
+            />
+          )}
+
+          {openPS && selectedForPS && (
+            <GestionProfesionalServicio
+              profesional={selectedForPS}
+              onClose={() => setOpenPS(false)}
+            />
+          )}
         </main>
       </div>
-
-      {/* Modal Agregar */}
-      <AgregarProfesional
-        open={openAdd}
-        onClose={() => setOpenAdd(false)}
-        mode="add"
-        onSubmit={handleCreate}
-      />
-
-      {/* Modal Editar (reutilizado) */}
-      <AgregarProfesional
-        open={openEdit}
-        onClose={() => {
-          setOpenEdit(false);
-          setSelected(null);
-        }}
-        mode="edit"
-        initialValues={selectedAsDTO}
-        onSubmit={handleUpdate}
-      />
-
       <Footer />
     </>
   );

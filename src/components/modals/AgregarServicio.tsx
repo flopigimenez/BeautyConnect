@@ -7,15 +7,19 @@ import type { ServicioDTO } from "../../types/servicio/ServicioDTO";
 import { ServicioService } from "../../services/ServicioService";
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 
+import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
+
 type Props = {
-  onCreated?: (nuevo: any) => void;
+  servicio?: ServicioResponseDTO | null; // si viene, estamos editando
+  onCreated?: (nuevo: ServicioResponseDTO) => void;
+  onUpdated?: (actualizado: ServicioResponseDTO) => void;
   onClose?: () => void;
 };
 
 const servicioService = new ServicioService();
 const centroService = new CentroDeEsteticaService();
 
-const AgregarServicio = ({ onCreated, onClose }: Props) => {
+const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [centroId, setCentroId] = useState<number | null>(null);
   const [loadingCentro, setLoadingCentro] = useState(true);
@@ -52,16 +56,36 @@ const AgregarServicio = ({ onCreated, onClose }: Props) => {
     };
   }, []);
 
+  const isEdit = !!servicio;
+
+  // Normaliza valores entrantes del backend para que coincidan con el enum
+  const toEnumValue = (val: unknown): TipoDeServicio | "" => {
+    if (val == null) return "";
+    const raw = String(val)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // quita acentos
+      .toUpperCase()
+      .replace(/\s+/g, "_");
+    const allowed = Object.values(TipoDeServicio) as string[];
+    const match = allowed.find((v) => v === raw);
+    return (match as TipoDeServicio) || "";
+  };
+
   // Formik: solo los campos del DTO
   type FormValues = {
     tipoDeServicio: TipoDeServicio | "";
     precio: number | "";
   };
 
-  const initialValues: FormValues = {
-    tipoDeServicio: "",
-    precio: "",
-  };
+  const initialValues: FormValues = isEdit
+    ? {
+        tipoDeServicio: toEnumValue(servicio!.tipoDeServicio),
+        precio: servicio!.precio,
+      }
+    : {
+        tipoDeServicio: "",
+        precio: "",
+      };
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
@@ -77,13 +101,15 @@ const AgregarServicio = ({ onCreated, onClose }: Props) => {
           className="w-[520px] max-w-[92vw] rounded-xl bg-white p-6 shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2 className="text-xl font-secondary text-[#703F52] mb-4">Agregar Servicio</h2>
+          <h2 className="text-xl font-secondary text-[#703F52] mb-4">{isEdit ? "Editar Servicio" : "Agregar Servicio"}</h2>
 
-          {loadingCentro && <p>Cargando datos del centro...</p>}
+          {!isEdit && loadingCentro && <p>Cargando datos del centro...</p>}
           {error && <p className="text-red-600">{error}</p>}
 
-          {!loadingCentro && !error && centroId != null && (
+          {(isEdit || (!loadingCentro && !error && centroId != null)) && (
             <Formik<FormValues>
+              key={isEdit ? `edit-${servicio!.id}` : "create"}
+              enableReinitialize
               initialValues={initialValues}
               validate={(v) => {
                 const errors: Partial<Record<keyof FormValues, string>> = {};
@@ -100,11 +126,16 @@ const AgregarServicio = ({ onCreated, onClose }: Props) => {
                   const dto: ServicioDTO = {
                     tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
                     precio: Number(values.precio),
-                    centroDeEsteticaId: centroId, // clave
+                    centroDeEsteticaId: servicio?.centroDeEstetica?.id ?? (centroId as number),
                   };
-                  const creado = await servicioService.createServicio(dto);
-                  onCreated?.(creado);
-                  resetForm();
+                  if (isEdit && servicio) {
+                    const actualizado = await servicioService.put(servicio.id, dto);
+                    onUpdated?.(actualizado);
+                  } else {
+                    const creado = await servicioService.createServicio(dto);
+                    onCreated?.(creado);
+                    resetForm();
+                  }
                   onClose?.();
                 } catch (e: any) {
                   alert(e?.message ?? "Error al crear el servicio");
@@ -124,7 +155,7 @@ const AgregarServicio = ({ onCreated, onClose }: Props) => {
                     <select
                       id="tipoDeServicio"
                       name="tipoDeServicio"
-                      value={values.tipoDeServicio}
+                      value={values.tipoDeServicio || ""}
                       onChange={handleChange}
                       className="border p-2 rounded-full w-full"
                     >
@@ -169,7 +200,7 @@ const AgregarServicio = ({ onCreated, onClose }: Props) => {
                       disabled={submitting}
                       className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
                     >
-                      {submitting ? "Guardando..." : "Agregar Servicio"}
+                      {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Servicio"}
                     </button>
                     <button
                       type="button"

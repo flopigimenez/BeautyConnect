@@ -34,7 +34,7 @@ export abstract class BackendClient<RequestType, ResponseType> extends AbstractB
       throw new Error(errorText || `Error HTTP ${response.status}`);
     }
 
-    // Manejo seguro de respuesta: puede venir vac o no-JSON (201/204)
+    // Manejo seguro de respuesta: puede venir vac o no-JSON (201/204)
     const contentType = response.headers.get("content-type") || "";
     try {
       if (contentType.includes("application/json")) {

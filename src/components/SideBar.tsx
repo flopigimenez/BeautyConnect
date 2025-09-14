@@ -18,7 +18,7 @@ const items: Item[] = [
   { to: "/servicio",   label: "Servicios", icon: RiScissorsLine },
   { to: "/profesionales", label: "Profesionales", icon: CiUser },
   { to: "/configPrestador",      label: "Configuración", icon: IoSettingsOutline },
-
+  
 ];
 
 export default function Sidebar() {
