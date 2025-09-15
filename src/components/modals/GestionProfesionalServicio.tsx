@@ -4,11 +4,12 @@ import type { ProfesionalResponseDTO } from "../../types/profesional/Profesional
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/ProfesionalServicioDTO";
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
-
+import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 type Props = {
   profesional: ProfesionalResponseDTO;
   onClose?: () => void;
 };
+  const profesionalServicioService = new ProfesionalServicioService();
 
 export default function GestionProfesionalServicio({ profesional, onClose }: Props) {
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
     configured: boolean;
     saving?: boolean;
   }>>({});
+
 
   const titulo = useMemo(
     () => `Servicios · ${profesional.nombre} ${profesional.apellido}`,
@@ -37,8 +39,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
     return res.json();
   }
   const listarServicios = () => api<ServicioResponseDTO[]>("/api/servicio");
-  const getByProfServicio = (profId: number, servId: number) =>
-    api<ProfesionalServicioResponseDTO>(`/api/prof-servicios/disponibles/prof/${profId}/servicio/${servId}`);
+  
   const crearRelacion = (dto: ProfesionalServicioDTO) =>
     api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
   const eliminarRelacion = (id: number) =>
@@ -57,7 +58,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
         // intentar cargar configuración existente por servicio
         for (const sv of s) {
           try {
-            const existing = await getByProfServicio(profesional.id, sv.id);
+            const existing = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, sv.id);
             if (existing) {
               setRelacion((prev) => ({
                 ...prev,

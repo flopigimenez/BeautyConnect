@@ -88,6 +88,7 @@ const ConfigPrestador = () => {
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
+      
       if (!user) {
         setLoading(false);
         Swal.fire({ icon: "error", title: "Sesión", text: "No hay sesión activa" });
@@ -99,10 +100,11 @@ const ConfigPrestador = () => {
         setLoading(true);
         // Prestador por UID
         const p = await prestadorService.getByUid(user.uid);
+        console.log("Prestador cargado:", p);
         setPrestador(p);
 
         // Centro por UID de prestador (depende de tu API; si el Prestador viene con centro.id, podrías usar getById)
-        const c = await centroService.getByPrestadorUid(user.uid);
+        const c = await centroService.getByPrestadorId(p.id);
         setCentro(c);
       } catch (e) {
         console.error(e);
@@ -155,7 +157,6 @@ const ConfigPrestador = () => {
                         uid,
                         rol: (prestador?.usuario?.rol ?? DEFAULT_ROL) as Rol,
                         // si tu backend ignora contraseña acá, déjalo vacío:
-                        contraseña: prestador?.usuario?.contraseña ?? "",
                       },
                     };
 

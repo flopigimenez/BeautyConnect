@@ -3,7 +3,7 @@
 export class TurnosDispService {
 getHorariosDisponibles(profId: number, servicioId: number, fecha: string, step = 10) {
   const base = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
-  return fetch(`${base}/api/profesionales/${profId}/servicios/${servicioId}/disponibles?fecha=${fecha}&step=${step}`, {
+  return fetch(`${base}/api/profesionales/${profId}/serviciosdispo/${servicioId}/disponibles?fecha=${fecha}&step=${step}`, {
     credentials: "include"
   }).then(r => {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);

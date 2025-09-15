@@ -81,10 +81,11 @@ const Turnos = () => {
         return;
       }
       try {
-        const data = await profServicioService.getByProfesionalServicio(
+        const data = await profServicioService.getByProfesionalAndServicio(
           profesionalSeleccionado.id,
           servicioSeleccionado.id
         );
+        console.log("Profesional-Servicio seleccionado:", data);
         setProfServicio(data);
       } catch {
         setProfServicio(undefined);
@@ -301,7 +302,9 @@ const Turnos = () => {
                         hora: horaToSend,
                         clienteId: cliente.id,
                         profesionalServicioId: profServicio.id,
+
                       };
+                      
                       dispatch(createTurno(nuevoTurno))
                         .unwrap()
                         .then(() => {
