@@ -32,7 +32,30 @@ const initialState: AuthState = {
     error: null,
 };
 
+export const hydrateAuthUserFromApi = createAsyncThunk<
+  ClienteResponseDTO | PrestadorServicioResponseDTO,
+  void,
+  { state: RootState }
+>("auth/hydrateAuthUserFromApi", async (_arg, { getState }) => {
+  const state = getState();
+  const u = state.user.user as any;
+  if (!u) throw new Error("No hay usuario en sesión");
+  if (u.id) return u; // ya hidratado
 
+  // 1) intentar como Cliente
+  if (u.uid) {
+    const c = await clienteService.getByUid(u.uid);
+    if (c?.id) return c;
+  }
+
+  // 2) intentar como Prestador
+  if (u.uid) {
+    const p = await prestadorService.getByUid(u.uid);
+    if (p?.id) return p;
+  }
+
+  throw new Error("No se pudo hidratar el usuario por uid");
+});
 export const updateUserCliente = createAsyncThunk<ClienteResponseDTO, Partial<ClienteDTO>, { state: RootState }>("auth/updateUserCliente",
     async (cliente, { getState }) => {
         const state = getState();
@@ -100,6 +123,20 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message || "Error al actualizar usuario";
             });
+             builder
+    .addCase(hydrateAuthUserFromApi.pending, (state) => {
+      state.loading = true;
+    })
+    .addCase(hydrateAuthUserFromApi.fulfilled, (state, action) => {
+      state.loading = false;
+      state.user = action.payload;
+      // persistimos aquí también por si no pasa por setUser
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    })
+    .addCase(hydrateAuthUserFromApi.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.error.message ?? "No se pudo hidratar el usuario";
+    });
     },
 });
 

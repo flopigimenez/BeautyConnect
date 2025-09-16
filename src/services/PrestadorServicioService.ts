@@ -7,8 +7,9 @@ export class PrestadorServicioService extends BackendClient<PrestadorServicioDTO
     }
 
     async getByUid(uid: string): Promise<PrestadorServicioResponseDTO | null> {
-        const res = await fetch(`${this.baseUrl}/by-uid/${uid}`);
+        const res = await fetch(`${this.baseUrl}/uid/${uid}`);
         if (!res.ok) return null;
         return await res.json();
     }
+
 }
