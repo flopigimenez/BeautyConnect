@@ -18,7 +18,6 @@ const RegistroGoogle = () => {
         telefono: user?.telefono ?? "",
         usuario: {
             mail: user?.usuario.mail ?? "",
-            contrasenia: user?.usuario.contrasenia ?? "",
             rol: user?.usuario.rol ?? Rol.CLIENTE,
             uid: user?.usuario.uid ?? "",
         },

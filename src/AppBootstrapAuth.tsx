@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { onAuthStateChanged, getAuth } from "firebase/auth";
 import { useAppDispatch } from "./redux/store/hooks";
-import { setUser } from "./redux/store/authSlice";
-import { hydrateAuthUserFromApi } from "./redux/store/authSlice";
+import { obtenerAuthUser, setUser } from "./redux/store/authSlice";
+// import { hydrateAuthUserFromApi } from "./redux/store/authSlice";
+
 
 export default function AppBootstrapAuth() {
   const dispatch = useAppDispatch();
@@ -14,7 +15,7 @@ export default function AppBootstrapAuth() {
         // @ts-expect-error objeto mínimo con uid/email
         dispatch(setUser({ uid: fb.uid, email: fb.email ?? undefined }));
         // hidratar desde tu API → trae DTO con id
-        dispatch(hydrateAuthUserFromApi());
+        dispatch(obtenerAuthUser());
       } else {
         // si querés limpiar completamente:
         // dispatch(clearUser());
