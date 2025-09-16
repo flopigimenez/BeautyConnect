@@ -39,7 +39,7 @@ export default function SolicitudDeSalones() {
                             { header: "Nombre", accessor: "nombre" },
                             { header: "Descripción", accessor: "descripcion", render: (row) => row.descripcion ?? "Sin descripción" },
                             { header: "Cuit", accessor: "cuit" },
-                            { header: "Documento", accessor: "docValido" },
+                            //{ header: "Documento", accessor: "docValido" },
                             {
                                 header: "Servicios", accessor: "servicios", render: (row) =>
                                     Array.isArray(row.servicios)
