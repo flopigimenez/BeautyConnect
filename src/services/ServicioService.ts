@@ -34,4 +34,15 @@ export class ServicioService extends BackendClient<ServicioDTO, ServicioResponse
     if (!res.ok) throw new Error(`Error ${res.status} al crear servicio`);
     return res.json();
   }
-}
+  async obtenerporcentro(idCentro: number): Promise<ServicioResponseDTO[]> {
+    const res = await fetch(`${this.baseUrl}/by-centro/${idCentro}`, {
+      headers: { "Content-Type": "application/json" },    
+      credentials: "include", // opcional si usás cookies/cors con credenciales
+    });
+    if (!res.ok) {
+      throw new Error(`Error ${res.status} al obtener servicios`);
+    }
+    return res.json();
+  }
+  
+  }
