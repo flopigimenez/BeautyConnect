@@ -1,119 +1,126 @@
-import { useEffect, useState } from "react";
-import { CustomTable } from "../components/CustomTable";
+// src/pages/Servicio.tsx
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import NavbarPrestador from "../components/NavbarPrestador";
 import Sidebar from "../components/SideBar";
-import AgregarServicio from "../components/modals/AgregarServicio";
-import { ServicioService } from "../services/ServicioService";
-import { ProfesionalService } from "../services/ProfesionalService";
-import type { ServicioDTO } from "../types/servicio/ServicioDTO";
-import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
-import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
-import { TipoDeServicio as TipoDeServicioEnum } from "../types/enums/TipoDeServicio";
+import { CustomTable } from "../components/CustomTable";
 import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
-import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalResponseDTO";
+import { useEffect, useState } from "react";
+import { ServicioService } from "../services/ServicioService";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import AgregarServicio from "../components/modals/AgregarServicio";
 
 const servicioService = new ServicioService();
-const profesionalService = new ProfesionalService();
 
-export default function ServiciosPage() {
-  const [servicios, setServicios] = useState<ServicioDTO[]>([]);
-  const [profesionales, setProfesionales] = useState<ProfesionalDTO[]>([]);
-  const [openAdd, setOpenAdd] = useState(false);
+const Servicio = () => {
+  const [data, setData] = useState<ServicioResponseDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId] = useState<number | null>(null);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selected, setSelected] = useState<ServicioResponseDTO | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Adaptar ServicioResponseDTO a ServicioDTO
-    servicioService.getAll().then((respuestas: ServicioResponseDTO[]) => {
-      const serviciosAdaptados: ServicioDTO[] = respuestas.map((servicio: ServicioResponseDTO) => ({
-        id: servicio.id,
-        tipoDeServicio: servicio.tipoDeServicio,
-        duracion: servicio.duracion,
-        precio: servicio.precio,
-        centroDeEsteticaDTO: {
-          ...servicio.centroDeEstetica,
-          servicios: servicio.centroDeEstetica?.servicios
-            ? servicio.centroDeEstetica.servicios.map((s: ServicioResponseDTO) => ({
-                ...s,
-                centroDeEsteticaDTO: servicio.centroDeEstetica,
-              }))
-            : [],
-        } as CentroDeEsteticaDTO,
-      }));
-      setServicios(serviciosAdaptados);
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setLoading(false);
+        setError("No hay usuario autenticado.");
+        return;
+      }
+      try {
+        setLoading(true);
+        const uid = user.uid;
+        const servicios = await servicioService.findByUid(uid);
+        setData(servicios);
+      } catch (e: any) {
+        setError(e?.message ?? "Error al cargar servicios.");
+      } finally {
+        setLoading(false);
+      }
     });
-
-    // Adaptar ProfesionalResponseDTO a ProfesionalDTO
-    profesionalService.getAll().then((respuestas: ProfesionalResponseDTO[]) => {
-      const profesionalesAdaptados: ProfesionalDTO[] = respuestas.map((profesional: ProfesionalResponseDTO) => ({
-        ...profesional,
-        servicios: profesional.servicios
-          ? profesional.servicios.map((servicio: ServicioResponseDTO) => ({
-              ...servicio,
-              centroDeEsteticaDTO: servicio.centroDeEstetica,
-            }))
-          : [],
-        centroDeEstetica: profesional.centroDeEstetica,
-      }));
-      setProfesionales(profesionalesAdaptados);
-    });
+    return () => unsub();
   }, []);
 
-  const handleSave = async (nuevo: ServicioDTO) => {
-    try {
-      const servicioGuardado = await servicioService.post(nuevo);
-      setServicios((prev) => [...prev, servicioGuardado]);
-    } catch (error) {
-      // Puedes mostrar un mensaje de error aquí si lo deseas
-      console.error("Error al guardar el servicio:", error);
-    }
+  const handleOpenEdit = (row: ServicioResponseDTO) => {
+    setSelected(row);
+    setOpenEdit(true);
   };
 
-  const tiposDeServicio = Object.values(TipoDeServicioEnum);
-
   return (
-    <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
+    <>
+      <NavbarPrestador />
+      <div className="bg-[#FFFBFA] min-h-screen flex py-16">
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
         </aside>
-        <main className="flex-1 overflow-auto px-6 py-16">
-          <CustomTable<ServicioDTO>
-            title="Servicios"
-            columns={[
-              { header: "Tipo", accessor: "tipoDeServicio" },
-              { header: "Duración", accessor: "duracion", render: row => `${row.duracion} min` },
-              { header: "Precio", accessor: "precio", render: row => `$${row.precio}` },
-              {
-                header: "Acciones",
-                render: (row) => (
-                  <button
-                    onClick={() => alert(`Editar: ${row.tipoDeServicio}`)}
-                    className="bg-[#C19BA8] px-3 py-1 rounded-full hover:bg-[#C4A1B5] text-sm"
-                  >
-                    Editar
-                  </button>
-                ),
-              },
-            ]}
-            data={servicios}
-            actionButton={{
-              label: "Agregar Servicio",
-              onClick: () => setOpenAdd(true),
-            }}
-          />
+
+        <main className="container mx-auto px-4 py-8 min-h-screen">
+          {loading && <p>Cargando servicios…</p>}
+          {error && <p className="text-red-600">{error}</p>}
+
+          {!loading && !error && (
+            <CustomTable<ServicioResponseDTO>
+              title="Servicios"
+              columns={[
+                { header: "Tipo", accessor: "tipoDeServicio" },
+                {
+                  header: "Precio",
+                  accessor: "precio",
+                  render: (row) => (
+                    <span>
+                      $
+                      {typeof row.precio === "number"
+                        ? row.precio.toFixed(2)
+                        : row.precio}
+                    </span>
+                  ),
+                },
+                {
+                  header: "Acciones",
+                  accessor: "acciones" as any, // si tu tabla exige accessor
+                  render: (row) => (
+                    <div className="flex space-x-3">
+                      <button
+                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        onClick={() => handleOpenEdit(row)}
+                        disabled={busyId === row.id}
+                      >
+                        Editar
+                      </button>
+                    </div>
+                  ),
+                },
+              ]}
+              data={data}
+              actionButton={{
+                label: "Agregar Servicio",
+                onClick: () => {
+                  setSelected(null);
+                  setOpenEdit(true);
+                },
+              }}
+            />
+          )}
+
+          {/* Modal fuera del CustomTable */}
+          {openEdit && (
+            <AgregarServicio
+              servicio={selected}
+              onCreated={(nuevo) => {
+                setData((prev) => [nuevo, ...prev]);
+              }}
+              onUpdated={(actualizado) => {
+                setData((prev) => prev.map((s) => (s.id === actualizado.id ? actualizado : s)));
+              }}
+              onClose={() => setOpenEdit(false)}
+            />
+          )}
         </main>
       </div>
-      <AgregarServicio
-        open={openAdd}
-        onClose={() => setOpenAdd(false)}
-        onSave={handleSave}
-        profesionales={profesionales}
-        tiposDeServicio={tiposDeServicio}
-      />
-      <footer className="w-full">
-        <Footer />
-      </footer>
-    </div>
+
+      <Footer />
+    </>
   );
-}
+};
+
+export default Servicio;

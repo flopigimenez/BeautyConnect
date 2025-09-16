@@ -43,10 +43,10 @@ const Centros = () => {
         }
 
         if (filtroAplicado.reseña === "true") {
-            resultado = resultado.filter(centro => centro.reseñas.length > 0);
+            resultado = resultado.filter(centro => centro.resenias.length > 0);
             resultado.sort((a, b) => {
-                const calificacionA = a.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / a.reseñas.length;
-                const calificacionB = b.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / b.reseñas.length;
+                const calificacionA = a.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / a.resenias.length;
+                const calificacionB = b.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / b.resenias.length;
                 return calificacionB - calificacionA;
             });
         }

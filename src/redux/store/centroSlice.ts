@@ -1,6 +1,6 @@
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { Estado } from "../../types/enums/Estado";
 
 const centroService = new CentroDeEsteticaService();

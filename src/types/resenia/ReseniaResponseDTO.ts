@@ -1,11 +1,10 @@
-import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { ClienteResponseDTO } from "../cliente/ClienteResponseDTO";
 
-export interface ReseñaResponseDTO {
+export interface ReseniaResponseDTO {
    id: number;
+   puntuacion: number;
    comentario: string;
-   calificacion: number;
-   fechaCreacion: string;
    cliente: ClienteResponseDTO;
    centroDeEstetica: CentroEsteticaResponseDTO;
 }

@@ -17,7 +17,7 @@ const items: Item[] = [
   { to: "/clientes",    label: "Clientes", icon: PiUsers },
   { to: "/servicio",   label: "Servicios", icon: RiScissorsLine },
   { to: "/profesionales", label: "Profesionales", icon: CiUser },
-  { to: "/config",      label: "Configuración", icon: IoSettingsOutline },
+  { to: "/configPrestador",      label: "Configuración", icon: IoSettingsOutline },
   
 ];
 

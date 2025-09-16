@@ -18,6 +18,9 @@ interface CustomTableProps<T> {
   filtros?: {
     onClick: () => void;
   };
+  borrarFiltros?: {
+    onClick: () => void;
+  };
   busqueda?: {
     onChange: (value: string) => void;
     placeholder?: string;
@@ -29,6 +32,7 @@ export function CustomTable<T extends object>({
   data,
   title,
   actionButton,
+  borrarFiltros,
   filtros,
   busqueda,
 }: CustomTableProps<T>) {
@@ -36,31 +40,36 @@ export function CustomTable<T extends object>({
     <div className="p-4">
       {title && (
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">{title}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">{title}</h2>
           {actionButton && (
             <button
               onClick={actionButton.onClick}
-              className="bg-[#C19BA8] px-4 py-2 rounded-full hover:bg-[#C4A1B5]"
+              className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
             >
               {actionButton.label}
             </button>
           )}
-          {filtros && (
+          {borrarFiltros && filtros && (
             <div className="flex justify-center items-center gap-2 md:pr-[15vh] mt-5">
               <button className="cursor-pointer text-tertiary"
                 onClick={filtros.onClick}
               >
                 <IoFilterCircleOutline size={35} />
               </button>
+              <button className="cursor-pointer text-tertiary hover:underline"
+                onClick={borrarFiltros.onClick}
+              >
+                Borrar Filtros
+              </button>
             </div>
           )}
           {busqueda && (
-              <input
-                type="text"
-                onChange={(e) => busqueda.onChange(e.target.value)}
-                placeholder={busqueda.placeholder || "Buscar..."}
-                className="w-80 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-              />
+            <input
+              type="text"
+              onChange={(e) => busqueda.onChange(e.target.value)}
+              placeholder={busqueda.placeholder || "Buscar..."}
+              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+            />
           )}
         </div>
       )}

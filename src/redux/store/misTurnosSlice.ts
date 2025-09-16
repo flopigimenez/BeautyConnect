@@ -5,13 +5,13 @@ import { TurnoService } from "../../services/TurnoService";
 const turnoService = new TurnoService();
 
 interface TurnosState {
-  turnos: TurnoResponseDTO[];
+  misTurnos: TurnoResponseDTO[];
   loading: boolean;
   error: string | null;
 }
 
 const initialState: TurnosState = {
-  turnos: [],
+  misTurnos: [],
   loading: false,
   error: null,
 };
@@ -24,8 +24,8 @@ export const fetchTurnosCliente = createAsyncThunk<TurnoResponseDTO[], number>(
   }
 );
 
-const turnosSlice = createSlice({
-  name: "turnos",
+const misTurnosSlice = createSlice({
+  name: "misTurnos",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -35,7 +35,7 @@ const turnosSlice = createSlice({
       })
       .addCase(fetchTurnosCliente.fulfilled, (state, action) => {
         state.loading = false;
-        state.turnos = action.payload;
+        state.misTurnos = action.payload;
       })
       .addCase(fetchTurnosCliente.rejected, (state, action) => {
         state.loading = false;
@@ -44,4 +44,4 @@ const turnosSlice = createSlice({
   },
 });
 
-export default turnosSlice.reducer;
+export default misTurnosSlice.reducer;

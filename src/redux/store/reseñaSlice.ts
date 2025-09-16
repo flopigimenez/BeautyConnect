@@ -1,6 +1,6 @@
 // src/store/reseñas/reseñaSlice.ts
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { ReseñaResponseDTO } from "../../types/reseña/ReseñaResponseDTO"
+import type { ReseñaResponseDTO } from "../../types/resenia/ReseniaResponseDTO"
 import { ReseñaService } from "../../services/ReseñaService";
 
 const reseñaService = new ReseñaService();

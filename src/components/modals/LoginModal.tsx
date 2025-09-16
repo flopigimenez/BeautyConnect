@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/config"
-import { useAppDispatch, useAppSelector } from "../../redux/store/hooks";
+import { useAppDispatch } from "../../redux/store/hooks";
 import { setUser } from "../../redux/store/authSlice";
 import type { ClienteResponseDTO } from "../../types/cliente/ClienteResponseDTO";
 import type { PrestadorServicioResponseDTO } from "../../types/prestadorDeServicio/PrestadorServicioResponseDTO";
