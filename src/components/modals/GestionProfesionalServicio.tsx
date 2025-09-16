@@ -5,13 +5,17 @@ import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseD
 import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/ProfesionalServicioDTO";
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
+import { ServicioService } from "../../services/ServicioService";
 type Props = {
   profesional: ProfesionalResponseDTO;
+  centroId?: number;
   onClose?: () => void;
 };
-  const profesionalServicioService = new ProfesionalServicioService();
+const profesionalServicioService = new ProfesionalServicioService();
+const servicioService = new ServicioService();
 
-export default function GestionProfesionalServicio({ profesional, onClose }: Props) {
+export default function GestionProfesionalServicio({ profesional, centroId: centroIdProp, onClose }: Props) {
+  const centroId = centroIdProp ?? profesional.centroDeEstetica?.id;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [servicios, setServicios] = useState<ServicioResponseDTO[]>([]);
@@ -38,8 +42,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
     if (!res.ok) throw new Error((await res.text()) || `Error ${res.status}`);
     return res.json();
   }
-  const listarServicios = () => api<ServicioResponseDTO[]>("/api/servicio");
-  
+
   const crearRelacion = (dto: ProfesionalServicioDTO) =>
     api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
   const eliminarRelacion = (id: number) =>
@@ -50,7 +53,10 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
       try {
         setLoading(true);
         setError(null);
-        const s = await listarServicios();
+        if (!centroId) {
+          throw new Error("El profesional no tiene un centro asociado.");
+        }
+        const s = await servicioService.obtenerporcentro(centroId);
         setServicios(s);
         const relDraft: Record<number, { duracion: number; configured: boolean }> = {};
         for (const sv of s) relDraft[sv.id] = { duracion: 30, configured: false };
@@ -76,7 +82,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
       }
     };
     load();
-  }, [profesional.id]);
+  }, [profesional.id, centroId]);
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal>

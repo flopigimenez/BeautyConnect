@@ -138,6 +138,7 @@ export default function Profesionales() {
           {openPS && selectedForPS && (
             <GestionProfesionalServicio
               profesional={selectedForPS}
+              centroId={centroId ?? undefined}
               onClose={() => setOpenPS(false)}
             />
           )}

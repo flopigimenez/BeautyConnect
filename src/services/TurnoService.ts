@@ -4,7 +4,7 @@ import { BackendClient } from "./BackendClient";
 
 export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
   constructor() {
-    const base = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8080";
+    const base =  "http://localhost:8080";
     super(`${base}/api/turnos`);
   }
 
