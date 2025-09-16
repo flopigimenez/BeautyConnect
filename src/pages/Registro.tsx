@@ -214,7 +214,7 @@ const Registro = () => {
                                         id="numero"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Número"
-                                        value={domicilio.numero}
+                                        value={domicilio.numero || ""}
                                         onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
                                         required
                                     />
@@ -240,7 +240,7 @@ const Registro = () => {
                                         id="codigoPostal"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Código postal"
-                                        value={domicilio.codigoPostal}
+                                        value={domicilio.codigoPostal || ""}
                                         onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
                                         required
                                     />

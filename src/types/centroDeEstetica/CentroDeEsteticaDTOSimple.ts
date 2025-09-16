@@ -8,5 +8,5 @@ export interface CentroDeEsteticaDTOSimple {
   docValido: string;
   cuit: number;
   domicilio_id: number;
-  horarioCentro: HorarioCentroDTO;
+  horariosCentro: HorarioCentroDTO[];
 }

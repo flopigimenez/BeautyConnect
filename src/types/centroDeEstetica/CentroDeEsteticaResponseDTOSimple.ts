@@ -11,5 +11,5 @@ export interface CentroEsteticaResponseDTOSimple {
     cuit: number;
     estado: Estado;
     domicilio: DomicilioResponseDTO;
-    horarioCentro: HorarioCentroResponseDTO;
+    horariosCentro: HorarioCentroResponseDTO[];
 }
