@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { fetchCentrosPendientes } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
