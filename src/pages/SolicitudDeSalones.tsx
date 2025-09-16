@@ -3,19 +3,21 @@ import { CustomTable } from "../components/CustomTable";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
-import { fetchCentros } from "../redux/store/centroSlice";
+import { fetchCentrosPendientes } from "../redux/store/centroSlice";
+import { Estado } from "../types/enums/Estado";
+import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 
 export default function SolicitudDeSalones() {
     const dispatch = useAppDispatch();
-    const centros = useAppSelector((state) => state.centros.centros ?? []);
+    const centros = useAppSelector((state) => state.centros.pendientes ?? []);
     const [busqueda, setBusqueda] = useState("");
+    const centroService = new CentroDeEsteticaService();
 
     useEffect(() => {
-        dispatch(fetchCentros());
+        dispatch(fetchCentrosPendientes(Estado.PENDIENTE));
     }, [dispatch]);
 
     const centrosFiltrados = centros
-        .filter(centro => centro.estado === "PENDIENTE")
         .filter(centro =>
             centro.nombre?.toLowerCase().includes(busqueda.toLowerCase())
             || (centro.domicilio &&
@@ -26,6 +28,20 @@ export default function SolicitudDeSalones() {
                 centro.servicios.some(servicio => servicio.tipoDeServicio.toLowerCase().includes(busqueda.toLowerCase()))
             )
         );
+
+    const cambiarEstado = async (id: number, estado: Estado) => {
+        try {
+            await centroService.cambiarEstado(id, estado);
+            dispatch(fetchCentrosPendientes(Estado.PENDIENTE));
+            if (estado == Estado.ACEPTADO) {
+                alert("Se aceptó el centro")
+            }else{
+                alert("Se rechazó el centro")
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -53,18 +69,29 @@ export default function SolicitudDeSalones() {
                                         : "Sin domicilio"
                             },
                             {
-                                header: "Estado", accessor: "estado", render: (row) =>
-                                    row.estado === "PENDIENTE"
-                                        ? "Pendiente"
-                                        : (row.estado === "ACEPTADO"
-                                            ? "Aprobado"
-                                            : "Rechazado")
+                                header: "Estado", accessor: "estado", render: row => (
+                                    // <span className={row.estado === Estado.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === Estado.ACEPTADO ? "bg-green-600/45 text-primary py-1 px-2 rounded-full" : "bg-red-600/45  text-primary py-1 px-2 rounded-full"}>
+                                    <span className="bg-secondary/70 text-primary py-1 px-2 rounded-full">
+                                        {row.estado.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}
+                                    </span>
+                                )
                             },
                             {
-                                header: "Acciones", render: () => (
+                                header: "Acciones", render: (row) => (
                                     <div className="flex gap-2">
-                                        <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">Aprobar</button>
-                                        <button className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600">Rechazar</button>
+                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102"
+                                            onClick={() => cambiarEstado(row.id, Estado.ACEPTADO)}
+                                        >
+                                            Aprobar
+                                        </button>
+                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
+                                            onClick={() => cambiarEstado(row.id, Estado.RECHAZADO)}
+                                        >
+                                            Rechazar
+                                        </button>
                                     </div>
                                 )
                             },

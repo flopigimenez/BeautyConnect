@@ -7,15 +7,16 @@ import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { fetchCentros } from "../redux/store/centroSlice";
+import { fetchCentrosAceptados } from "../redux/store/centroSlice";
+import { Estado } from "../types/enums/Estado";
 
 const Centros = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { centros, loading, error } = useAppSelector((state) => state.centros);
+    const centros = useAppSelector((state) => state.centros.aceptados);
 
     useEffect(() => {
-        dispatch(fetchCentros());
+        dispatch(fetchCentrosAceptados(Estado.ACEPTADO));
     }, [dispatch]);
 
     //Filtros
@@ -31,7 +32,7 @@ const Centros = () => {
     const [filtro, setFiltro] = useState<string>("");
 
     const filtrarCentros = () => {
-        let resultado = [...centros.filter(centro => centro.estado === "ACEPTADO")];
+        let resultado = [...centros];
 
         if (filtroAplicado.servicio) {
             resultado = resultado.filter(centro =>
