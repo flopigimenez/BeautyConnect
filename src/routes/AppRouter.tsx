@@ -15,6 +15,7 @@ import MisTurnos from "../pages/MisTurnos";
 import SolicitudDeSalones from "../pages/SolicitudDeSalones";
 import ConfigPrestador from "../pages/ConfigPrestador";
 import Calendario from "../pages/Calendario";
+import ResumenCitas from "../pages/ResumenCitas";
 // Componente AppRouter que define las rutas de la aplicación
 export const AppRouter = () => {
   return (
@@ -40,6 +41,7 @@ export const AppRouter = () => {
         <Route path="/solicitudDeSalones" element={<SolicitudDeSalones/>}/>
         <Route path="/configPrestador" element={<ConfigPrestador/>}/>
         <Route path="/calendario" element={<Calendario/>}/>
+        <Route path="/panel" element={<ResumenCitas/>}/>
       </Routes>
     </>
   );
