@@ -4,15 +4,10 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { TurnoResponseDTO } from "../types/turno/TurnoResponseDTO";
-import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import { fetchTurnosCliente } from "../redux/store/misTurnosSlice";
-import { ClienteService } from "../services/ClienteService";
-import { setUser } from "../redux/store/authSlice";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { Estado } from "../types/enums/Estado";
 import { RxCross2 } from "react-icons/rx";
-
-const clienteService = new ClienteService();
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
@@ -30,9 +25,6 @@ export default function MisTurnos() {
         profesional: null as string | null,
         estado: null as Estado | null,
     });
-    const [clienteInfo, setClienteInfo] = useState<ClienteResponseDTO | null>(null);
-    const [loadingClienteInfo, setLoadingClienteInfo] = useState(false);
-    const [errorClienteInfo, setErrorClienteInfo] = useState<string | null>(null);
 
     let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
 
@@ -58,90 +50,17 @@ export default function MisTurnos() {
     }
 
     useEffect(() => {
-        let active = true;
-
-        const hydrateCliente = async () => {
-            if (!user) {
-                if (active) {
-                    setClienteInfo(null);
-                    setErrorClienteInfo(null);
-                    setLoadingClienteInfo(false);
-                }
-                return;
-            }
-
-            if ((user as ClienteResponseDTO).id) {
-                if (active) {
-                    setClienteInfo(user as ClienteResponseDTO);
-                    setErrorClienteInfo(null);
-                    setLoadingClienteInfo(false);
-                }
-                return;
-            }
-
-            const uid = (user as { uid?: string }).uid;
-            if (!uid) {
-                if (active) {
-                    setClienteInfo(null);
-                    setErrorClienteInfo("No se pudo identificar al cliente");
-                }
-                return;
-            }
-
-            if (active) {
-                setLoadingClienteInfo(true);
-                setErrorClienteInfo(null);
-            }
-            try {
-                const dto = await clienteService.getByUid(uid);
-                if (!active) return;
-                if (dto?.id) {
-                    setClienteInfo(dto);
-                    setErrorClienteInfo(null);
-                    dispatch(setUser(dto));
-                } else {
-                    setClienteInfo(null);
-                    setErrorClienteInfo("No se encontró información del cliente");
-                }
-            } catch (e: any) {
-                if (!active) return;
-                setClienteInfo(null);
-                setErrorClienteInfo(e?.message ?? "No se pudo cargar la información del cliente");
-            } finally {
-                if (active) {
-                    setLoadingClienteInfo(false);
-                }
-            }
-        };
-
-        hydrateCliente();
-
-        return () => {
-            active = false;
-        };
-    }, [user, dispatch]);
-
-    useEffect(() => {
-        if (clienteInfo?.id) {
-            dispatch(fetchTurnosCliente(clienteInfo.id));
+        if (user?.usuario?.rol === "CLIENTE" && user) {
+            dispatch(fetchTurnosCliente(user.id));
+            console.log(user.nombre);
         }
-    }, [dispatch, clienteInfo?.id]);
-    console.log(misTurnos);
+    }, [dispatch, user]);
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto px-15 py-16">
-                    {loadingClienteInfo && (
-                        <p className="font-primary text-sm mb-4">Cargando información del cliente...</p>
-                    )}
-                    {!loadingClienteInfo && errorClienteInfo && (
-                        <p className="font-primary text-sm text-red-600 mb-4">{errorClienteInfo}</p>
-                    )}
-                    {!loadingClienteInfo && !clienteInfo && !errorClienteInfo && (
-                        <p className="font-primary text-sm text-gray-600 mb-4">No pudimos obtener tus datos de cliente. Intenta recargar la página.</p>
-                    )}
                     <CustomTable<TurnoResponseDTO>
                         title="Mis Turnos"
                         columns={[
@@ -173,8 +92,7 @@ export default function MisTurnos() {
                                             .join(' ')}
                                     </span>
                                 )
-                            },
-                            { header: "Centro", accessor: "centroDeEsteticaResponseDTO", render: row => row.centroDeEsteticaResponseDTO?.nombre ?? "-" }
+                            }
                         ]}
                         data={turnosFiltrados ?? []}
                         borrarFiltros={{
@@ -202,7 +120,11 @@ export default function MisTurnos() {
                             <label className="block text-md font-primary mb-2 font-bold pl-2">Tipo de Servicio</label>
                             <select
                                 value={filtroTemporal.servicio ?? ""}
-                                onChange={(e) => setFiltroTemporal(prev => ({ ...prev, servicio: e.target.value as TipoDeServicio || null }))}
+                                onChange={(e) => setFiltroTemporal(prev => ({
+                                    ...prev,
+                                    servicio: (e.target.value || null) as TipoDeServicio | null
+                                }))}
+
                                 className="w-full border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
                             >
                                 <option value="">Todos</option>

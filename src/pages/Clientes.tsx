@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
@@ -11,14 +11,21 @@ import { ClienteService } from "../services/ClienteService";
 import Swal from "sweetalert2";
 
 export default function Clientes() {
-  const clientes = useAppSelector((state) => state.clientes);
+  const clientes = useAppSelector((state) => state.clientes.clientes);
   const dispatch = useAppDispatch();
   const clienteService = new ClienteService();
+  const [busqueda, setBusqueda] = useState("");
+
+  const clientesFiltrados = clientes
+    .filter(cliente =>
+      cliente.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      cliente.apellido?.toLowerCase().includes(busqueda.toLowerCase()) ||
+      cliente.usuario.mail?.toLowerCase().includes(busqueda.toLowerCase())
+    );
 
   useEffect(() => {
     dispatch(fetchCliente());
   }, [dispatch])
-
 
   return (
     <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -58,7 +65,11 @@ export default function Clientes() {
                 ),
               },
             ]}
-            data={clientes.clientes}
+            data={clientesFiltrados}
+            busqueda={{
+              onChange: setBusqueda,
+              placeholder: "Buscar cliente...",
+            }}
           />
         </main>
       </div>

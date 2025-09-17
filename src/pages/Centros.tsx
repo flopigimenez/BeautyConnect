@@ -7,15 +7,17 @@ import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { fetchCentros } from "../redux/store/centroSlice";
+import { fetchCentrosAceptados } from "../redux/store/centroSlice";
+import { Estado } from "../types/enums/Estado";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 const Centros = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { centros, loading, error } = useAppSelector((state) => state.centros);
+    const centros = useAppSelector((state) => state.centros.aceptados);
 
     useEffect(() => {
-        dispatch(fetchCentros());
+        dispatch(fetchCentrosAceptados(Estado.ACEPTADO));
     }, [dispatch]);
 
     //Filtros
@@ -80,6 +82,10 @@ const Centros = () => {
 
     const totalPaginas = Math.ceil(centrosFiltrados.length / centrosPorPagina);
 
+    const [modalCentro, setModalCentro] = useState(false);
+    const [centroSeleccionado, setCentroSeleccionado] = useState<CentroEsteticaResponseDTO>();
+
+
     useEffect(() => {
         //Cada vez que cambie el filtro, reiniciar a la primera página
         setPaginaActual(1);
@@ -113,23 +119,27 @@ const Centros = () => {
                         ) : (
                             centrosActuales.map((centro) => (
                                 <div key={centro.id} className="w-[22rem] shadow-md rounded-lg hover:shadow-lg transition-shadow bg-white p-3 cursor-pointer"
-                                    onClick={() => navigate(`/turno/${centro.id}`)}
+                                    // onClick={() => navigate(`/turno/${centro.id}`)}
+                                    onClick={() => {
+                                        setCentroSeleccionado(centro);
+                                        setModalCentro(true);
+                                    }}
+
                                 >
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
-                                    <h3 className="text-lg font-bold">{centro.nombre}</h3>
-                                    <p className="text-gray-600">{centro.descripcion}</p>
-                                    {centro.domicilio && (
-                                        <p className="text-gray-500 text-sm mt-2">
-                                            {centro.domicilio.calle} {centro.domicilio.numero}, {centro.domicilio.localidad} - CP: {centro.domicilio.codigoPostal}
-                                        </p>
-                                    )}
-                                    {/* {centro.reseñas.length > 0 && (
-                                        <p className="mt-2 text-yellow-500">
-                                            {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                            } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                        </p>
-                                    )} */}
+                                    <h3 className="text-lg font-bold font-primary">{centro.nombre}</h3>
+                                    <p className="text-gray-600 font-primary">{centro.descripcion}</p>
+                                    {Array.isArray(centro.resenias) && centro.resenias.length > 0 && (() => {
+                                        const promedio = centro.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / centro.resenias.length;
+                                        const estrellasLlenas = Math.round(promedio);
+                                        const estrellasVacias = 5 - estrellasLlenas;
+                                        return (
+                                            <p className="mt-2 text-tertiary font-primary">
+                                                {"★".repeat(estrellasLlenas) + "☆".repeat(estrellasVacias)} ({promedio.toFixed(1)})
+                                            </p>
+                                        );
+                                    })()}
+
                                 </div>
                             ))
                         )}
@@ -155,8 +165,58 @@ const Centros = () => {
                         </button>
                     </div>
 
+                    {modalCentro && centroSeleccionado && (
+                        <div className="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-50">
+                            <div className="bg-white px-4 py-3 rounded-lg shadow-lg w-[90%] max-w-md">
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setModalCentro(false)}
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                    >
+                                        <RxCross2 size={24} />
+                                    </button>
+
+                                    <h3 className="text-lg font-bold mb-3 font-primary text-center">{centroSeleccionado.nombre}</h3>
+                                    <img src={centroSeleccionado.imagen} alt={centroSeleccionado.nombre} className="w-full h-50 object-cover rounded-md mb-4" />
+                                    <div className=""> 
+                                        <p className="text-gray-600 font-primary"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
+                                        {centroSeleccionado.domicilio && (
+                                            <p className="text-gray-600 font-primary">
+                                               <b>Domicilio:</b> {centroSeleccionado.domicilio.calle} {centroSeleccionado.domicilio.numero}, {centroSeleccionado.domicilio.localidad} - CP: {centroSeleccionado.domicilio.codigoPostal}
+                                            </p>
+                                        )}
+                                        <div>
+                                            <p className="text-gray-600 font-primary"><b>Servicios:</b> {centroSeleccionado.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()).join(", ")}</p>
+                                        </div>
+
+                                        {/* {centro.reseñas.length > 0 &&(
+                                            <p className="mt-2 text-yellow-500">
+                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
+                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
+                                            </p>
+                                        )} */}
+                                    </div>
+                                    <div className="flex justify-around mt-3 mb-2">
+                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
+                                            onClick={() => navigate(`/calificaciones/${centroSeleccionado.id}`)}
+                                        >
+                                            Ver reseñas
+                                        </button>
+                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
+                                            onClick={() => navigate(`/turno/${centroSeleccionado.id}`)}
+                                        >
+                                            Pedir turno
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {modalFiltro && (
-                        <div className="fixed inset-0 bg-black/35 flex items-center justify-center z-50">
+                        <div className="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-50">
                             <div className="bg-white p-3 rounded-lg shadow-lg w-[90%] max-w-md">
                                 <div className="relative">
                                     <button

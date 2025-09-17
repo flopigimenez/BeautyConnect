@@ -89,7 +89,7 @@ export const obtenerAuthUser = createAsyncThunk<
 export const updateUserCliente = createAsyncThunk<ClienteResponseDTO, Partial<ClienteDTO>, { state: RootState }>("auth/updateUserCliente",
     async (cliente, { getState }) => {
         const state = getState();
-        const userId = state.user.user?.id
+        const userId = state.user.user?.id;
         if (!userId) throw new Error("No hay usuario logueado");
 
         const response = await clienteService.put(userId, cliente as ClienteDTO);
@@ -113,7 +113,11 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         setUser: (state, action: PayloadAction<ClienteResponseDTO | PrestadorServicioResponseDTO>) => {
-            state.user = action.payload;
+            if ("usuario" in action.payload) {
+                state.user = action.payload;
+            } else {
+                state.user = null;
+            }
             state.error = null;
             if (action.payload) {
                 localStorage.setItem('user', JSON.stringify(action.payload));

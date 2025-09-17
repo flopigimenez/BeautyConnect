@@ -1,27 +1,35 @@
-
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/config"
-import { setUser } from "../../redux/store/authSlice";
 import { useAppDispatch } from "../../redux/store/hooks";
+import { setUser } from "../../redux/store/authSlice";
+import type { ClienteResponseDTO } from "../../types/cliente/ClienteResponseDTO";
+import type { PrestadorServicioResponseDTO } from "../../types/prestadorDeServicio/PrestadorServicioResponseDTO";
+import { ClienteService } from "../../services/ClienteService";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
+  const dispatch = useAppDispatch();
+  const clienteService = new ClienteService();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const dispatch = useAppDispatch();
   if (!isOpen) return null;
 
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password)
+      await signInWithEmailAndPassword(auth, email, password);
+
+      const resp = await clienteService.getByUid(auth.currentUser?.uid ?? "");
+      console.log("Usuario recibido:", resp);
+      dispatch(setUser(resp as ClienteResponseDTO | PrestadorServicioResponseDTO));
+
       alert("Login exitoso");
     } catch (error) {
       alert(
