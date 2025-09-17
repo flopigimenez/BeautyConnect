@@ -119,18 +119,23 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
-                                    {centro.domicilio && (
+                                    {/* {centro.domicilio && (
                                         <p className="text-gray-500 text-sm mt-2">
                                             {centro.domicilio.calle} {centro.domicilio.numero}, {centro.domicilio.localidad} - CP: {centro.domicilio.codigoPostal}
                                         </p>
-                                    )}
-                                    {/* {centro.reseñas.length > 0 && (
-                                        <p className="mt-2 text-yellow-500">
-                                            {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                            } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                        </p>
                                     )} */}
+                                    {Array.isArray(centro.resenias) && centro.resenias.length > 0 && (() => {
+                                        const promedio = centro.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / centro.resenias.length;
+                                        const estrellasLlenas = Math.round(promedio);
+                                        const estrellasVacias = 5 - estrellasLlenas;
+
+                                        return (
+                                            <p className="mt-2 text-tertiary">
+                                                {"★".repeat(estrellasLlenas) + "☆".repeat(estrellasVacias)} ({promedio.toFixed(1)})
+                                            </p>
+                                        );
+                                    })()}
+
                                 </div>
                             ))
                         )}

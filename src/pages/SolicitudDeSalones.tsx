@@ -6,12 +6,14 @@ import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/Centro
 import { fetchCentrosPendientes } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+// import { RxCross2 } from "react-icons/rx";
 
 export default function SolicitudDeSalones() {
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.pendientes ?? []);
     const [busqueda, setBusqueda] = useState("");
     const centroService = new CentroDeEsteticaService();
+    // const [verMas, setVerMas] = useState<boolean>(false);
 
     useEffect(() => {
         dispatch(fetchCentrosPendientes(Estado.PENDIENTE));
@@ -35,7 +37,7 @@ export default function SolicitudDeSalones() {
             dispatch(fetchCentrosPendientes(Estado.PENDIENTE));
             if (estado == Estado.ACEPTADO) {
                 alert("Se aceptó el centro")
-            }else{
+            } else {
                 alert("Se rechazó el centro")
             }
         } catch (error) {
@@ -47,15 +49,34 @@ export default function SolicitudDeSalones() {
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-auto px-15 py-16">
+                <main className="flex-1 overflow-auto mx-8 my-20">
                     <CustomTable<CentroEsteticaResponseDTO>
                         title="Solicitud de Salones"
                         columns={[
-                            //{ header: "", accessor: "imagen" },
+                            // {
+                            //     header: "", accessor: "imagen", render: row => (
+                            //         <img src={row.imagen} alt={row.nombre} className="w-13 h-13 object-cover rounded-md" />
+                            //     )
+                            // },
                             { header: "Nombre", accessor: "nombre" },
-                            { header: "Descripción", accessor: "descripcion", render: (row) => row.descripcion ?? "Sin descripción" },
+                            {
+                                header: "Descripción", accessor: "descripcion", render: (row) =>
+                                    row.descripcion
+                                        ? (row.descripcion.length > 50
+                                            ? row.descripcion.slice(0, 50) + "..."
+                                            : row.descripcion)
+                                        : "Sin descripción"
+                            },
                             { header: "Cuit", accessor: "cuit" },
-                            //{ header: "Documento", accessor: "docValido" },
+                            {
+                                header: "Documento", accessor: "docValido",
+                                render: (row) =>
+                                    row.docValido
+                                        ? <a href={row.docValido} target="_blank" rel="noopener noreferrer" className="text-tertiary underline">
+                                            Ver documento
+                                        </a>
+                                        : "No subido"
+                            },
                             {
                                 header: "Servicios", accessor: "servicios", render: (row) =>
                                     Array.isArray(row.servicios)
@@ -65,13 +86,13 @@ export default function SolicitudDeSalones() {
                             {
                                 header: "Domicilio", accessor: "domicilio", render: (row) =>
                                     row.domicilio
-                                        ? `${row.domicilio.calle ?? ""} ${row.domicilio.numero ?? ""}, ${row.domicilio.localidad ?? ""}`
+                                        ? `${row.domicilio.calle ?? ""} ${row.domicilio.numero ?? ""}, ${row.domicilio.localidad ?? ""} - CP: ${row.domicilio.codigoPostal}`
                                         : "Sin domicilio"
                             },
                             {
                                 header: "Estado", accessor: "estado", render: row => (
                                     // <span className={row.estado === Estado.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === Estado.ACEPTADO ? "bg-green-600/45 text-primary py-1 px-2 rounded-full" : "bg-red-600/45  text-primary py-1 px-2 rounded-full"}>
-                                    <span className="bg-secondary/70 text-primary py-1 px-2 rounded-full">
+                                    <span className="bg-secondary/70 text-primary py-1 px-1 rounded-full">
                                         {row.estado.toLowerCase()
                                             .split('_')
                                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -95,12 +116,25 @@ export default function SolicitudDeSalones() {
                                     </div>
                                 )
                             },
+                            // {
+                            //     header: "Ver más", render: (row) => (
+                            //         <div>
+                            //             <button className="border border-tertiary text-tertiary py-1 px-2 rounded-full hover:bg-tertiary hover:text-white hover:scale-102"
+                            //                 onClick={() => setVerMas(true)}
+                            //             >
+                            //                 Ver
+                            //             </button>
+                            //         </div>
+
+                            //     )
+                            // }
                         ]}
                         data={centrosFiltrados}
                         busqueda={{
                             onChange: setBusqueda,
                             placeholder: "Buscar salones...",
                         }}
+
                     />
                 </main>
             </div>
