@@ -271,14 +271,13 @@ const Turnos = () => {
                     setFechaSeleccionada(null);
                     setHoraSeleccionada(null);
                     setInicios([]);
-                    alert("Turno cancelado");
-                    navigate("/");
+                    navigate("/centros");
                   } else {
                     setPasos(1);
                   }
                 }}
               >
-                {pasos === 1 ? "Cancelar" : "Volver atrás"}
+                Volver
               </button>
 
               <button
