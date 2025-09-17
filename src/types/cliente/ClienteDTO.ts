@@ -1,9 +1,10 @@
+import type { DomicilioDTO } from "../domicilio/DomicilioDTO";
 import type { UsuarioDTO } from "../usuario/UsuarioDTO";
 
 export interface ClienteDTO {
-    id: number;
     nombre: string;
     apellido: string;
-    telefono: number;
-    usuario: UsuarioDTO;
-    }
+    telefono: string;
+    domicilio: DomicilioDTO;
+    usuario: UsuarioDTO;   
+}

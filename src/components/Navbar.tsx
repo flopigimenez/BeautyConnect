@@ -3,6 +3,8 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal"; 
+import { Link } from "react-router-dom";
+
 const Navbar = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -27,22 +29,29 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <a href="/" className="text-xl font-bold text-gray-900 font-secondary">
+            <Link to="/" className="text-xl font-bold text-gray-900 font-secondary">
               BeautyConnect
-            </a>
+            </Link>
           </div>
 
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <a href="/" className="text-gray-600 hover:text-gray-900 font-primary">
+              <Link to="/" className="text-gray-600 hover:text-gray-900 font-primary">
                 Inicio
-              </a>
-              <a href="/centros" className="text-gray-600 hover:text-gray-900 font-primary">
+              </Link>
+              <Link to="/centros" className="text-gray-600 hover:text-gray-900 font-primary">
                 Centros
-              </a>
-              <a href="/MisTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
-                Turnos
-              </a>
+              </Link>
+              {user && (
+                <>
+                  <Link to="/Miperfil" className="text-gray-600 hover:text-gray-900 font-primary">
+                    Mi perfil
+                  </Link>
+                  <Link to="/misTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
+                    Turnos
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -57,6 +66,7 @@ const Navbar = () => {
                 >
                   Cerrar sesión
                 </button>
+
               </>
             ) : (
               <>
@@ -64,11 +74,8 @@ const Navbar = () => {
                   onClick={() => setIsLoginOpen(true)}
                   className="text-gray-600 hover:text-gray-900 font-primary"
                 >
-                  Iniciar sesión
+                  Ingresar
                 </button>
-                <a href="/registro" className="text-gray-600 hover:text-gray-900 font-primary">
-                  Registrarse
-                </a>
               </>
             )}
           </div>

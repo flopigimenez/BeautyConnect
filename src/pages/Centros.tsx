@@ -1,6 +1,5 @@
 import Navbar from "../components/Navbar"
 import { CiSearch } from "react-icons/ci";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
 import { useEffect, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
@@ -8,15 +7,17 @@ import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { fetchCentros } from "../redux/store/centroSlice";
+import { fetchCentrosAceptados } from "../redux/store/centroSlice";
+import { Estado } from "../types/enums/Estado";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 const Centros = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { centros, loading, error } = useAppSelector((state) => state.centros);
+    const centros = useAppSelector((state) => state.centros.aceptados);
 
     useEffect(() => {
-        dispatch(fetchCentros());
+        dispatch(fetchCentrosAceptados(Estado.ACEPTADO));
     }, [dispatch]);
 
     //Filtros
@@ -43,10 +44,10 @@ const Centros = () => {
         }
 
         if (filtroAplicado.reseña === "true") {
-            resultado = resultado.filter(centro => centro.reseñas.length > 0);
+            resultado = resultado.filter(centro => centro.resenias.length > 0);
             resultado.sort((a, b) => {
-                const calificacionA = a.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / a.reseñas.length;
-                const calificacionB = b.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / b.reseñas.length;
+                const calificacionA = a.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / a.resenias.length;
+                const calificacionB = b.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / b.resenias.length;
                 return calificacionB - calificacionA;
             });
         }
@@ -54,9 +55,15 @@ const Centros = () => {
         if (filtro.trim() !== "") {
             const filtroLower = filtro.toLowerCase();
             resultado = resultado.filter(centro =>
-                centro.nombre.toLowerCase().includes(filtroLower) ||
-                centro.domicilio.calle.includes(filtroLower) ||
-                centro.domicilio.localidad.includes(filtroLower)
+                centro.nombre.toLowerCase().includes(filtroLower)
+                || (
+                    centro.domicilio &&
+                    (
+                        `${centro.domicilio.calle} ${centro.domicilio.numero}, ${centro.domicilio.localidad}`
+                            .toLowerCase()
+                            .includes(filtroLower)
+                    )
+                )
             );
         }
 
@@ -122,31 +129,23 @@ const Centros = () => {
                                     <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                     <h3 className="text-lg font-bold">{centro.nombre}</h3>
                                     <p className="text-gray-600">{centro.descripcion}</p>
-                                    {/*select con las direcciones o comparar con la direccion del cliente*/}
-                                    {/* {centro.domicilios.map((domicilio) => (  
-                                        <p key={domicilio.id} className="text-gray-500 text-sm mt-2"> 
-                                            {domicilio.calle} {domicilio.numero}, {domicilio.localidad} - CP: {domicilio.codigoPostal}
+                                    {/* {centro.domicilio && (
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            {centro.domicilio.calle} {centro.domicilio.numero}, {centro.domicilio.localidad} - CP: {centro.domicilio.codigoPostal}
                                         </p>
-                                    ))} */}
-                                    {Array.isArray(centro.reseñas) && centro.reseñas.length > 0 && (
-                                        <p className="mt-2 text-yellow-500">
-                                             {(() => {
-                                                const sumCalificaciones = centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0);
-                                                const promedio = sumCalificaciones / centro.reseñas.length;
-                                                console.log("Centro:", centro.nombre);
-                                                console.log(promedio);
-                                                return (
-                                                    "★".repeat(Math.round(promedio)) +
-                                                    "☆".repeat(5 - Math.round(promedio)) +
-                                                    ` (${promedio.toFixed(1)})`
-                                                );
+                                    )} */}
+                                    {Array.isArray(centro.resenias) && centro.resenias.length > 0 && (() => {
+                                        const promedio = centro.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / centro.resenias.length;
+                                        const estrellasLlenas = Math.round(promedio);
+                                        const estrellasVacias = 5 - estrellasLlenas;
 
-                                            })()}
-                                            {/* {"★".repeat(Math.round(centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length))
-                                                + "☆".repeat(5 - Math.round(centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length))
-                                            } ({centro.resenias.reduce((sum, r) => sum + r.calificacion, 0) / centro.resenias.length}) */}
-                                        </p>
-                                    )}
+                                        return (
+                                            <p className="mt-2 text-tertiary">
+                                                {"★".repeat(estrellasLlenas) + "☆".repeat(estrellasVacias)} ({promedio.toFixed(1)})
+                                            </p>
+                                        );
+                                    })()}
+
                                 </div>
                             ))
                         )}
@@ -224,7 +223,7 @@ const Centros = () => {
                                 <div className="relative">
                                     <button
                                         onClick={() => setModalFiltro(false)}
-                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
                                     >
                                         <RxCross2 size={24} />
                                     </button>
@@ -263,7 +262,7 @@ const Centros = () => {
                                 <div className="flex justify-center mx-3">
                                     <button
                                         onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado(filtroTemporal); }}
-                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition"
+                                        className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"
                                     >
                                         Aplicar Filtro
                                     </button>
