@@ -82,13 +82,14 @@ export default function Calendario() {
   const turnosByDate = useMemo(() => {
     const map = new Map<string, TurnoResponseDTO[]>();
     for (const t of turnos) {
+      if (centroId && t.centroDeEsteticaResponseDTO?.id !== centroId) continue;
       const f = dayjs(t.fecha).format("YYYY-MM-DD");
       const arr = map.get(f) ?? [];
       arr.push(t);
       map.set(f, arr);
     }
     return map;
-  }, [turnos]);
+  }, [turnos, centroId]);
 
   // Construcción del grid mensual (6 filas x 7 columnas)
   const grid: DayCell[] = useMemo(() => {
@@ -202,7 +203,7 @@ export default function Calendario() {
                     <div className="space-y-1">
                       {visible.map((t) => (
                         <div key={t.id} className="bg-secondary/30 text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
-                          {t.hora} — {t.profesionalServicio.profesional.nombre}
+                          {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${t.centroDeEsteticaResponseDTO ? ` - ${t.centroDeEsteticaResponseDTO.nombre}` : ''}`}
                         </div>
                       ))}
                       {extraCount > 0 && (
@@ -251,6 +252,11 @@ export default function Calendario() {
                     <div className="font-primary text-sm text-gray-600">
                       Cliente: {t.cliente.nombre} {t.cliente.apellido}
                     </div>
+                    {t.centroDeEsteticaResponseDTO && (
+                      <div className="font-primary text-sm text-gray-600">
+                        Centro: {t.centroDeEsteticaResponseDTO.nombre}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
