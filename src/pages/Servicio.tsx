@@ -32,8 +32,8 @@ const Servicio = () => {
         const uid = user.uid;
         const servicios = await servicioService.findByUid(uid);
         setData(servicios);
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar servicios.");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Error al cargar servicios.");
       } finally {
         setLoading(false);
       }

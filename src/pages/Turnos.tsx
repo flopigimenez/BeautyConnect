@@ -175,10 +175,10 @@ const Turnos = () => {
           setClienteInfo(null);
           setErrorClienteInfo("No se encontró información del cliente");
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!active) return;
         setClienteInfo(null);
-        setErrorClienteInfo(e?.message ?? "No se pudo cargar la información del cliente");
+        setErrorClienteInfo((e as Error).message ?? "No se pudo cargar la información del cliente");
       } finally {
         if (active) {
           setLoadingClienteInfo(false);

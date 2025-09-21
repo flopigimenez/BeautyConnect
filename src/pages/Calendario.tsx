@@ -16,7 +16,9 @@ type DayCell = {
 };
 
 export default function Calendario() {
-  const user = useAppSelector((s) => s.user.user as any);
+  const { user: authUser, firebaseUser } = useAppSelector((s) => s.user);
+  const user = authUser as any;
+  const uid = user?.uid ?? user?.usuario?.uid ?? firebaseUser?.uid ?? null;
 
   const [centroId, setCentroId] = useState<number | null>(null);
   const [loadingCentro, setLoadingCentro] = useState<boolean>(true);
@@ -31,35 +33,46 @@ export default function Calendario() {
 
   // Cargar centro del prestador por su UID/ID
   useEffect(() => {
-    (async () => {
-      try {
+    let isMounted = true;
+
+    const loadCentro = async () => {
+      if (!uid) {
+        if (isMounted) {
+          setErrorCentro("No hay usuario autenticado.");
+          setCentroId(null);
+          setLoadingCentro(false);
+        }
+        return;
+      }
+
+      if (isMounted) {
         setLoadingCentro(true);
         setErrorCentro(null);
-        if (!user) {
-          setErrorCentro("No hay usuario en sesión");
-          setLoadingCentro(false);
-          return;
-        }
+      }
 
-        // Intentar obtener el centro del prestador
-        // Preferimos UID si está disponible
-        if (user?.uid) {
-          const id = await centroService.getMiCentroId(user.uid);
-          setCentroId(id);
-        } else if (user?.id) {
-          const centro = await centroService.getByPrestadorId(user.id);
-          setCentroId(centro?.id ?? null);
-          if (!centro?.id) setErrorCentro("No se encontró centro para el prestador");
-        } else {
-          setErrorCentro("No se pudo identificar el prestador");
+      try {
+        const cId = await centroService.getMiCentroId(uid);
+        if (isMounted) {
+          setCentroId(typeof cId === "number" ? cId : null);
         }
       } catch (e: any) {
-        setErrorCentro(e?.message ?? "Error al cargar centro");
+        if (isMounted) {
+          setErrorCentro(e?.message ?? "Error al cargar centro");
+          setCentroId(null);
+        }
       } finally {
-        setLoadingCentro(false);
+        if (isMounted) {
+          setLoadingCentro(false);
+        }
       }
-    })();
-  }, [user]);
+    };
+
+    loadCentro();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [uid]);
 
   // Cargar turnos del centro (y filtrar por mes en cliente)
   useEffect(() => {
@@ -70,8 +83,9 @@ export default function Calendario() {
         setErrorTurnos(null);
         const data = await turnoService.getByCentroId(centroId);
         setTurnos(Array.isArray(data) ? data : []);
-      } catch (e: any) {
-        setErrorTurnos(e?.message ?? "Error al cargar turnos");
+        console.log("Turnos cargados:", data);
+      } catch (e: unknown) {
+        setErrorTurnos((e as Error).message ?? "Error al cargar turnos");
       } finally {
         setLoadingTurnos(false);
       }
@@ -82,7 +96,15 @@ export default function Calendario() {
   const turnosByDate = useMemo(() => {
     const map = new Map<string, TurnoResponseDTO[]>();
     for (const t of turnos) {
-      if (centroId && t.centroDeEsteticaResponseDTO?.id !== centroId) continue;
+      if (centroId) {
+        const turnoCentroId =
+          t.centroDeEstetica?.id ??
+          t.centroDeEsteticaResponseDTO?.id ??
+          (t as any).centroId ??
+          (t as any).centroDeEsteticaId ??
+          null;
+        if (turnoCentroId && turnoCentroId !== centroId) continue;
+      }
       const f = dayjs(t.fecha).format("YYYY-MM-DD");
       const arr = map.get(f) ?? [];
       arr.push(t);
@@ -91,19 +113,19 @@ export default function Calendario() {
     return map;
   }, [turnos, centroId]);
 
-  // Construcción del grid mensual (6 filas x 7 columnas)
+  // Construccion del grid mensual (6 filas x 7 columnas)
   const grid: DayCell[] = useMemo(() => {
     const startOfMonth = month.startOf("month");
     const endOfMonth = month.endOf("month");
     const startWeekday = startOfMonth.day(); // 0-dom, 1-lun, ...
 
     const cells: DayCell[] = [];
-    // días del mes anterior para llenar inicio
+    // dias del mes anterior para llenar inicio
     for (let i = 0; i < startWeekday; i++) {
       const d = startOfMonth.subtract(startWeekday - i, "day");
       cells.push({ date: d, inCurrentMonth: false });
     }
-    // días del mes actual
+    // dias del mes actual
     for (let d = 0; d < endOfMonth.date(); d++) {
       const dt = startOfMonth.add(d, "day");
       cells.push({ date: dt, inCurrentMonth: true });
@@ -201,13 +223,19 @@ export default function Calendario() {
                       )}
                     </div>
                     <div className="space-y-1">
-                      {visible.map((t) => (
-                        <div key={t.id} className="bg-secondary/30 text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
-                          {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${t.centroDeEsteticaResponseDTO ? ` - ${t.centroDeEsteticaResponseDTO.nombre}` : ''}`}
-                        </div>
-                      ))}
+                      {visible.map((t) => {
+                        const centroNombre =
+                          t.centroDeEstetica?.nombre ??
+                          t.centroDeEsteticaResponseDTO?.nombre ??
+                          "";
+                        return (
+                          <div key={t.id} className="bg-secondary/30 text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
+                            {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${centroNombre ? ` - ${centroNombre}` : ''}`}
+                          </div>
+                        );
+                      })}
                       {extraCount > 0 && (
-                        <div className="text-[11px] text-gray-600 font-primary">+{extraCount} más</div>
+                        <div className="text-[11px] text-gray-600 font-primary">+{extraCount} mas</div>
                       )}
                     </div>
                   </div>
@@ -217,7 +245,7 @@ export default function Calendario() {
           </div>
         )}
 
-        {/* Modal simple para ver turnos del día */}
+        {/* Modal simple para ver turnos del dia */}
         {selectedDate && (
           <div className="fixed inset-0 bg-black/35 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow p-5 w-[90%] max-w-xl">
@@ -233,32 +261,38 @@ export default function Calendario() {
                 </button>
               </div>
               <div className="space-y-2 max-h-[60vh] overflow-auto pr-1">
-                {(turnosByDate.get(selectedDate) ?? []).map((t) => (
-                  <div key={t.id} className="border rounded-xl p-3 flex flex-col gap-1">
-                    <div className="flex justify-between">
-                      <span className="font-primary font-semibold">{t.hora}</span>
-                      <span className="font-primary text-sm">{t.estado}</span>
-                    </div>
-                    <div className="font-primary text-sm">
-                      {t.profesionalServicio.profesional.nombre} {t.profesionalServicio.profesional.apellido}
-                    </div>
-                    <div className="font-primary text-sm text-gray-600">
-                      {t.profesionalServicio.servicio.tipoDeServicio
-                        .toLowerCase()
-                        .split("_")
-                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                        .join(" ")}
-                    </div>
-                    <div className="font-primary text-sm text-gray-600">
-                      Cliente: {t.cliente.nombre} {t.cliente.apellido}
-                    </div>
-                    {t.centroDeEsteticaResponseDTO && (
-                      <div className="font-primary text-sm text-gray-600">
-                        Centro: {t.centroDeEsteticaResponseDTO.nombre}
+                {(turnosByDate.get(selectedDate) ?? []).map((t) => {
+                  const centroNombre =
+                    t.centroDeEstetica?.nombre ??
+                    t.centroDeEsteticaResponseDTO?.nombre ??
+                    "";
+                  return (
+                    <div key={t.id} className="border rounded-xl p-3 flex flex-col gap-1">
+                      <div className="flex justify-between">
+                        <span className="font-primary font-semibold">{t.hora}</span>
+                        <span className="font-primary text-sm">{t.estado}</span>
                       </div>
-                    )}
-                  </div>
-                ))}
+                      <div className="font-primary text-sm">
+                        {t.profesionalServicio.profesional.nombre} {t.profesionalServicio.profesional.apellido}
+                      </div>
+                      <div className="font-primary text-sm text-gray-600">
+                        {t.profesionalServicio.servicio.tipoDeServicio
+                          .toLowerCase()
+                          .split("_")
+                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                          .join(" ")}
+                      </div>
+                      <div className="font-primary text-sm text-gray-600">
+                        Cliente: {t.cliente.nombre} {t.cliente.apellido}
+                      </div>
+                      {centroNombre && (
+                        <div className="font-primary text-sm text-gray-600">
+                          Centro: {centroNombre}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

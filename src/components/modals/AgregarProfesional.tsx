@@ -86,8 +86,8 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     resetForm();
                   }
                   onClose?.();
-                } catch (err: any) {
-                  alert(err?.message ?? (isEdit ? "Error al actualizar profesional" : "Error al crear profesional"));
+                } catch (err: unknown) {
+                  alert((err as Error).message ?? (isEdit ? "Error al actualizar profesional" : "Error al crear profesional"));
                 } finally {
                   setSaving(false);
                   setSubmitting(false);

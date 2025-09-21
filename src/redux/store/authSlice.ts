@@ -10,8 +10,15 @@ import type { RootState } from "../store";
 const clienteService = new ClienteService();
 const prestadorService = new PrestadorServicioService();
 
+interface FirebaseUserState {
+    uid: string;
+    email?: string | null;
+    role?: string | null;
+}
+
 interface AuthState {
     user: ClienteResponseDTO | PrestadorServicioResponseDTO | null;
+    firebaseUser: FirebaseUserState | null;
     loading: boolean;
     error: string | null;
 }
@@ -28,6 +35,7 @@ const loadUserFromStorage = () => {
 
 const initialState: AuthState = {
     user: loadUserFromStorage(),
+    firebaseUser: null,
     loading: false,
     error: null,
 };
@@ -38,24 +46,27 @@ export const obtenerAuthUser = createAsyncThunk<
     { state: RootState }
 >("auth/obtenerAuthUser", async (_arg, { getState }) => {
     const state = getState();
-    const u = state.user.user as any;
+    const storedUser = state.user.user;
+    if (storedUser && "id" in storedUser) {
+        return storedUser;
+    }
 
-    if (!u) throw new Error("No hay usuario en sesión");
-    if (u.id) return u; // ya hidratado
+    const firebaseUser = state.user.firebaseUser;
+    if (!firebaseUser?.uid) throw new Error("No hay usuario en sesión");
 
-    const token = await u.user.getIdTokenResult();
-    if (token.claims.role == "CLIENTE") {
-        // 1) intentar como Cliente
-        if (u.uid) {
-            const c = await clienteService.getByUid(u.uid);
-            if (c?.id) return c;
-        }
+    const uid = firebaseUser.uid;
+    const role = firebaseUser.role;
+
+    if (role === "CLIENTE") {
+        const c = await clienteService.getByUid(uid);
+        if (c?.id) return c;
+        const p = await prestadorService.getByUid(uid);
+        if (p?.id) return p;
     } else {
-        // 2) intentar como Prestador
-        if (u.uid) {
-            const p = await prestadorService.getByUid(u.uid);
-            if (p?.id) return p;
-        }
+        const p = await prestadorService.getByUid(uid);
+        if (p?.id) return p;
+        const c = await clienteService.getByUid(uid);
+        if (c?.id) return c;
     }
 
     throw new Error("No se pudo hidratar el usuario por uid");
@@ -112,6 +123,9 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
+        setFirebaseUser: (state, action: PayloadAction<FirebaseUserState | null>) => {
+            state.firebaseUser = action.payload;
+        },
         setUser: (state, action: PayloadAction<ClienteResponseDTO | PrestadorServicioResponseDTO>) => {
             if ("usuario" in action.payload) {
                 state.user = action.payload;
@@ -127,6 +141,7 @@ const authSlice = createSlice({
         },
         clearUser: (state) => {
             state.user = null;
+            state.firebaseUser = null;
             state.error = null;
             localStorage.removeItem('user');
         },
@@ -187,7 +202,7 @@ const authSlice = createSlice({
     },
 });
 
-export const { setUser, clearUser } = authSlice.actions;
+export const { setUser, clearUser, setFirebaseUser } = authSlice.actions;
 export default authSlice.reducer;
 
 

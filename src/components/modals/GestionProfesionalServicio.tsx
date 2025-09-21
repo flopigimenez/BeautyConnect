@@ -32,7 +32,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     [profesional]
   );
 
-  const BASE_URL = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8080";
+  const BASE_URL = (import.meta).env?.VITE_API_URL ?? "http://localhost:8080";
   async function api<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetch(`${BASE_URL}${path}`, {
       headers: { "Content-Type": "application/json" },
@@ -75,8 +75,8 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
             // no existe relación
           }
         }
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar servicios");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Error al cargar servicios");
       } finally {
         setLoading(false);
       }
@@ -150,8 +150,8 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                 };
                                 const created = await crearRelacion(dto);
                                 setRelacion((prev) => ({ ...prev, [s.id]: { id: created.id, duracion: created.duracion ?? dto.duracion, configured: true } }));
-                              } catch (e: any) {
-                                alert(e?.message ?? "Error al guardar relación");
+                              } catch (e: unknown) {
+                                alert((e as Error).message ?? "Error al guardar relación");
                               } finally {
                                 setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
                               }
@@ -169,8 +169,8 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                   setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: true } as any }));
                                   await eliminarRelacion(r.id!);
                                   setRelacion((prev) => ({ ...prev, [s.id]: { duracion: 30, configured: false } }));
-                                } catch (e: any) {
-                                  alert(e?.message ?? "Error al eliminar relación");
+                                } catch (e: unknown) {
+                                  alert((e as Error).message ?? "Error al eliminar relación");
                                 } finally {
                                   setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
                                 }

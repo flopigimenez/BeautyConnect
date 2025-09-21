@@ -83,8 +83,8 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
         });
 
         // No más carga de servicios aquí
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar jornadas laborales");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Error al cargar jornadas laborales");
       } finally {
         setCargando(false);
       }
@@ -155,8 +155,8 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           },
         }));
       }
-    } catch (e: any) {
-      alert(e?.message ?? "Error al guardar jornada");
+    } catch (e: unknown) {
+      alert((e as Error).message ?? "Error al guardar jornada");
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }
@@ -181,8 +181,8 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           activo: updated.activo,
         },
       }));
-    } catch (e: any) {
-      alert(e?.message ?? "Error al cambiar estado");
+    } catch (e: unknown) {
+      alert((e as Error).message ?? "Error al cambiar estado");
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }
@@ -206,8 +206,8 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
         ...prev,
         [dia]: { horaInicio: "", horaFin: "", activo: true },
       }));
-    } catch (e: any) {
-      alert(e?.message ?? "Error al eliminar jornada");
+    } catch (e: unknown) {
+      alert((e as Error).message ?? "Error al eliminar jornada");
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }

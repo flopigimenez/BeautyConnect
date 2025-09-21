@@ -1,6 +1,6 @@
-import Navbar from "../components/Navbar"
+﻿import Navbar from "../components/Navbar"
 import { CiSearch } from "react-icons/ci";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 import { RxCross2 } from "react-icons/rx";
@@ -10,25 +10,91 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { fetchCentrosAceptados } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import { ReseniaService } from "../services/ReseniaService";
+
+const RATING_SCALE = 5;
+const FULL_STAR = "\u2605";
+const EMPTY_STAR = "\u2606";
+
+type ResenaStats = {
+    promedio: number;
+    cantidad: number;
+};
+
+const construirEtiquetaEstrellas = (promedio: number) => {
+    const estrellasLlenas = Math.round(promedio);
+    const estrellasVacias = Math.max(0, RATING_SCALE - estrellasLlenas);
+    return `${FULL_STAR.repeat(estrellasLlenas)}${EMPTY_STAR.repeat(estrellasVacias)}`;
+};
 
 const Centros = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.aceptados);
+    const reseniaService = useMemo(() => new ReseniaService(), []);
+    const [reseniasPorCentro, setReseniasPorCentro] = useState<Record<number, ResenaStats>>({});
 
     useEffect(() => {
         dispatch(fetchCentrosAceptados(Estado.ACEPTADO));
     }, [dispatch]);
 
+    useEffect(() => {
+        let cancelado = false;
+
+        const cargarResenias = async () => {
+            if (centros.length === 0) {
+                if (!cancelado) {
+                    setReseniasPorCentro({});
+                }
+                return;
+            }
+
+            try {
+                const entries = await Promise.all(
+                    centros.map(async (centro) => {
+                        try {
+                            const resenias = await reseniaService.getReseniasByCentroId(centro.id);
+                            if (resenias.length === 0) {
+                                return [centro.id, { promedio: 0, cantidad: 0 }] as const;
+                            }
+                            const total = resenias.reduce((sum, { puntuacion }) => sum + puntuacion, 0);
+                            return [centro.id, { promedio: total / resenias.length, cantidad: resenias.length }] as const;
+                        } catch (error) {
+                            console.error(`Error al obtener resenas del centro ${centro.id}`, error);
+                            return [centro.id, { promedio: 0, cantidad: 0 }] as const;
+                        }
+                    })
+                );
+
+                if (!cancelado) {
+                    const stats: Record<number, ResenaStats> = {};
+                    for (const [id, info] of entries) {
+                        stats[id] = info;
+                    }
+                    setReseniasPorCentro(stats);
+                }
+            } catch (error) {
+                if (!cancelado) {
+                    console.error("Error al cargar resenas de centros", error);
+                }
+            }
+        };
+
+        void cargarResenias();
+
+        return () => {
+            cancelado = true;
+        };
+    }, [centros, reseniaService]);
     //Filtros
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
         servicio: null as TipoDeServicio | null,
-        reseña: null as string | null,
+        resena: null as string | null,
     });
     const [filtroTemporal, setFiltroTemporal] = useState({
         servicio: null as TipoDeServicio | null,
-        reseña: null as string | null,
+        resena: null as string | null,
     });
     const [filtro, setFiltro] = useState<string>("");
 
@@ -43,13 +109,10 @@ const Centros = () => {
             );
         }
 
-        if (filtroAplicado.reseña === "true") {
-            resultado = resultado.filter(centro => centro.resenias.length > 0);
-            resultado.sort((a, b) => {
-                const calificacionA = a.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / a.resenias.length;
-                const calificacionB = b.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / b.resenias.length;
-                return calificacionB - calificacionA;
-            });
+        if (filtroAplicado.resena === "true") {
+            resultado = resultado
+                .filter((centro) => (reseniasPorCentro[centro.id]?.cantidad ?? 0) > 0)
+                .sort((a, b) => (reseniasPorCentro[b.id]?.promedio ?? 0) - (reseniasPorCentro[a.id]?.promedio ?? 0));
         }
 
         if (filtro.trim() !== "") {
@@ -72,7 +135,7 @@ const Centros = () => {
 
     const centrosFiltrados = filtrarCentros();
 
-    //Paginación
+    //Paginaci�n
     const [paginaActual, setPaginaActual] = useState(1);
     const centrosPorPagina = 9;
 
@@ -87,7 +150,7 @@ const Centros = () => {
 
 
     useEffect(() => {
-        //Cada vez que cambie el filtro, reiniciar a la primera página
+        //Cada vez que cambie el filtro, reiniciar a la primera p�gina
         setPaginaActual(1);
     }, [filtro, filtroAplicado]);
 
@@ -106,7 +169,7 @@ const Centros = () => {
                     <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
                         <button className="cursor-pointer text-tertiary" onClick={() => setModalFiltro(true)}><IoFilterCircleOutline size={40} /></button>
                         <button className="cursor-pointer text-tertiary font-secondary font-black hover:underline"
-                            onClick={() => { setFiltroAplicado({ servicio: null, reseña: null }); setFiltroTemporal({ servicio: null, reseña: null }); setFiltro("") }}
+                            onClick={() => { setFiltroAplicado({ servicio: null, resena: null }); setFiltroTemporal({ servicio: null, resena: null }); setFiltro("") }}
                         >
                             Borrar filtro
                         </button>
@@ -115,33 +178,34 @@ const Centros = () => {
                 <div className="mt-8 mx-5 lg:mx-[20vh]">
                     <div className="flex flex-wrap gap-5 mt-6">
                         {centrosActuales.length === 0 ? (
-                            <p className="text-gray-600 mt-4">No se encontraron centros para tu búsqueda.</p>
+                            <p className="text-gray-600 mt-4">No se encontraron centros para tu b�squeda.</p>
                         ) : (
-                            centrosActuales.map((centro) => (
-                                <div key={centro.id} className="w-[22rem] shadow-md rounded-lg hover:shadow-lg transition-shadow bg-white p-3 cursor-pointer"
-                                    // onClick={() => navigate(`/turno/${centro.id}`)}
-                                    onClick={() => {
-                                        setCentroSeleccionado(centro);
-                                        setModalCentro(true);
-                                    }}
+                            centrosActuales.map((centro) => {
+                                const stats = reseniasPorCentro[centro.id];
+                                const promedioResenias = stats?.promedio ?? 0;
+                                const cantidadResenias = stats?.cantidad ?? 0;
 
-                                >
-                                    <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
-                                    <h3 className="text-lg font-bold font-primary">{centro.nombre}</h3>
-                                    <p className="text-gray-600 font-primary">{centro.descripcion}</p>
-                                    {Array.isArray(centro.resenias) && centro.resenias.length > 0 && (() => {
-                                        const promedio = centro.resenias.reduce((sum, r) => sum + r.puntuacion, 0) / centro.resenias.length;
-                                        const estrellasLlenas = Math.round(promedio);
-                                        const estrellasVacias = 5 - estrellasLlenas;
-                                        return (
+                                return (
+                                    <div key={centro.id} className="w-[22rem] shadow-md rounded-lg hover:shadow-lg transition-shadow bg-white p-3 cursor-pointer"
+                                        // onClick={() => navigate(`/turno/${centro.id}`)}
+                                        onClick={() => {
+                                            setCentroSeleccionado(centro);
+                                            setModalCentro(true);
+                                        }}
+
+                                    >
+                                        <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
+                                        <h3 className="text-lg font-bold font-primary">{centro.nombre}</h3>
+                                        <p className="text-gray-600 font-primary">{centro.descripcion}</p>
+                                        {cantidadResenias > 0 && (
                                             <p className="mt-2 text-tertiary font-primary">
-                                                {"★".repeat(estrellasLlenas) + "☆".repeat(estrellasVacias)} ({promedio.toFixed(1)})
+                                                {construirEtiquetaEstrellas(promedioResenias)} ({promedioResenias.toFixed(1)})
                                             </p>
-                                        );
-                                    })()}
+                                        )}
 
-                                </div>
-                            ))
+                                    </div>
+                                );
+                            })
                         )}
 
                     </div>
@@ -178,7 +242,7 @@ const Centros = () => {
 
                                     <h3 className="text-lg font-bold mb-3 font-primary text-center">{centroSeleccionado.nombre}</h3>
                                     <img src={centroSeleccionado.imagen} alt={centroSeleccionado.nombre} className="w-full h-50 object-cover rounded-md mb-4" />
-                                    <div className=""> 
+                                    <div className="">
                                         <p className="text-gray-600 font-primary"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
                                         {centroSeleccionado.domicilio && (
                                             <p className="text-gray-600 font-primary">
@@ -189,17 +253,11 @@ const Centros = () => {
                                             <p className="text-gray-600 font-primary"><b>Servicios:</b> {centroSeleccionado.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()).join(", ")}</p>
                                         </div>
 
-                                        {/* {centro.reseñas.length > 0 &&(
-                                            <p className="mt-2 text-yellow-500">
-                                                {"★".repeat(Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                    + "☆".repeat(5 - Math.round(centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length))
-                                                } ({centro.reseñas.reduce((sum, r) => sum + r.calificacion, 0) / centro.reseñas.length})
-                                            </p>
-                                        )} */}
+                                           
                                     </div>
                                     <div className="flex justify-around mt-3 mb-2">
                                         <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
-                                            onClick={() => navigate(`/calificaciones/${centroSeleccionado.id}`)}
+                                            onClick={() => navigate(`/centros/${centroSeleccionado.id}/resenias`)}
                                         >
                                             Ver reseñas
                                         </button>
@@ -248,12 +306,12 @@ const Centros = () => {
                                     </div>
 
                                     <div className="mx-3 mb-4">
-                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Reseña</label>
+                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Reseñas</label>
                                         <button
-                                            onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, reseña: prev.reseña == "true" ? null : "true" })); }}
-                                            className={`border border-secondary text-sm font-primary px-4 py-1 rounded-full cursor-pointer hover:bg-secondary transition ${filtroTemporal.reseña === "true" ? "bg-secondary text-white" : ""}`}
+                                            onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, resena: prev.resena == "true" ? null : "true" })); }}
+                                            className={`border border-secondary text-sm font-primary px-4 py-1 rounded-full cursor-pointer hover:bg-secondary transition ${filtroTemporal.resena === "true" ? "bg-secondary text-white" : ""}`}
                                         >
-                                            Ordenar por reseña
+                                            Ordenar por reseñas
                                         </button>
                                     </div>
                                 </div>
@@ -276,3 +334,4 @@ const Centros = () => {
 }
 
 export default Centros
+

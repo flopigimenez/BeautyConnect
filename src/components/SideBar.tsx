@@ -13,12 +13,12 @@ type Item = {
 
 const items: Item[] = [
   { to: "/panel",       label: "Panel", icon: LuPanelsLeftBottom },
-  { to: "/calendario",  label: "Calendario", icon: CiCalendarDate },
-  { to: "/clientes",    label: "Clientes", icon: PiUsers },
-  { to: "/servicio",   label: "Servicios", icon: RiScissorsLine },
-  { to: "/profesionales", label: "Profesionales", icon: CiUser },
-  { to: "/configPrestador",      label: "Configuración", icon: IoSettingsOutline },
-  
+  { to: "/prestador/calendario",  label: "Calendario", icon: CiCalendarDate },
+  { to: "/prestador/clientes",    label: "Clientes", icon: PiUsers },
+  { to: "/prestador/servicio",   label: "Servicios", icon: RiScissorsLine },
+  { to: "/prestador/profesionales", label: "Profesionales", icon: CiUser },
+  { to: "/prestador/configPrestador",      label: "Configuración", icon: IoSettingsOutline },
+
 ];
 
 export default function Sidebar() {
