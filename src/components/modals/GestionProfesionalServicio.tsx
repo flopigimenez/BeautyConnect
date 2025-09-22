@@ -6,6 +6,7 @@ import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/Pro
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 import { ServicioService } from "../../services/ServicioService";
+import { PrestadorServicioService } from "../../services/PrestadorServicioService";
 type Props = {
   profesional: ProfesionalResponseDTO;
   centroId?: number;
@@ -46,7 +47,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
   const crearRelacion = (dto: ProfesionalServicioDTO) =>
     api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
   const eliminarRelacion = (id: number) =>
-    api<void>(`/api/prof-servicios/${id}`, { method: "DELETE" });
+    api<void>(`/api/prof-servicios/delete/${id}`, { method: "DELETE" });
 
   useEffect(() => {
     const load = async () => {
@@ -83,6 +84,18 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     };
     load();
   }, [profesional.id, centroId]);
+
+  const buildRelacionEntry = (
+  entry?: { id?: number; duracion: number; configured: boolean; saving?: boolean },
+  overrides?: Partial<{ id?: number; duracion: number; configured: boolean; saving?: boolean }>
+) => ({
+  id: entry?.id,
+  duracion: entry?.duracion ?? 30,
+  configured: entry?.configured ?? false,
+  ...entry,
+  ...overrides,
+});
+
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal>
@@ -140,7 +153,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                             disabled={saving}
                             onClick={async () => {
                               try {
-                                setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: true } as any }));
+                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
                                 const dto: ProfesionalServicioDTO = {
                                   id: 0,
                                   profesionalId: profesional.id,
@@ -153,7 +166,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                               } catch (e: unknown) {
                                 alert((e as Error).message ?? "Error al guardar relación");
                               } finally {
-                                setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
+                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
                               }
                             }}
                           >
@@ -166,13 +179,13 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                               onClick={async () => {
                                 if (!confirm("¿Desvincular servicio de este profesional?")) return;
                                 try {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: true } as any }));
-                                  await eliminarRelacion(r.id!);
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { duracion: 30, configured: false } }));
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
+                                  await profesionalServicioService.cambiarEstado(r.id);
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { duracion: 30, configured: false }) }));
                                 } catch (e: unknown) {
                                   alert((e as Error).message ?? "Error al eliminar relación");
                                 } finally {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
                                 }
                               }}
                             >

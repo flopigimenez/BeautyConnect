@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
-import LoginModal from "./modals/LoginModal"; 
+import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const NavbarPrestador = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -22,6 +22,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
+    localStorage.removeItem("user");
   };
 
   return (
@@ -34,29 +35,27 @@ const Navbar = () => {
             </Link>
           </div>
 
-
-          {/* Autenticación */}
           <div className="ml-10 flex items-center space-x-4">
             {user ? (
               <>
                 <span className="text-sm text-gray-700 font-primary">Hola, {user.email}</span>
+                <Link to="/prestador/calendario" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
+                  Calendario
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"
                 >
-                  Cerrar sesión
+                  Cerrar sesion
                 </button>
-
               </>
             ) : (
-              <>
-                <button
-                  onClick={() => setIsLoginOpen(true)}
-                  className="text-gray-600 hover:text-gray-900 font-primary"
-                >
-                  Ingresar
-                </button>
-              </>
+              <button
+                onClick={() => setIsLoginOpen(true)}
+                className="text-gray-600 hover:text-gray-900 font-primary"
+              >
+                Ingresar
+              </button>
             )}
           </div>
         </div>
@@ -68,4 +67,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarPrestador;

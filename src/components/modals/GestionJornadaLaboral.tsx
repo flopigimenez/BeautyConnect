@@ -106,7 +106,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
       ...prev,
       [dia]: {
         ...prev[dia],
-        [field]: value as any,
+        [field]: value as unknown,
       },
     }));
   };

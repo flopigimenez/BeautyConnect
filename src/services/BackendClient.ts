@@ -44,7 +44,8 @@ export abstract class BackendClient<RequestType, ResponseType> extends AbstractB
       if (text) {
         return JSON.parse(text) as ResponseType;
       }
-    } catch (_) {
+    } catch (error) {
+      console.error("Error al procesar la respuesta:", error);
       // Ignorar parseo fallido y continuar con fallback
     }
     // Fallback: devolver el mismo payload tipado como respuesta

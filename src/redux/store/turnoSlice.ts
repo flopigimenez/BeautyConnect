@@ -24,8 +24,8 @@ export const createTurno = createAsyncThunk(
         try {
             const response = await turnoService.post(turnoData);
             return response;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Error al crear turno');
+        } catch (error: unknown) {
+            return rejectWithValue((error as Error).message || 'Error al crear turno');
         }
     }
 );
@@ -36,8 +36,8 @@ export const getTurnoById = createAsyncThunk(
         try {
             const response = await turnoService.getById(id);
             return response;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Error al obtener turno');
+        } catch (error: unknown) {
+            return rejectWithValue((error as Error).message || 'Error al obtener turno');
         }
     }
 );
@@ -60,8 +60,8 @@ export const deleteTurno = createAsyncThunk(
         try {
             await turnoService.delete(id);
             return id;
-        } catch (error: any) {
-            return rejectWithValue(error.message || 'Error al eliminar turno');
+        } catch (error: unknown) {
+            return rejectWithValue((error as Error).message || 'Error al eliminar turno');
         }
     }
 );

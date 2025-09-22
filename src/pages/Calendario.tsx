@@ -55,9 +55,9 @@ export default function Calendario() {
         if (isMounted) {
           setCentroId(typeof cId === "number" ? cId : null);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (isMounted) {
-          setErrorCentro(e?.message ?? "Error al cargar centro");
+          setErrorCentro((e as Error).message ?? "Error al cargar centro");
           setCentroId(null);
         }
       } finally {

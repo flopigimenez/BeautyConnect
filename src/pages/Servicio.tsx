@@ -77,7 +77,7 @@ const Servicio = () => {
                 },
                 {
                   header: "Acciones",
-                  accessor: "acciones" as any, // si tu tabla exige accessor
+                  // accessor: "acciones" as any, // si tu tabla exige accessor
                   render: (row) => (
                     <div className="flex space-x-3">
                       <button
@@ -87,6 +87,7 @@ const Servicio = () => {
                       >
                         Editar
                       </button>
+                      
                     </div>
                   ),
                 },

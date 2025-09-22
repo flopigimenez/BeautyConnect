@@ -45,7 +45,7 @@ export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, 
 
   async update(id: number, data: CentroDeEsteticaDTO): Promise<CentroEsteticaResponseDTO> {
     const res = await fetch(`${this.baseUrl}/update/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
