@@ -5,8 +5,10 @@ import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
 import NavbarPrestador from "./NavbarPrestador";
-import { useAppSelector } from "../redux/store/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Rol } from "../types/enums/Rol";
+import { clearCentro } from "../redux/store/miCentroSlice";
+import { clearUser } from "../redux/store/authSlice";
 
 const isRolValue = (value: string | null | undefined): value is Rol => {
   return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
@@ -15,6 +17,7 @@ const isRolValue = (value: string | null | undefined): value is Rol => {
 const NavbarCliente = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -29,7 +32,9 @@ const NavbarCliente = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    localStorage.removeItem("user");
+    dispatch(clearUser());
+    dispatch(clearCentro());
+    
   };
 
   return (
