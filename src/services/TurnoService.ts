@@ -1,10 +1,11 @@
+import type { EstadoTurno } from "../types/enums/EstadoTurno";
 import type { TurnoDTO } from "../types/turno/TurnoDTO";
 import type { TurnoResponseDTO } from "../types/turno/TurnoResponseDTO";
 import { BackendClient } from "./BackendClient";
 
 export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
   constructor() {
-    const base =  "http://localhost:8080";
+    const base = "http://localhost:8080";
     super(`${base}/api/turnos`);
   }
 
@@ -31,4 +32,46 @@ export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
     if (!response.ok) throw new Error("No se pudo obtener turnos del centro");
     return await response.json();
   }
+
+  async cambiarEstado(id: number, estado: EstadoTurno): Promise<TurnoResponseDTO> {
+    const resp = await fetch(`${this.baseUrl}/${id}/estado/${estado}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" }
+    });
+    if (!resp.ok) throw new Error("No se pudo cambiar el estado");
+    return await resp.json();
+  }
+
+  async contarPorFecha(fecha: Date, id: number): Promise<number> {
+    const response = await fetch(`${this.baseUrl}/centro/${id}/fecha/${fecha.toISOString().split("T")[0]}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener cantidad de turnos por fecha");
+    }
+
+    const data: number = await response.json();
+    return data;
+  }
+
+  async contarPorSemana(fecha: Date, id: number): Promise<number> {
+    const response = await fetch(`${this.baseUrl}/centro/${id}/semana/${fecha.toISOString().split("T")[0]}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al obtener cantidad de turnos por semana");
+    }
+
+    const data: number = await response.json();
+    return data;
+  }
+
 }

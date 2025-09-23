@@ -12,7 +12,7 @@ type Item = {
 };
 
 const items: Item[] = [
-  { to: "/panel",       label: "Panel", icon: LuPanelsLeftBottom },
+  { to: "/prestador/panel",       label: "Panel", icon: LuPanelsLeftBottom },
   { to: "/prestador/calendario",  label: "Calendario", icon: CiCalendarDate },
   { to: "/prestador/clientes",    label: "Clientes", icon: PiUsers },
   { to: "/prestador/servicio",   label: "Servicios", icon: RiScissorsLine },

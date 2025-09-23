@@ -10,11 +10,13 @@ import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { EstadoTurno } from "../types/enums/EstadoTurno";
 import { ReseniaService } from "../services/ReseniaService";
 import { RxCross2 } from "react-icons/rx";
+import { TurnoService } from "../services/TurnoService";
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
     const misTurnos = useAppSelector((state) => state.misTurnos.misTurnos);
     const user = useAppSelector((state) => state.user.user);
+    const turnoService = new TurnoService();
 
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
@@ -168,12 +170,20 @@ export default function MisTurnos() {
             turno => turno.estado === filtroAplicado.estado
         );
     }
-    
+
     useEffect(() => {
         if (user?.usuario?.rol === "CLIENTE" && user) {
             dispatch(fetchTurnosCliente(user.id));
         }
     }, [dispatch, user]);
+
+    const cambiarEstado = async (id: number, estado: EstadoTurno) => {
+    try {
+      await turnoService.cambiarEstado(id, estado);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -246,6 +256,17 @@ export default function MisTurnos() {
                                         </button>
                                     );
                                 }
+                            },
+                            {
+                                header: "Acciones", accessor: "estado", render: (row) => (
+                                    <div className="flex gap-2">
+                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
+                                            onClick={() => cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                )
                             },
                         ]}
                         data={turnosFiltrados ?? []}

@@ -385,7 +385,6 @@ const Turnos = () => {
                         profesionalServicioId: profServicio.id,
                         centroId: centroSeleccionado.id,
                       };
-                      console.log("Nuevo turno a crear:", nuevoTurno);
                       
                       dispatch(createTurno(nuevoTurno))
                         .unwrap()

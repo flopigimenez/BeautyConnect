@@ -61,7 +61,7 @@ export const AppRouter = () => {
         {/* Rutas protegidas para prestadores */}
         <Route path="/prestador/panel"
           element={
-            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
               <ResumenCitas />
             </ProtectedRoute>
           }
@@ -111,7 +111,7 @@ export const AppRouter = () => {
         <Route
           path="/admin/solicitudDeSalones"
           element={
-            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
               <SolicitudDeSalones />
             </ProtectedRoute>
           }
