@@ -190,74 +190,77 @@ export default function MisTurnos() {
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto px-15 py-16">
-                    <CustomTable<TurnoResponseDTO>
-                        title="Mis Turnos"
-                        columns={[
-                            {
-                                header: "Fecha", accessor: "fecha", render: row => {
-                                    const fecha = new Date(row.fecha);
-                                    return fecha.toLocaleDateString("es-AR");
-                                }
-                            },
-                            { header: "Hora", accessor: "hora" },
-                            {
-                                header: "Servicio", accessor: "profesionalServicio", render: row =>
-                                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                                        .split('_')
-                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ')
-                            },
-                            {
-                                header: "Profesional", accessor: "profesionalServicio", render: row =>
-                                    `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
-                                    ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
-                            },
-                            {
-                                header: "Estado", accessor: "estado", render: row => (
-                                    <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
-                                        {row.estado.toLowerCase()
+                    {turnosFiltrados.length == 0 ? (
+                        <h2 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52] text-center pt-5">No tenes turnos</h2>
+                    ) : (
+                        <CustomTable<TurnoResponseDTO>
+                            title="Mis Turnos"
+                            columns={[
+                                {
+                                    header: "Fecha", accessor: "fecha", render: row => {
+                                        const fecha = new Date(row.fecha);
+                                        return fecha.toLocaleDateString("es-AR");
+                                    }
+                                },
+                                { header: "Hora", accessor: "hora" },
+                                {
+                                    header: "Servicio", accessor: "profesionalServicio", render: row =>
+                                        row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
                                             .split('_')
                                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(' ')}
-                                    </span>
-                                )
-                            },
-                            {
-                                header: "Centro",
-                                accessor: "centroDeEsteticaResponseDTO",
-                                render: (row) => row.centroDeEstetica?.nombre ?? row.centroDeEsteticaResponseDTO?.nombre ?? "Sin centro"
-                            },
-                            {
-                                header: "Acciones",
-                                render: (row) => {
-                                    const centroId = row.centroDeEstetica?.id ?? row.centroDeEsteticaResponseDTO?.id ?? null;
-                                    const resenaRegistrada = centroId ? resenasPorCentro[centroId] ?? null : null;
+                                            .join(' ')
+                                },
+                                {
+                                    header: "Profesional", accessor: "profesionalServicio", render: row =>
+                                        `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
+                                    ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
+                                },
+                                {
+                                    header: "Estado", accessor: "estado", render: row => (
+                                        <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
+                                            {row.estado.toLowerCase()
+                                                .split('_')
+                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                .join(' ')}
+                                        </span>
+                                    )
+                                },
+                                {
+                                    header: "Centro",
+                                    accessor: "centroDeEsteticaResponseDTO",
+                                    render: (row) => row.centroDeEstetica?.nombre ?? row.centroDeEsteticaResponseDTO?.nombre ?? "Sin centro"
+                                },
+                                {
+                                    header: "Acciones",
+                                    render: (row) => {
+                                        const centroId = row.centroDeEstetica?.id ?? row.centroDeEsteticaResponseDTO?.id ?? null;
+                                        const resenaRegistrada = centroId ? resenasPorCentro[centroId] ?? null : null;
 
-                                    if (resenaRegistrada != null) {
+                                        if (resenaRegistrada != null) {
+                                            return (
+                                                <span className="text-yellow-500 font-semibold" title={`${resenaRegistrada} de 5`}>
+                                                    {renderStars(resenaRegistrada)}
+                                                </span>
+                                            );
+                                        }
+
+                                        const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.FINALIZADO;
+
+                                        if (!habilitado) {
+                                            return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
+                                        }
+
                                         return (
-                                            <span className="text-yellow-500 font-semibold" title={`${resenaRegistrada} de 5`}>
-                                                {renderStars(resenaRegistrada)}
-                                            </span>
+                                            <button
+                                                onClick={() => abrirModalResena(row)}
+                                                className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition"
+                                            >
+                                                Dejar reseña
+                                            </button>
                                         );
                                     }
-
-                                    const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.FINALIZADO;
-
-                                    if (!habilitado) {
-                                        return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
-                                    }
-
-                                    return (
-                                        <button
-                                            onClick={() => abrirModalResena(row)}
-                                            className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition"
-                                        >
-                                            Dejar reseña
-                                        </button>
-                                    );
-                                }
-                            },
-                            {
+                                },
+                                {
                                 header: "Acciones", accessor: "estado", render: (row) => (
                                     <div className="flex gap-2">
                                         <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
@@ -268,15 +271,16 @@ export default function MisTurnos() {
                                     </div>
                                 )
                             },
-                        ]}
-                        data={turnosFiltrados ?? []}
-                        borrarFiltros={{
-                            onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
-                        }}
-                        filtros={{
-                            onClick: () => setModalFiltro(true),
-                        }}
-                    />
+                            ]}
+                            data={turnosFiltrados ?? []}
+                            borrarFiltros={{
+                                onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
+                            }}
+                            filtros={{
+                                onClick: () => setModalFiltro(true),
+                            }}
+                        />
+                    )}
                 </main>
             </div>
             {modalFiltro && (

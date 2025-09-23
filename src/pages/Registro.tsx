@@ -13,6 +13,7 @@ import { setUser } from "../redux/store/authSlice";
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
+import { RxCross2 } from "react-icons/rx";
 
 const Registro = () => {
     const navigate = useNavigate();
@@ -150,7 +151,7 @@ const Registro = () => {
                     <p className="font-primary">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="nombre">Nombre</label>
                             <input
                                 type="text"
                                 id="nombre"
@@ -161,7 +162,7 @@ const Registro = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="apellido">Apellido</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="apellido">Apellido</label>
                             <input
                                 type="text"
                                 id="apellido"
@@ -172,7 +173,7 @@ const Registro = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="mail">Correo electrónico</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="mail">Correo electrónico</label>
                             <input
                                 type="email"
                                 id="email"
@@ -184,7 +185,7 @@ const Registro = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="telefono">Teléfono</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="telefono">Teléfono</label>
                             <input
                                 type="number"
                                 id="telefono"
@@ -195,62 +196,7 @@ const Registro = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
-                            <div className="flex gap-2 mb-5">
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="calle">Calle</label>
-                                    <input
-                                        type="text"
-                                        id="direccion"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Calle"
-                                        value={domicilio.calle}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, calle: e.target.value }))}
-                                        required
-                                    />
-                                </div>
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="numero">Numero</label>
-                                    <input
-                                        type="number"
-                                        id="numero"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Número"
-                                        value={domicilio.numero || ""}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="localidad">Localidad</label>
-                                    <input
-                                        type="text"
-                                        id="localidad"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Localidad"
-                                        value={domicilio.localidad}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, localidad: e.target.value }))}
-                                        required
-                                    />
-                                </div>
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="codigoPostal">Código postal</label>
-                                    <input
-                                        type="number"
-                                        id="codigoPostal"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Código postal"
-                                        value={domicilio.codigoPostal || ""}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="password">Contraseña</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="password">Contraseña</label>
                             <input
                                 type="password"
                                 id="password"
@@ -262,7 +208,7 @@ const Registro = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="confirmPassword">Confirmar contraseña</label>
+                            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="confirmPassword">Confirmar contraseña</label>
                             <input
                                 type="password"
                                 id="confirmPassword"
@@ -272,6 +218,63 @@ const Registro = () => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                         </div>
+                        {prestador == false && (
+                            <div className="mb-5 bg-gray-100 p-3 rounded-2xl">
+                                <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Direccion</label>
+                                <div className="flex gap-2 mb-5">
+                                    <div className="w-[50%]">
+                                        <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="calle">Calle</label>
+                                        <input
+                                            type="text"
+                                            id="direccion"
+                                            className="w-full p-2 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                            placeholder="Calle"
+                                            value={domicilio.calle}
+                                            onChange={(e) => setDomicilio(prev => ({ ...prev, calle: e.target.value }))}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="w-[50%]">
+                                        <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="numero">Numero</label>
+                                        <input
+                                            type="number"
+                                            id="numero"
+                                            className="w-full p-2 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                            placeholder="Número"
+                                            value={domicilio.numero || ""}
+                                            onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="w-[50%]">
+                                        <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="localidad">Localidad</label>
+                                        <input
+                                            type="text"
+                                            id="localidad"
+                                            className="w-full p-2 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                            placeholder="Localidad"
+                                            value={domicilio.localidad}
+                                            onChange={(e) => setDomicilio(prev => ({ ...prev, localidad: e.target.value }))}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="w-[50%]">
+                                        <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="codigoPostal">Código postal</label>
+                                        <input
+                                            type="number"
+                                            id="codigoPostal"
+                                            className="w-full p-2 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                            placeholder="Código postal"
+                                            value={domicilio.codigoPostal || ""}
+                                            onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex flex-col items-center mb-5">
                             <div className="mb-8 grid grid-cols-2 gap-30">
                                 <button type="button"

@@ -20,6 +20,8 @@ import ResumenCitas from "../pages/ResumenCitas";
 // Componente AppRouter que define las rutas de la aplicación
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Rol } from "../types/enums/Rol";
+import CentrosRechazados from "../pages/CentrosRechazados";
+import CentrosAceptados from "../pages/CentrosAceptados";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -113,6 +115,22 @@ export const AppRouter = () => {
           element={
             <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
               <SolicitudDeSalones />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/centrosAceptados"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+              <CentrosAceptados />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/centrosRechazados"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+              <CentrosRechazados />
             </ProtectedRoute>
           }
         />

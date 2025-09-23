@@ -7,10 +7,10 @@ import { RxCross2 } from "react-icons/rx";
 import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { fetchCentrosAceptados } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { ReseniaService } from "../services/ReseniaService";
+import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 
 const RATING_SCALE = 5;
 const FULL_STAR = "\u2605";
@@ -30,12 +30,12 @@ const construirEtiquetaEstrellas = (promedio: number) => {
 const Centros = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const centros = useAppSelector((state) => state.centros.aceptados);
+    const centros = useAppSelector((state) => state.centros.centros);
     const reseniaService = useMemo(() => new ReseniaService(), []);
     const [reseniasPorCentro, setReseniasPorCentro] = useState<Record<number, ResenaStats>>({});
 
     useEffect(() => {
-        dispatch(fetchCentrosAceptados(Estado.ACEPTADO));
+        dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
     }, [dispatch]);
 
     useEffect(() => {
