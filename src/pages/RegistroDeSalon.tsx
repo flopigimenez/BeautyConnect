@@ -3,6 +3,8 @@ import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEste
 import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { useNavigate } from "react-router-dom";
+import { setCentro } from "../redux/store/miCentroSlice";
+import { useAppDispatch } from "../redux/store/hooks";
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
@@ -16,14 +18,15 @@ const RegistroDeSalon = () => {
         cuit: parseInt(""),
         domicilio: {
             calle: "",
-            numero: parseInt(""), 
-            localidad: "", 
+            numero: parseInt(""),
+            localidad: "",
             codigoPostal: parseInt(""),
         },
         horariosCentro: [],
     });
     const centroService = new CentroDeEsteticaService();
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
         const file = e.target.files?.[0];
@@ -59,7 +62,8 @@ const RegistroDeSalon = () => {
 
     const handleRegistrarSalon = async () => {
         try {
-            await centroService.post(registroDeSalon);
+            const centro = await centroService.post(registroDeSalon);
+            dispatch(setCentro(centro));
             alert("Centro registrado");
             navigate("/PendienteAprobacion");
         } catch (error) {
@@ -125,7 +129,7 @@ const RegistroDeSalon = () => {
                                     className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                     placeholder="Calle"
                                     value={registroDeSalon.domicilio.calle}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, calle: e.target.value },}))}
+                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, calle: e.target.value }, }))}
                                     required
                                 />
                             </div>
@@ -137,7 +141,7 @@ const RegistroDeSalon = () => {
                                     className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                     placeholder="Número"
                                     value={registroDeSalon.domicilio.numero || ""}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio,  numero: parseInt(e.target.value) },}))}
+                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, numero: parseInt(e.target.value) }, }))}
                                     required
                                 />
                             </div>
@@ -151,7 +155,7 @@ const RegistroDeSalon = () => {
                                     className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                     placeholder="Localidad"
                                     value={registroDeSalon.domicilio.localidad}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, localidad: e.target.value },}))}
+                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, localidad: e.target.value }, }))}
                                     required
                                 />
                             </div>
@@ -163,7 +167,7 @@ const RegistroDeSalon = () => {
                                     className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                     placeholder="Código postal"
                                     value={registroDeSalon.domicilio.codigoPostal || ""}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, codigoPostal: parseInt(e.target.value) },}))}
+                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, codigoPostal: parseInt(e.target.value) }, }))}
                                     required
                                 />
                             </div>
