@@ -5,18 +5,18 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+import { Switch } from "@mui/material";
+import Swal from "sweetalert2";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
-// import { RxCross2 } from "react-icons/rx";
 
-export default function SolicitudDeSalones() {
+export default function CentrosAceptados() {
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
     const centroService = new CentroDeEsteticaService();
-    // const [verMas, setVerMas] = useState<boolean>(false);
 
     useEffect(() => {
-        dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
+        dispatch(fetchCentrosPorEstado(Estado.ACEPTADO));
     }, [dispatch]);
 
     const centrosFiltrados = centros
@@ -31,19 +31,6 @@ export default function SolicitudDeSalones() {
             )
         );
 
-    const cambiarEstado = async (id: number, estado: Estado) => {
-        try {
-            await centroService.cambiarEstado(id, estado);
-            dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
-            if (estado == Estado.ACEPTADO) {
-                alert("Se aceptó el centro")
-            } else {
-                alert("Se rechazó el centro")
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -51,7 +38,7 @@ export default function SolicitudDeSalones() {
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto mx-8 my-20">
                     <CustomTable<CentroEsteticaResponseDTO>
-                        title="Solicitud de Salones"
+                        title="Centros Aceptados"
                         columns={[
                             {
                                 header: "", accessor: "imagen", render: row => (
@@ -77,12 +64,15 @@ export default function SolicitudDeSalones() {
                                         </a>
                                         : "No subido"
                             },
-                            // {
-                            //     header: "Servicios", accessor: "servicios", render: (row) =>
-                            //         Array.isArray(row.servicios)
-                            //             ? row.servicios.map(servicio => servicio.tipoDeServicio).join(", ")
-                            //             : "Sin servicios"
-                            // },
+                            {
+                                header: "Servicios", accessor: "servicios", render: (row) =>
+                                    Array.isArray(row.servicios)
+                                        ? row.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(", "))
+                                        : "Sin servicios"
+                            },
                             {
                                 header: "Domicilio", accessor: "domicilio", render: (row) =>
                                     row.domicilio
@@ -101,33 +91,27 @@ export default function SolicitudDeSalones() {
                                 )
                             },
                             {
-                                header: "Acciones", render: (row) => (
-                                    <div className="flex gap-2">
-                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102"
-                                            onClick={() => cambiarEstado(row.id, Estado.ACEPTADO)}
-                                        >
-                                            Aprobar
-                                        </button>
-                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
-                                            onClick={() => cambiarEstado(row.id, Estado.RECHAZADO)}
-                                        >
-                                            Rechazar
-                                        </button>
-                                    </div>
-                                )
+                                header: "Acciones",
+                                accessor: "active",
+                                render: (centro: CentroEsteticaResponseDTO) => (
+                                    <Switch
+                                        checked={centro.active}
+                                        onChange={async () => {
+                                            try {
+                                                await centroService.activar_desactivar(centro.id);
+                                                dispatch(fetchCentrosPorEstado(Estado.ACEPTADO));
+                                            } catch (error) {
+                                                Swal.fire(
+                                                    error instanceof Error ? error.message : String(error),
+                                                    "No se pudo actualizar el estado",
+                                                    "error"
+                                                );
+                                            }
+                                        }}
+                                        color="secondary"
+                                    />
+                                ),
                             },
-                            // {
-                            //     header: "Ver más", render: (row) => (
-                            //         <div>
-                            //             <button className="border border-tertiary text-tertiary py-1 px-2 rounded-full hover:bg-tertiary hover:text-white hover:scale-102"
-                            //                 onClick={() => setVerMas(true)}
-                            //             >
-                            //                 Ver
-                            //             </button>
-                            //         </div>
-
-                            //     )
-                            // }
                         ]}
                         data={centrosFiltrados}
                         busqueda={{

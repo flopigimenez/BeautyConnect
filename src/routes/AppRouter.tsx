@@ -18,6 +18,8 @@ import ConfigPrestador from "../pages/ConfigPrestador";
 import Calendario from "../pages/Calendario";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Rol } from "../types/enums/Rol";
+import CentrosRechazados from "../pages/CentrosRechazados";
+import CentrosAceptados from "../pages/CentrosAceptados";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -102,8 +104,24 @@ export const AppRouter = () => {
         <Route
           path="/admin/solicitudDeSalones"
           element={
-            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
               <SolicitudDeSalones />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/centrosAceptados"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+              <CentrosAceptados />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/centrosRechazados"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+              <CentrosRechazados />
             </ProtectedRoute>
           }
         />

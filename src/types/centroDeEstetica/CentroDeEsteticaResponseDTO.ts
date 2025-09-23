@@ -12,6 +12,7 @@ export interface CentroEsteticaResponseDTO {
     imagen: string;
     docValido: string;
     cuit: number;
+    active: boolean;
     estado: Estado;
     domicilio: DomicilioResponseDTO;
     servicios: ServicioResponseDTOSimple[];
