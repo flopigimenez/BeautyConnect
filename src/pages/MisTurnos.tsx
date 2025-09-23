@@ -178,12 +178,13 @@ export default function MisTurnos() {
     }, [dispatch, user]);
 
     const cambiarEstado = async (id: number, estado: EstadoTurno) => {
-    try {
-      await turnoService.cambiarEstado(id, estado);
-    } catch (error) {
-      console.log(error);
+        try {
+            await turnoService.cambiarEstado(id, estado);
+            dispatch(fetchTurnosCliente(user!.id))
+        } catch (error) {
+            console.log(error);
+        }
     }
-  }
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -228,7 +229,13 @@ export default function MisTurnos() {
                                 {
                                     header: "Centro",
                                     accessor: "centroDeEsteticaResponseDTO",
-                                    render: (row) => row.centroDeEstetica?.nombre ?? row.centroDeEsteticaResponseDTO?.nombre ?? "Sin centro"
+                                    render: (row) => row.centroDeEstetica?.nombre.toLowerCase()
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ') ?? row.centroDeEsteticaResponseDTO?.nombre.toLowerCase()
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ') ?? "Sin centro"
                                 },
                                 {
                                     header: "Acciones",
@@ -261,16 +268,28 @@ export default function MisTurnos() {
                                     }
                                 },
                                 {
-                                header: "Acciones", accessor: "estado", render: (row) => (
-                                    <div className="flex gap-2">
-                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
-                                            onClick={() => cambiarEstado(row.id, EstadoTurno.CANCELADO)}
-                                        >
-                                            Cancelar
-                                        </button>
-                                    </div>
-                                )
-                            },
+                                    header: "",
+                                    accessor: "estado",
+                                    render: (row) => {
+                                        const isPending = row.estado === EstadoTurno.PENDIENTE;
+
+                                        return (
+                                            <div className="flex gap-2">
+                                                <button
+                                                    disabled={!isPending}
+                                                    className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                                                            ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                                                            : "bg-gray-400 cursor-not-allowed"
+                                                        }`}
+                                                    onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                                                >
+                                                    Cancelar turno
+                                                </button>
+                                            </div>
+                                        );
+                                    }
+                                }
+
                             ]}
                             data={turnosFiltrados ?? []}
                             borrarFiltros={{

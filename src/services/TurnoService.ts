@@ -51,11 +51,9 @@ export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
     });
 
     if (!response.ok) {
-      throw new Error("Error al obtener cantidad de turnos por fecha");
+      throw new Error("Error al obtener cantidad de turnos por semana");
     }
-
-    const data: number = await response.json();
-    return data;
+    return await response.json();
   }
 
   async contarPorSemana(fecha: Date, id: number): Promise<number> {
@@ -69,9 +67,7 @@ export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
     if (!response.ok) {
       throw new Error("Error al obtener cantidad de turnos por semana");
     }
-
-    const data: number = await response.json();
-    return data;
+    return await response.json();
   }
 
 }

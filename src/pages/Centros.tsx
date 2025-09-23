@@ -195,7 +195,10 @@ const Centros = () => {
 
                                     >
                                         <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
-                                        <h3 className="text-lg font-bold font-primary">{centro.nombre}</h3>
+                                        <h3 className="text-lg font-bold font-primary">{centro.nombre.toLowerCase()
+                                                .split('_')
+                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                                .join(' ')}</h3>
                                         <p className="text-gray-600 font-primary">{centro.descripcion}</p>
                                         {cantidadResenias > 0 && (
                                             <p className="mt-2 text-tertiary font-primary">

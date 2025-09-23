@@ -46,6 +46,7 @@ export default function ResumenCitas() {
   const cambiarEstado = async (id: number, estado: EstadoTurno) => {
     try {
       await turnoService.cambiarEstado(id, estado);
+      dispatch(fetchTurnosCentro(centro!.id));
     } catch (error) {
       console.log(error);
     }
@@ -103,21 +104,37 @@ export default function ResumenCitas() {
                 )
               },
               {
-                header: "Acciones", accessor: "estado", render: (row) => (
-                  <div className="flex gap-2">
-                    <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102"
-                      onClick={() => cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
-                    >
-                      Finalizar
-                    </button>
-                    <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
-                      onClick={() => cambiarEstado(row.id, EstadoTurno.CANCELADO)}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                )
-              },
+                header: "Acciones",
+                accessor: "estado",
+                render: (row) => {
+                  const isPending = row.estado === EstadoTurno.PENDIENTE;
+
+                  return (
+                    <div className="flex gap-2">
+                      <button
+                        disabled={!isPending}
+                        className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                            ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
+                            : "bg-gray-300 cursor-not-allowed"
+                          }`}
+                        onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
+                      >
+                        Finalizar
+                      </button>
+                      <button
+                        disabled={!isPending}
+                        className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                            ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                            : "bg-gray-300 cursor-not-allowed"
+                          }`}
+                        onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  );
+                }
+              }
             ]}
             data={misTurnos}
           />
