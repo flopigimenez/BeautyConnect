@@ -24,6 +24,13 @@ export const fetchTurnosCliente = createAsyncThunk<TurnoResponseDTO[], number>(
   }
 );
 
+export const fetchTurnosCentro = createAsyncThunk<TurnoResponseDTO[], number>(
+  "turnos/fetchCentro",
+  async (centroId) => {
+    return await turnoService.getByCentroId(centroId); // Implementa este método en tu servicio
+  }
+);
+
 const misTurnosSlice = createSlice({
   name: "misTurnos",
   initialState,
@@ -39,7 +46,19 @@ const misTurnosSlice = createSlice({
       })
       .addCase(fetchTurnosCliente.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Error al cargar turnos";
+        state.error = action.error.message || "Error al cargar turnos del cliente";
+      });
+    builder
+      .addCase(fetchTurnosCentro.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchTurnosCentro.fulfilled, (state, action) => {
+        state.loading = false;
+        state.misTurnos = action.payload;
+      })
+      .addCase(fetchTurnosCentro.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Error al cargar turnos del centro";
       });
   },
 });

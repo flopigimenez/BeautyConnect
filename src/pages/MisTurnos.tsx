@@ -15,7 +15,6 @@ export default function MisTurnos() {
     const dispatch = useAppDispatch();
     const misTurnos = useAppSelector((state) => state.misTurnos.misTurnos);
     const user = useAppSelector((state) => state.user.user);
-    console.log(user);
 
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
@@ -169,11 +168,10 @@ export default function MisTurnos() {
             turno => turno.estado === filtroAplicado.estado
         );
     }
-    console.log(turnosFiltrados);
+    
     useEffect(() => {
         if (user?.usuario?.rol === "CLIENTE" && user) {
             dispatch(fetchTurnosCliente(user.id));
-            console.log(user.nombre);
         }
     }, [dispatch, user]);
 
