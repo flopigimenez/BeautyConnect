@@ -5,6 +5,7 @@ import userReducer from '../redux/store/authSlice'
 import clienteReducer from '../redux/store/clienteSlice'
 import misTurnosReducer from './store/misTurnosSlice'
 import turnoReducer from '../redux/store/turnoSlice'
+import miCentroReducer from '../redux/store/miCentroSlice'
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     reseñas: reseñaReducer,
     misTurnos: misTurnosReducer,
     turno: turnoReducer,
+    miCentro: miCentroReducer,
   },
 })
 

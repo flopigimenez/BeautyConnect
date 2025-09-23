@@ -59,9 +59,9 @@ export const AppRouter = () => {
         />
 
         {/* Rutas protegidas para prestadores */}
-        <Route path="/panel"
+        <Route path="/prestador/panel"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
               <ResumenCitas />
             </ProtectedRoute>
           }

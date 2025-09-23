@@ -11,14 +11,13 @@ import { fetchTurnosCentro } from "../redux/store/misTurnosSlice";
 export default function ResumenCitas() {
   const dispatch = useAppDispatch();
   const misTurnos = useAppSelector((state) => state.misTurnos.misTurnos);
-  const user = useAppSelector((state) => state.user.user);
+  const centro = useAppSelector((state) => state.miCentro.centro)
 
   useEffect(() => {
-    if (user?.usuario?.rol === "PRESTADOR_DE_SERVICIO") {
-      dispatch(fetchTurnosCentro(user.id));
-      console.log(user.nombre);
+    if (centro) {
+      dispatch(fetchTurnosCentro(centro.id));
     }
-  }, [dispatch, user]);
+  }, [dispatch, centro]);
 
 
   return (
@@ -43,14 +42,12 @@ export default function ResumenCitas() {
               </div>
             </div>
           </div>
-          {/* <CustomTable<TurnoResponseDTO>
+          <CustomTable<TurnoResponseDTO>
             title="Próximas citas"
             columns={[
-              { header: "Nombre y Apellido", accessor: "nombre", render: row => `${row.nombre} ${row.apellido}` },
-              { header: "Telefono", accessor: "telefono" },
-              { header: "Mail", accessor: "usuario", render: row => `${row.usuario.mail}` },
-              { header: "Rol", accessor: "usuario", render: row => `${row.usuario.rol.charAt(0) + row.usuario.rol.slice(1).toLocaleLowerCase()}` },
-              {
+              { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
+              { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.tipoDeServicio}`  },
+              /*{
                 header: "Acciones",
                 accessor: "active",
                 render: (cliente: ClienteResponseDTO) => (
@@ -71,10 +68,10 @@ export default function ResumenCitas() {
                     color="secondary"
                   />
                 ),
-              },
+              },*/
             ]}
-            data={turnos}
-          />*/}
+            data={misTurnos}
+          />
         </main> 
       </div>
       <footer className="w-full">
