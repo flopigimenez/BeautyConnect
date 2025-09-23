@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
 import { useEffect, useState } from 'react';
 import type { CentroEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
+import { Estado } from '../types/enums/Estado';
 
 // const categorias = [
 //   { nombre: 'Makeup artist', imagen: carrousel_1 },
@@ -27,7 +28,15 @@ const Landing = () => {
   const centroService = new CentroDeEsteticaService();
 
   useEffect(() => {
-    centroService.getAll().then(setCentros).catch(console.error);
+    centroService
+      .getAll()
+      .then((data) => {
+        const aceptados = Array.isArray(data)
+          ? data.filter((centro) => centro.estado === Estado.ACEPTADO)
+          : [];
+        setCentros(aceptados);
+      })
+      .catch(console.error);
   }, []);
 
   
@@ -114,8 +123,8 @@ const Landing = () => {
       <div
         key={centro.id}
         className="group relative overflow-hidden rounded-xl shadow-md"
-      >
-        {/* Imagen base */}
+        >
+          {/* Imagen base */}
         <img
           src={centro.imagen}
           alt={centro.nombre}
@@ -150,16 +159,17 @@ const Landing = () => {
               {centro.descripcion}
             </p>
 
-            <div className="mt-3">
+            <button className="mt-3">
               <Link
                 to={`/centros/${centro.id}`}
                 className="inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
               >
                 Ver más
               </Link>
-            </div>
+            </button>
           </div>
         </div>
+
 
         {/* Overlay  */}
         <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />

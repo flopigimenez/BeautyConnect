@@ -1,7 +1,8 @@
 export interface HorarioCentroResponseDTO {
-    id: number;
-    diaDesde: string;
-    diaHasta: string;
-    horaInicio: string; // Formato "HH:mm"
-    horaFinalizacion: string; // Formato "HH:mm"
+      dia: string;
+    // diaHasta: string;
+    horaMInicio: string; // Formato "HH:mm"
+    horaMFinalizacion: string; // Formato "HH:mm"
+    horaTInicio: string; // Formato "HH:mm"
+    horaTFinalizacion: string;
 }

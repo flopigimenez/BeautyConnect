@@ -5,13 +5,18 @@ import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseD
 import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/ProfesionalServicioDTO";
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
+import { ServicioService } from "../../services/ServicioService";
+import { PrestadorServicioService } from "../../services/PrestadorServicioService";
 type Props = {
   profesional: ProfesionalResponseDTO;
+  centroId?: number;
   onClose?: () => void;
 };
-  const profesionalServicioService = new ProfesionalServicioService();
+const profesionalServicioService = new ProfesionalServicioService();
+const servicioService = new ServicioService();
 
-export default function GestionProfesionalServicio({ profesional, onClose }: Props) {
+export default function GestionProfesionalServicio({ profesional, centroId: centroIdProp, onClose }: Props) {
+  const centroId = centroIdProp ?? profesional.centroDeEstetica?.id;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [servicios, setServicios] = useState<ServicioResponseDTO[]>([]);
@@ -28,7 +33,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
     [profesional]
   );
 
-  const BASE_URL = (import.meta as any).env?.VITE_API_URL ?? "http://localhost:8080";
+  const BASE_URL = (import.meta).env?.VITE_API_URL ?? "http://localhost:8080";
   async function api<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetch(`${BASE_URL}${path}`, {
       headers: { "Content-Type": "application/json" },
@@ -38,19 +43,21 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
     if (!res.ok) throw new Error((await res.text()) || `Error ${res.status}`);
     return res.json();
   }
-  const listarServicios = () => api<ServicioResponseDTO[]>("/api/servicio");
-  
+
   const crearRelacion = (dto: ProfesionalServicioDTO) =>
     api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
   const eliminarRelacion = (id: number) =>
-    api<void>(`/api/prof-servicios/${id}`, { method: "DELETE" });
+    api<void>(`/api/prof-servicios/delete/${id}`, { method: "DELETE" });
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
-        const s = await listarServicios();
+        if (!centroId) {
+          throw new Error("El profesional no tiene un centro asociado.");
+        }
+        const s = await servicioService.obtenerporcentro(centroId);
         setServicios(s);
         const relDraft: Record<number, { duracion: number; configured: boolean }> = {};
         for (const sv of s) relDraft[sv.id] = { duracion: 30, configured: false };
@@ -69,14 +76,26 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
             // no existe relación
           }
         }
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar servicios");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Error al cargar servicios");
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, [profesional.id]);
+  }, [profesional.id, centroId]);
+
+  const buildRelacionEntry = (
+  entry?: { id?: number; duracion: number; configured: boolean; saving?: boolean },
+  overrides?: Partial<{ id?: number; duracion: number; configured: boolean; saving?: boolean }>
+) => ({
+  id: entry?.id,
+  duracion: entry?.duracion ?? 30,
+  configured: entry?.configured ?? false,
+  ...entry,
+  ...overrides,
+});
+
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal>
@@ -134,7 +153,7 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
                             disabled={saving}
                             onClick={async () => {
                               try {
-                                setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: true } as any }));
+                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
                                 const dto: ProfesionalServicioDTO = {
                                   id: 0,
                                   profesionalId: profesional.id,
@@ -144,10 +163,10 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
                                 };
                                 const created = await crearRelacion(dto);
                                 setRelacion((prev) => ({ ...prev, [s.id]: { id: created.id, duracion: created.duracion ?? dto.duracion, configured: true } }));
-                              } catch (e: any) {
-                                alert(e?.message ?? "Error al guardar relación");
+                              } catch (e: unknown) {
+                                alert((e as Error).message ?? "Error al guardar relación");
                               } finally {
-                                setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
+                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
                               }
                             }}
                           >
@@ -160,13 +179,13 @@ export default function GestionProfesionalServicio({ profesional, onClose }: Pro
                               onClick={async () => {
                                 if (!confirm("¿Desvincular servicio de este profesional?")) return;
                                 try {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: true } as any }));
-                                  await eliminarRelacion(r.id!);
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { duracion: 30, configured: false } }));
-                                } catch (e: any) {
-                                  alert(e?.message ?? "Error al eliminar relación");
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
+                                  await profesionalServicioService.cambiarEstado(r.id);
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { duracion: 30, configured: false }) }));
+                                } catch (e: unknown) {
+                                  alert((e as Error).message ?? "Error al eliminar relación");
                                 } finally {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], saving: false } as any }));
+                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
                                 }
                               }}
                             >

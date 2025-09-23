@@ -38,8 +38,8 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
         setLoadingCentro(true);
         const id = await centroService.getMiCentroId(user.uid);
         setCentroId(id);
-      } catch (e: any) {
-        setError(e?.message ?? "No se pudo obtener el centro.");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "No se pudo obtener el centro.");
       } finally {
         setLoadingCentro(false);
       }
@@ -137,8 +137,8 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     resetForm();
                   }
                   onClose?.();
-                } catch (e: any) {
-                  alert(e?.message ?? "Error al crear el servicio");
+                } catch (e: unknown) {
+                  alert((e as Error).message ?? "Error al crear el servicio");
                 } finally {
                   setSubmitting(false);
                   setF(false);

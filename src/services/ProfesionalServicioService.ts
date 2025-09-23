@@ -23,4 +23,11 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
         if (!res.ok) throw new Error("No se pudo obtener la disponibilidad");
         return await res.json();
     }
+    async cambiarEstado(id: number): Promise<ProfesionalServicioResponseDTO> {
+        const resp = await fetch(`${this.baseUrl}/cambiarEstado/${id}`, {
+            method: "PATCH"
+        });
+        if (!resp.ok) throw new Error("No se pudo cambiar el estado");
+        return await resp.json();
+    }
 }

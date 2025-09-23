@@ -131,13 +131,13 @@ const Registro = () => {
                 })
             });
 
-            let data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
+            const data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
             dispatch(setUser(data));
 
             // completar datos registro
             navigate("/FinalizarRegistroGoogle")
-        } catch (err: any) {
-            setError(err.message || "Error en el inicio con Google");
+        } catch (err: unknown) {
+            setError((err as Error).message || "Error en el inicio con Google");
         }
     };
 

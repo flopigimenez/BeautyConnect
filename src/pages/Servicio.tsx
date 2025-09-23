@@ -32,8 +32,8 @@ const Servicio = () => {
         const uid = user.uid;
         const servicios = await servicioService.findByUid(uid);
         setData(servicios);
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar servicios.");
+      } catch (e: unknown) {
+        setError((e as Error).message ?? "Error al cargar servicios.");
       } finally {
         setLoading(false);
       }
@@ -77,7 +77,7 @@ const Servicio = () => {
                 },
                 {
                   header: "Acciones",
-                  accessor: "acciones" as any, // si tu tabla exige accessor
+                  // accessor: "acciones" as any, // si tu tabla exige accessor
                   render: (row) => (
                     <div className="flex space-x-3">
                       <button
@@ -87,6 +87,7 @@ const Servicio = () => {
                       >
                         Editar
                       </button>
+                      
                     </div>
                   ),
                 },

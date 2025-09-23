@@ -63,7 +63,7 @@ const RegistroDeSalon = () => {
             alert("Centro registrado");
             navigate("/PendienteAprobacion");
         } catch (error) {
-            alert("Error al registrar");
+            console.error("Error al registrar el centro de estética:", error);
         }
     }
 

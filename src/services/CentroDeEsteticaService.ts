@@ -45,7 +45,7 @@ export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, 
 
   async update(id: number, data: CentroDeEsteticaDTO): Promise<CentroEsteticaResponseDTO> {
     const res = await fetch(`${this.baseUrl}/update/${id}`, {
-      method: "PUT",
+      method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
@@ -72,6 +72,15 @@ export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, 
   async getByPrestadorId(prestadorId: number): Promise<CentroEsteticaResponseDTO | null> {
     const res = await fetch(`${this.baseUrl}/centro-prestador/${prestadorId}`);
     if (!res.ok) return null;
+    return (await res.json()) as CentroEsteticaResponseDTO;
+  }
+
+    async activar_desactivar(id: number): Promise<CentroEsteticaResponseDTO> {
+    const res = await fetch(`${this.baseUrl}/activar_desactivar/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!res.ok) throw new Error("No se pudo cambiar el estado del centro");
     return (await res.json()) as CentroEsteticaResponseDTO;
   }
 

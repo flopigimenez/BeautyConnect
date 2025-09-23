@@ -1,44 +1,44 @@
-// src/store/reseñas/reseñaSlice.ts
+// src/store/resenias/reseniaSlice.ts
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { ReseñaResponseDTO } from "../../types/resenia/ReseniaResponseDTO"
-import { ReseñaService } from "../../services/ReseñaService";
+import type { ReseniaResponseDTO } from "../../types/resenia/ReseniaResponseDTO"
+import { ReseniaService } from "../../services/ReseniaService";
 
-const reseñaService = new ReseñaService();
+const reseniaService = new ReseniaService();
 
-export const fetchReseñas = createAsyncThunk("reseñas/fetchAll", async () => {
-  return await reseñaService.getAll();
+export const fetchResenias = createAsyncThunk("resenias/fetchAll", async () => {
+  return await reseniaService.getAll();
 });
 
-interface ReseñaState {
-  reseñas: ReseñaResponseDTO[];
+interface ReseniaState {
+  resenias: ReseniaResponseDTO[];
   loading: boolean;
   error: string | null;
 }
 
-const initialState: ReseñaState = {
-  reseñas: [],
+const initialState: ReseniaState = {
+  resenias: [],
   loading: false,
   error: null,
 };
 
-const reseñaSlice = createSlice({
-  name: "reseñas",
+const reseniaSlice = createSlice({
+  name: "resenias",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchReseñas.pending, (state) => {
+      .addCase(fetchResenias.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchReseñas.fulfilled, (state, action) => {
+      .addCase(fetchResenias.fulfilled, (state, action) => {
         state.loading = false;
-        state.reseñas = action.payload;
+        state.resenias = action.payload;
       })
-      .addCase(fetchReseñas.rejected, (state, action) => {
+      .addCase(fetchResenias.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Error al cargar reseñas";
       });
   },
 });
 
-export default reseñaSlice.reducer;
+export default reseniaSlice.reducer;

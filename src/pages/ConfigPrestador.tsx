@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
@@ -11,8 +11,9 @@ import Sidebar from '../components/SideBar';
 
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroEsteticaResponseDTO";
+import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
+import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import type { Rol } from "../types/enums/Rol";
 
 import { PrestadorServicioService } from "../services/PrestadorServicioService";
@@ -42,6 +43,15 @@ const centroSchema = Yup.object({
     localidad: Yup.string().required("Requerido"),
     codigoPostal: Yup.string().required("Requerido"),
   }).required(),
+  horariosCentro: Yup.array().of(
+    Yup.object({
+      dia: Yup.string().required("Requerido"),
+      horaMInicio: Yup.string().required("Requerido"),
+      horaMFinalizacion: Yup.string().required("Requerido"),
+      horaTInicio: Yup.string().required("Requerido"),
+      horaTFinalizacion: Yup.string().required("Requerido"),
+    })
+  ).min(1, "Agrega al menos un horario"),
 });
 
 const Tab = ({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) => (
@@ -70,6 +80,16 @@ const FieldBox = ({ label, name, type = "text", placeholder, disabled = false }:
     <ErrorMessage name={name} component="span" className="text-xs text-red-600" />
   </label>
 );
+
+const DIA_OPTIONS = [
+  { value: "MONDAY", label: "Lunes" },
+  { value: "TUESDAY", label: "Martes" },
+  { value: "WEDNESDAY", label: "Miércoles" },
+  { value: "THURSDAY", label: "Jueves" },
+  { value: "FRIDAY", label: "Viernes" },
+  { value: "SATURDAY", label: "Sábado" },
+  { value: "SUNDAY", label: "Domingo" },
+];
 
 const ConfigPrestador = () => {
   const [showPwd, setShowPwd] = useState(false);
@@ -101,6 +121,15 @@ const ConfigPrestador = () => {
         // Prestador por UID
         const p = await prestadorService.getByUid(user.uid);
         console.log("Prestador cargado:", p);
+
+        if (!p) {
+          setPrestador(null);
+          setCentro(null);
+          Swal.fire({ icon: "error", title: "Prestador", text: "No se encontró el prestador" });
+          setLoading(false);
+          return;
+        }
+
         setPrestador(p);
 
         // Centro por UID de prestador (depende de tu API; si el Prestador viene con centro.id, podrías usar getById)
@@ -162,12 +191,12 @@ const ConfigPrestador = () => {
 
                     let saved: PrestadorServicioResponseDTO;
                     if (prestador?.id) {
-                      saved = await prestadorService.update(prestador.id, payload);
-                    } else {
-                      saved = await prestadorService.create(payload);
-                    }
+                      saved = await prestadorService.actualizarPrestadorServicio(prestador.id, payload);
+                    
+                      
+                    
                     setPrestador(saved);
-
+                    }
                     Swal.fire({
                       icon: "success",
                       title: "¡Prestador actualizado!",
@@ -235,6 +264,7 @@ const ConfigPrestador = () => {
                     localidad: centro?.domicilio?.localidad ?? "",
                     codigoPostal: (centro?.domicilio)?.codigoPostal ?? 0,
                   },
+                  horariosCentro: centro?.horariosCentro?.map((horario: HorarioCentroDTO) => ({ ...horario })) ?? [],
                 }}
                 validationSchema={centroSchema}
                 onSubmit={async (values, { setSubmitting }) => {
@@ -249,15 +279,16 @@ const ConfigPrestador = () => {
                 calle: values.domicilio.calle,
                 numero: Number(values.domicilio.numero),
                 localidad: values.domicilio.localidad,
-                codigoPostal: values.domicilio.codigoPostal,
+                codigoPostal: Number(values.domicilio.codigoPostal),
               },
-      
+              horariosCentro: values.horariosCentro.map((horario) => ({
+                dia: horario.dia,
+                horaMInicio: horario.horaMInicio,
+                horaMFinalizacion: horario.horaMFinalizacion,
+                horaTInicio: horario.horaTInicio,
+                horaTFinalizacion: horario.horaTFinalizacion,
+              })),
             };
-
-                    if (centro?.id) {
-                      await centroService.update(centro.id, payload);
-                      await centroService.create(payload);
-                    }
 
                     let saved: CentroEsteticaResponseDTO;
                     if (centro?.id) {
@@ -286,7 +317,7 @@ const ConfigPrestador = () => {
                   }
                 }}
               >
-                {({ isSubmitting }) => (
+                {({ isSubmitting, values }) => (
                   <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FieldBox label="Nombre del centro" name="nombre" />
                     <FieldBox label="CUIT" name="cuit" type="number" />
@@ -306,6 +337,74 @@ const ConfigPrestador = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                         <FieldBox label="Localidad" name="domicilio.localidad" />
                       </div>
+                    </div>
+
+
+                    <div className="md:col-span-2 mt-4">
+                      <h3 className="text-lg font-semibold text-[#703F52] mb-2">Horarios de atención</h3>
+                      <FieldArray name="horariosCentro">
+                        {({ push, remove }) => (
+                          <div className="space-y-4">
+                            {values.horariosCentro && values.horariosCentro.length > 0 ? (
+                              values.horariosCentro.map((_, index) => (
+                                <div key={index} className="rounded-lg border border-[#E9DDE1] p-4">
+                                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                                    <label className="flex flex-col gap-1 md:w-1/3">
+                                      <span className="text-sm font-medium text-[#703F52]">Día</span>
+                                      <Field
+                                        as="select"
+                                        name={`horariosCentro[${index}].dia`}
+                                        className="rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40 bg-white"
+                                      >
+                                        <option value="">Seleccioná un día</option>
+                                        {DIA_OPTIONS.map((option) => (
+                                          <option key={option.value} value={option.value}>
+                                            {option.label}
+                                          </option>
+                                        ))}
+                                      </Field>
+                                      <ErrorMessage name={`horariosCentro[${index}].dia`} component="span" className="text-xs text-red-600" />
+                                    </label>
+                                    {values.horariosCentro.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => remove(index)}
+                                        className="self-start rounded-full border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
+                                      >
+                                        Eliminar
+                                      </button>
+                                    )}
+                                  </div>
+                                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <FieldBox label="Hora mañana (inicio)" name={`horariosCentro[${index}].horaMInicio`} type="time" />
+                                    <FieldBox label="Hora mañana (fin)" name={`horariosCentro[${index}].horaMFinalizacion`} type="time" />
+                                    <FieldBox label="Hora tarde (inicio)" name={`horariosCentro[${index}].horaTInicio`} type="time" />
+                                    <FieldBox label="Hora tarde (fin)" name={`horariosCentro[${index}].horaTFinalizacion`} type="time" />
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-500">Agregá al menos un horario para tu centro.</p>
+                            )}
+                            <ErrorMessage name="horariosCentro" component="span" className="text-xs text-red-600" />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                push({
+                                  dia: "",
+                                  horaMInicio: "",
+                                  horaMFinalizacion: "",
+                                  horaTInicio: "",
+                                  horaTFinalizacion: "",
+                                })
+                              }
+                              className="rounded-full bg-[#703F52] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#5f3244]"
+                            >
+                              Agregar horario
+                            </button>
+                          </div>
+                        )}
+                      </FieldArray>
                     </div>
 
                     <div className="md:col-span-2 flex justify-end gap-2 mt-4">

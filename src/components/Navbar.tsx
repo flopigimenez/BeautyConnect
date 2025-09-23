@@ -2,10 +2,17 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
-import LoginModal from "./modals/LoginModal"; 
+import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
+import NavbarPrestador from "./NavbarPrestador";
+import { useAppSelector } from "../redux/store/hooks";
+import { Rol } from "../types/enums/Rol";
 
-const Navbar = () => {
+const isRolValue = (value: string | null | undefined): value is Rol => {
+  return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
+};
+
+const NavbarCliente = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
@@ -22,6 +29,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
+    localStorage.removeItem("user");
   };
 
   return (
@@ -55,7 +63,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Autenticación */}
           <div className="ml-10 flex items-center space-x-4">
             {user ? (
               <>
@@ -64,19 +71,16 @@ const Navbar = () => {
                   onClick={handleLogout}
                   className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"
                 >
-                  Cerrar sesión
+                  Cerrar sesion
                 </button>
-
               </>
             ) : (
-              <>
-                <button
-                  onClick={() => setIsLoginOpen(true)}
-                  className="text-gray-600 hover:text-gray-900 font-primary"
-                >
-                  Ingresar
-                </button>
-              </>
+              <button
+                onClick={() => setIsLoginOpen(true)}
+                className="text-gray-600 hover:text-gray-900 font-primary"
+              >
+                Ingresar
+              </button>
             )}
           </div>
         </div>
@@ -88,4 +92,19 @@ const Navbar = () => {
   );
 };
 
+const Navbar = () => {
+  const { user, firebaseUser } = useAppSelector((state) => state.user);
+
+  const roleFromUser = user?.usuario?.rol ?? null;
+  const firebaseRole = firebaseUser?.role ?? null;
+  const role: Rol | null = roleFromUser ?? (isRolValue(firebaseRole) ? firebaseRole : null);
+
+  if (role === Rol.PRESTADOR_DE_SERVICIO) {
+    return <NavbarPrestador />;
+  }
+
+  return <NavbarCliente />;
+};
+
 export default Navbar;
+export { NavbarCliente };

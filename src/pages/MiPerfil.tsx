@@ -11,8 +11,6 @@ const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import Swal from "sweetalert2";
 
-
-
 export default function MiPerfil() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -26,12 +24,16 @@ export default function MiPerfil() {
   const [telefono, setTelefono] = useState("");
   const [mailVista, setMailVista] = useState(""); // solo visual
   const [uid, setUid] = useState("");
+  const [calle, setCalle] = useState("");
+  const [numero, setNumero] = useState("");
+  const [localidad, setLocalidad] = useState("");
+  const [codigoPostal, setCodigoPostal] = useState("");
 
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        setError("No hay sesión activa.");
+        setError("No hay sesi�n activa.");
         setLoading(false);
         return;
       }
@@ -49,13 +51,20 @@ export default function MiPerfil() {
           setApellido(found.apellido ?? "");
           setTelefono(found.telefono ?? "");
           setMailVista(found.usuario?.mail ?? user.email ?? "");
-
+          setCalle(found.domicilio?.calle ?? "");
+          setNumero(found.domicilio?.numero != null ? String(found.domicilio.numero) : "");
+          setLocalidad(found.domicilio?.localidad ?? "");
+          setCodigoPostal(found.domicilio?.codigoPostal != null ? String(found.domicilio.codigoPostal) : "");
         } else {
           setCliente(null);
           setNombre("");
           setApellido("");
           setTelefono("");
           setMailVista(user.email ?? "");
+          setCalle("");
+          setNumero("");
+          setLocalidad("");
+          setCodigoPostal("");
         }
       } catch (e: unknown) {
         if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
@@ -68,14 +77,13 @@ export default function MiPerfil() {
       }
     });
     return () => unsub();
-
   }, []);
 
   const onSave = async () => {
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) {
-      setError("No hay sesión activa.");
+      setError("No hay sesi�n activa.");
       return;
     }
 
@@ -87,7 +95,12 @@ export default function MiPerfil() {
         mail: mailVista || user.email || "",
         uid: user.uid,
         rol: cliente?.usuario?.rol ?? DEFAULT_ROL,
-        contrasenia: cliente?.usuario?.contrasenia ?? "",
+      },
+      domicilio: {
+        calle,
+        numero: Number(numero) || 0,
+        localidad,
+        codigoPostal: Number(codigoPostal) || 0,
       },
     };
 
@@ -106,25 +119,30 @@ export default function MiPerfil() {
       setCliente(updated);
       setNombre(updated.nombre ?? "");
       setApellido(updated.apellido ?? "");
-      setTelefono(updated.usuario?.mail ?? mailVista);
-    Swal.fire({
-    icon: "success",
-    title: "¡Éxito!",
-    text: "Los cambios se guardaron correctamente.",
-    confirmButtonColor: "#C19BA8",
-  });
+      setTelefono(updated.telefono ?? "");
+      setMailVista(updated.usuario?.mail ?? mailVista);
+      setCalle(updated.domicilio?.calle ?? "");
+      setNumero(updated.domicilio?.numero != null ? String(updated.domicilio.numero) : "");
+      setLocalidad(updated.domicilio?.localidad ?? "");
+      setCodigoPostal(updated.domicilio?.codigoPostal != null ? String(updated.domicilio.codigoPostal) : "");
+      Swal.fire({
+        icon: "success",
+        title: "Éxito!",
+        text: "Los cambios se guardaron correctamente.",
+        confirmButtonColor: "#C19BA8",
+      });
     } catch (e: unknown) {
       if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
         setError((e as { message: string }).message);
       } else {
         setError("No se pudo guardar.");
       }
-    Swal.fire({
-    icon: "error",
-    title: "Error",
-    text: "No se pudo guardar los cambios.",
-    confirmButtonColor: "#C19BA8",
-  });
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo guardar los cambios.",
+        confirmButtonColor: "#C19BA8",
+      });
     } finally {
       setSaving(false);
     }
@@ -197,11 +215,56 @@ export default function MiPerfil() {
                         className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
                       />
                     </div>
-
                   </div>
                 </section>
 
-                {/* Configuración de cuenta */}
+                <section>
+                  <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">Domicilio</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-[#374151] font-primary">Calle</label>
+                      <input
+                        type="text"
+                        value={calle}
+                        onChange={(e) => setCalle(e.target.value)}
+                        placeholder="Ej: Av. Siempre Viva"
+                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#374151] font-primary">Número</label>
+                      <input
+                        type="number"
+                        value={numero}
+                        onChange={(e) => setNumero(e.target.value)}
+                        placeholder="Ej: 742"
+                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#374151] font-primary">Localidad</label>
+                      <input
+                        type="text"
+                        value={localidad}
+                        onChange={(e) => setLocalidad(e.target.value)}
+                        placeholder="Ciudad"
+                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#374151] font-primary">Código Postal</label>
+                      <input
+                        type="number"
+                        value={codigoPostal}
+                        onChange={(e) => setCodigoPostal(e.target.value)}
+                        placeholder="Ej: 5500"
+                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                {/* Configuraci�n de cuenta */}
                 <section>
                   <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">
                     Configuración de la cuenta
@@ -230,7 +293,7 @@ export default function MiPerfil() {
                 <CambiarPasswordModal isOpen={showModal} onClose={() => setShowModal(false)} />
               </div>
 
-              {/* Botón */}
+              {/* Bot�n */}
               <div className="flex justify-end mt-10">
                 <button
                   onClick={onSave}

@@ -42,8 +42,8 @@ export default function Profesionales() {
         ]);
         setData(profes);
         setCentroId(cId);
-      } catch (e: any) {
-        setError(e?.message ?? "Error al cargar profesionales");
+      } catch (error: unknown) {
+        setError((error as Error).message ?? "Error al cargar profesionales");
       } finally {
         setLoading(false);
       }
@@ -74,7 +74,7 @@ export default function Profesionales() {
               columns={[
                 { header: "Nombre", accessor: "nombre" },
                 { header: "Apellido", accessor: "apellido" },
-                { header: "Acciones", accessor: "acciones" as any,
+                { header: "Acciones", accessor: "acciones" as unknown as keyof ProfesionalResponseDTO,
                     render: (row) => (
                   <div className="flex space-x-3">
                       <button
@@ -138,6 +138,7 @@ export default function Profesionales() {
           {openPS && selectedForPS && (
             <GestionProfesionalServicio
               profesional={selectedForPS}
+              centroId={centroId ?? undefined}
               onClose={() => setOpenPS(false)}
             />
           )}

@@ -18,7 +18,7 @@ export class ProfesionalService extends BackendClient<ProfesionalDTO, Profesiona
     }
 
   async update(id: number, data: ProfesionalDTO): Promise<ProfesionalResponseDTO> {
-    const url = `${this.baseUrl}/update?profesionalId=${encodeURIComponent(String(id))}`;
+    const url = `${this.baseUrl}/update/${id}`;
     const res = await fetch(url, {
       method: "POST", // <- tu backend usa POST /update
       headers: { "Content-Type": "application/json" },

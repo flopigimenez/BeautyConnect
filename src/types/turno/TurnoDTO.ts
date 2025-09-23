@@ -3,4 +3,5 @@ export interface TurnoDTO{
     hora: string;
     clienteId: number;
     profesionalServicioId: number;
+    centroId: number;
 }

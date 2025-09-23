@@ -14,10 +14,15 @@ import type { ProfesionalServicioResponseDTO } from "../types/profesionalServici
 import type { ProfesionalResponseDTOSimple } from "../types/profesional/ProfesionalResponseDTOSimple";
 import type { ServicioResponseDTOSimple } from "../types/servicio/ServicioResponseDTOSimple";
 import type { TurnoDTO } from "../types/turno/TurnoDTO";
-
+import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
+import { ClienteService } from "../services/ClienteService";
 import { ProfesionalServicioService } from "../services/ProfesionalServicioService";
 import { TurnosDispService } from "../services/TurnosDispService";
 import { createTurno, setTurno } from "../redux/store/turnoSlice";
+import { setUser } from "../redux/store/authSlice";
+
+
+
 
 const Turnos = () => {
   const navigate = useNavigate();
@@ -32,6 +37,7 @@ const Turnos = () => {
   // Servicios (instancias simples; si querés, memoizá con useMemo)
   const profServicioService = new ProfesionalServicioService();
   const turnosDispService = new TurnosDispService();
+  const clienteService = new ClienteService();
 
   // Fecha (MUI)
   const [value, setValue] = useState<Dayjs | null>(null);
@@ -47,6 +53,9 @@ const Turnos = () => {
   const [profServicio, setProfServicio] = useState<ProfesionalServicioResponseDTO | undefined>(undefined);
   const [inicios, setInicios] = useState<string[]>([]);
   const [pasos, setPasos] = useState<number>(1);
+  const [clienteInfo, setClienteInfo] = useState<ClienteResponseDTO | null>(null);
+  const [loadingClienteInfo, setLoadingClienteInfo] = useState(false);
+  const [errorClienteInfo, setErrorClienteInfo] = useState<string | null>(null);
 
   // ---- Hooks SIEMPRE al tope, sin returns antes ----
 
@@ -120,9 +129,73 @@ const Turnos = () => {
     })();
   }, [profesionalSeleccionado, servicioSeleccionado, fechaSeleccionada]);
 
+  useEffect(() => {
+    let active = true;
+
+    const hydrateCliente = async () => {
+      if (!cliente) {
+        if (active) {
+          setClienteInfo(null);
+          setErrorClienteInfo(null);
+          setLoadingClienteInfo(false);
+        }
+        return;
+      }
+
+      if ((cliente as ClienteResponseDTO).id) {
+        if (active) {
+          setClienteInfo(cliente as ClienteResponseDTO);
+          setErrorClienteInfo(null);
+          setLoadingClienteInfo(false);
+        }
+        return;
+      }
+
+      const uid = (cliente as { uid?: string }).uid;
+      if (!uid) {
+        if (active) {
+          setClienteInfo(null);
+          setErrorClienteInfo("No se pudo identificar al cliente");
+        }
+        return;
+      }
+
+      if (active) {
+        setLoadingClienteInfo(true);
+        setErrorClienteInfo(null);
+      }
+      try {
+        const dto = await clienteService.getByUid(uid);
+        if (!active) return;
+        if (dto?.id) {
+          setClienteInfo(dto);
+          setErrorClienteInfo(null);
+          dispatch(setUser(dto));
+        } else {
+          setClienteInfo(null);
+          setErrorClienteInfo("No se encontró información del cliente");
+        }
+      } catch (e: unknown) {
+        if (!active) return;
+        setClienteInfo(null);
+        setErrorClienteInfo((e as Error).message ?? "No se pudo cargar la información del cliente");
+      } finally {
+        if (active) {
+          setLoadingClienteInfo(false);
+        }
+      }
+    };
+
+    hydrateCliente();
+
+    return () => {
+      active = false;
+    };
+  }, [cliente, dispatch]);
+
   // ---- Helpers / derived ----
   const centroSeleccionado = centros.find((c) => c.id === Number(id));
-  const puedeConfirmar = pasos === 2 && !!(fechaSeleccionada && horaSeleccionada && profServicio);
+  const puedeConfirmar = pasos === 2 && !!(fechaSeleccionada && horaSeleccionada && profServicio && clienteInfo?.id);
 
   // ---- Render ----
   return (
@@ -143,6 +216,10 @@ const Turnos = () => {
         <div className="bg-primary w-screen pt-25 flex justify-center items-center flex-col">
           {loading && <p>Cargando...</p>}
           {error && <p className="text-red-500">{error}</p>}
+          {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
+          {!loadingClienteInfo && errorClienteInfo && (
+            <p className="font-primary text-sm text-red-500 mt-2">{errorClienteInfo}</p>
+          )}
 
           <h1 className="font-secondary text-2xl font-bold">
             Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos
@@ -258,6 +335,11 @@ const Turnos = () => {
                     No hay horarios disponibles para la fecha seleccionada. Probá con otro día.
                   </p>
                 )}
+                {!loadingClienteInfo && !clienteInfo && (
+                  <p className="mt-3 text-sm text-red-500 font-primary">
+                    No pudimos cargar tus datos de cliente. Intenta recargar la página o volver a iniciar sesión.
+                  </p>
+                )}
               </>
             )}
 
@@ -291,18 +373,19 @@ const Turnos = () => {
                       alert("Por favor, selecciona un servicio y un profesional.");
                     }
                   } else {
-                    if (puedeConfirmar && cliente && profServicio && fechaSeleccionada && horaSeleccionada) {
-                            const horaToSend = horaSeleccionada.length === 5
+                    if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
+                      const horaToSend = horaSeleccionada.length === 5
                         ? `${horaSeleccionada}:00`
                         : horaSeleccionada;
 
                       const nuevoTurno: TurnoDTO = {
                         fecha: fechaSeleccionada,
                         hora: horaToSend,
-                        clienteId: cliente.id,
+                        clienteId: clienteInfo.id,
                         profesionalServicioId: profServicio.id,
-
+                        centroId: centroSeleccionado.id,
                       };
+                      console.log("Nuevo turno a crear:", nuevoTurno);
                       
                       dispatch(createTurno(nuevoTurno))
                         .unwrap()

@@ -15,7 +15,7 @@ export interface CentroEsteticaResponseDTO {
     estado: Estado;
     domicilio: DomicilioResponseDTO;
     servicios: ServicioResponseDTOSimple[];
-    resenias: ReseniaResponseDTOSimple[];
     profesionales: ProfesionalResponseDTOSimple[];
     horariosCentro: HorarioCentroResponseDTO[];
+    resenias?: ReseniaResponseDTOSimple[];
 }
