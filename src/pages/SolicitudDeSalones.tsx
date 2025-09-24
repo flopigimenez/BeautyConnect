@@ -53,11 +53,11 @@ export default function SolicitudDeSalones() {
                     <CustomTable<CentroEsteticaResponseDTO>
                         title="Solicitud de Salones"
                         columns={[
-                            // {
-                            //     header: "", accessor: "imagen", render: row => (
-                            //         <img src={row.imagen} alt={row.nombre} className="w-13 h-13 object-cover rounded-md" />
-                            //     )
-                            // },
+                            {
+                                header: "", accessor: "imagen", render: row => (
+                                    <img src={row.imagen} alt={row.nombre} className="w-13 h-13 object-cover rounded-md" />
+                                )
+                            },
                             { header: "Nombre", accessor: "nombre" },
                             {
                                 header: "Descripción", accessor: "descripcion", render: (row) =>
@@ -77,12 +77,12 @@ export default function SolicitudDeSalones() {
                                         </a>
                                         : "No subido"
                             },
-                            {
-                                header: "Servicios", accessor: "servicios", render: (row) =>
-                                    Array.isArray(row.servicios)
-                                        ? row.servicios.map(servicio => servicio.tipoDeServicio).join(", ")
-                                        : "Sin servicios"
-                            },
+                            // {
+                            //     header: "Servicios", accessor: "servicios", render: (row) =>
+                            //         Array.isArray(row.servicios)
+                            //             ? row.servicios.map(servicio => servicio.tipoDeServicio).join(", ")
+                            //             : "Sin servicios"
+                            // },
                             {
                                 header: "Domicilio", accessor: "domicilio", render: (row) =>
                                     row.domicilio
