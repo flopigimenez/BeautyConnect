@@ -37,7 +37,7 @@ export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, 
   }
 
   async getByPrestadorUid(uid: string): Promise<CentroEsteticaResponseDTO | null> {
-    const res = await fetch(`${this.baseUrl}/by-prestador-uid/${uid}`);
+    const res = await fetch(`${this.baseUrl}/mi-centro-id/${uid}`);
     if (!res.ok) return null;
     return (await res.json()) as CentroEsteticaResponseDTO;
   }

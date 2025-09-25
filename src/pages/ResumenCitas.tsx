@@ -16,7 +16,16 @@ export default function ResumenCitas() {
   const turnoService = new TurnoService();
   const [turnosHoy, setTurnosHoy] = useState<number>();
   const [turnosSemana, setTurnosSemana] = useState<number>();
+  const [filtroAplicado, setFiltroAplicado] = useState({ estado: null as EstadoTurno | null });
 
+   let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
+  
+  
+  if (filtroAplicado.estado) {
+    turnosFiltrados = misTurnos.filter(
+      turno => turno.estado === filtroAplicado.estado
+    );
+  }
 
   useEffect(() => {
     if (centro) {
@@ -61,8 +70,29 @@ export default function ResumenCitas() {
         </aside>
         <main className="flex-1 overflow-auto px-6 py-20">
           <div>
-            <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
-            <h3 className="font-secondary mb-5 text-xl">Resumen citas</h3>
+            <div className="flex justify-between">
+              <div>
+                <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
+                <h3 className="font-secondary mb-5 text-xl">Resumen citas</h3>
+              </div>
+
+              <div className="flex mt-4 w-100">
+                <label className="block text-md font-primary mb-2 font-bold pr-2">Filtrar por estado</label>
+                <select
+                  value={filtroAplicado.estado ?? ""}
+                  onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno|| null }))}
+                  className="w-[60%] h-[40%] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
+                >
+                  <option value="">Todos</option>
+                  {Object.values(EstadoTurno).map((estado) => (
+                    <option key={estado} value={estado}>
+                      {estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+            </div>
             <div className="flex justify-around pb-3">
               <div className="border border-tertiary rounded-2xl p-1 w-[30%] h-[70%] text-center">
                 <p className="font-secondary text-lg">Citas de hoy</p>
@@ -114,8 +144,8 @@ export default function ResumenCitas() {
                       <button
                         disabled={!isPending}
                         className={`py-1 px-2 rounded-full text-primary transition ${isPending
-                            ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
-                            : "bg-gray-300 cursor-not-allowed"
+                          ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
+                          : "bg-gray-300 cursor-not-allowed"
                           }`}
                         onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
                       >
@@ -124,8 +154,8 @@ export default function ResumenCitas() {
                       <button
                         disabled={!isPending}
                         className={`py-1 px-2 rounded-full text-primary transition ${isPending
-                            ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
-                            : "bg-gray-300 cursor-not-allowed"
+                          ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                          : "bg-gray-300 cursor-not-allowed"
                           }`}
                         onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
                       >
@@ -136,7 +166,7 @@ export default function ResumenCitas() {
                 }
               }
             ]}
-            data={misTurnos}
+            data={turnosFiltrados.slice().reverse()}
           />
         </main>
       </div>

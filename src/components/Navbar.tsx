@@ -3,7 +3,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import NavbarPrestador from "./NavbarPrestador";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Rol } from "../types/enums/Rol";
@@ -19,6 +19,7 @@ const NavbarCliente = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const dispatch = useAppDispatch();
+  const turno = useAppSelector((state) => state.turno.turno);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -61,8 +62,13 @@ const NavbarCliente = () => {
                   <Link to="/Miperfil" className="text-gray-600 hover:text-gray-900 font-primary">
                     Mi perfil
                   </Link>
-                  <Link to="/misTurnos" className="text-gray-600 hover:text-gray-900 font-primary">
+                  <Link to="/misTurnos" className="text-gray-600 hover:text-gray-900 font-primary relative inline-block">
                     Turnos
+                    {turno && (
+                      <span className="absolute top-0 right-0 -mt-1 -mr-3 bg-secondary text-primary text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                        1
+                      </span>
+                    )}
                   </Link>
                 </>
               )}

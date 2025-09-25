@@ -58,9 +58,10 @@ const RegistroDeSalon = () => {
     const handleEliminarHorario = (index: number) => {
         setRegistroDeSalon((prev) => ({
             ...prev,
-            horarioCentro: prev.horariosCentro.filter((_, i) => i !== index),
+            horariosCentro: prev.horariosCentro.filter((_, i) => i !== index),
         }));
     };
+
 
     const handleRegistrarSalon = async () => {
         try {
@@ -296,7 +297,9 @@ const RegistroDeSalon = () => {
                                         <li>
                                             {diasEnEspañol[d.dia]} de {d.horaMInicio}hs - {d.horaMFinalizacion}hs y {d.horaTInicio}hs - {d.horaTFinalizacion}hs
                                         </li>
-                                        <button className="cursor-pointer text-tertiary"
+                                        <button
+                                            type="button"
+                                            className="cursor-pointer text-tertiary"
                                             onClick={() => handleEliminarHorario(i)}
                                         >
                                             Eliminar

@@ -4,10 +4,13 @@ import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
+import { useAppSelector } from "../redux/store/hooks";
+import { Estado } from "../types/enums/Estado";
 
 const NavbarPrestador = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const centro = useAppSelector((state) => state.miCentro.centro);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -35,9 +38,11 @@ const NavbarPrestador = () => {
             </Link>
           </div>
 
-          <Link to="/prestador/panel" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
-            Panel
-          </Link>
+           {/* {centro?.estado === Estado.ACEPTADO && (  */}
+            <Link to="/prestador/panel" className="text-gray-600 hover:text-gray-900 font-primary">
+              Panel
+            </Link>
+          {/* )} */}
 
           <div className="ml-10 flex items-center space-x-4">
             {user ? (

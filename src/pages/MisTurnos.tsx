@@ -291,7 +291,7 @@ export default function MisTurnos() {
                                 }
 
                             ]}
-                            data={turnosFiltrados ?? []}
+                            data={turnosFiltrados.slice().reverse() ?? []}
                             borrarFiltros={{
                                 onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
                             }}
