@@ -2,7 +2,7 @@ import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase/config"
 import { useAppDispatch } from "../../redux/store/hooks";
-import { setUser } from "../../redux/store/authSlice";
+import { obtenerAuthUser, setUser } from "../../redux/store/authSlice";
 import type { ClienteResponseDTO } from "../../types/cliente/ClienteResponseDTO";
 import type { PrestadorServicioResponseDTO } from "../../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import { ClienteService } from "../../services/ClienteService";
@@ -26,9 +26,11 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
 
-      const resp = await clienteService.getByUid(auth.currentUser?.uid ?? "");
-      console.log("Usuario recibido:", resp);
-      dispatch(setUser(resp as ClienteResponseDTO | PrestadorServicioResponseDTO));
+      dispatch(obtenerAuthUser());
+
+      // const resp = await clienteService.getByUid(auth.currentUser?.uid ?? "");
+      // console.log("Usuario recibido:", resp);
+      // dispatch(setUser(resp as ClienteResponseDTO | PrestadorServicioResponseDTO));
 
       alert("Login exitoso");
     } catch (error) {
