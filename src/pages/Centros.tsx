@@ -135,7 +135,7 @@ const Centros = () => {
 
     const centrosFiltrados = filtrarCentros();
 
-    //Paginaci�n
+    //Paginacion
     const [paginaActual, setPaginaActual] = useState(1);
     const centrosPorPagina = 9;
 
@@ -150,7 +150,7 @@ const Centros = () => {
 
 
     useEffect(() => {
-        //Cada vez que cambie el filtro, reiniciar a la primera p�gina
+        //Cada vez que cambie el filtro, reiniciar a la primera pagina
         setPaginaActual(1);
     }, [filtro, filtroAplicado]);
 
@@ -178,7 +178,7 @@ const Centros = () => {
                 <div className="mt-8 mx-5 lg:mx-[20vh]">
                     <div className="flex flex-wrap gap-5 mt-6">
                         {centrosActuales.length === 0 ? (
-                            <p className="text-gray-600 mt-4">No se encontraron centros para tu b�squeda.</p>
+                            <p className="text-gray-600 mt-4">No se encontraron centros para tu busqueda.</p>
                         ) : (
                             centrosActuales.map((centro) => {
                                 const stats = reseniasPorCentro[centro.id];

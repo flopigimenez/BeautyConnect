@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { IoFilterCircleOutline } from "react-icons/io5";
 
 interface Column<T> {
@@ -36,6 +37,21 @@ export function CustomTable<T extends object>({
   filtros,
   busqueda,
 }: CustomTableProps<T>) {
+
+  //Paginacion
+  const [paginaActual, setPaginaActual] = useState(1);
+  const dataPorPagina = 10;
+
+  const indiceUltimo= paginaActual * dataPorPagina;
+  const indicePrimero= indiceUltimo - dataPorPagina;
+  const dataActual = data.slice(indicePrimero, indiceUltimo);
+
+  const totalPaginas = Math.ceil(data.length / dataPorPagina);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, []);
+
   return (
     <div className="p-4">
       {title && (
@@ -89,7 +105,7 @@ export function CustomTable<T extends object>({
             </tr>
           </thead>
           <tbody>
-            {data.map((row, i) => (
+            {dataActual.map((row, i) => (
               <tr key={i} className="border-t  border-gray-200 hover:bg-gray-50">
                 {columns.map((col, idx) => (
                   <td key={idx} className="px-6 py-3 text-sm text-gray-600">
@@ -104,6 +120,26 @@ export function CustomTable<T extends object>({
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-center items-center gap-4 mt-6 mb-5">
+        <button
+          onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
+          disabled={paginaActual === 1}
+          className="px-4 py-2 bg-white disabled:opacity-50"
+        >
+          <IoIosArrowBack className="inline-block mr-2" />
+        </button>
+
+        <span className="text-gray-700">{paginaActual} de {totalPaginas}</span>
+
+        <button
+          onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
+          disabled={paginaActual === totalPaginas}
+          className="px-4 py-2 bg-white disabled:opacity-50"
+        >
+          <IoIosArrowForward className="inline-block ml-2" />
+        </button>
       </div>
     </div>
   );
