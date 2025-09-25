@@ -10,6 +10,7 @@ export interface CentroDeEsteticaDTO {
   imagen: string;
   docValido: string;
   cuit: number;
+  prestadorDeServicioId: number;
   domicilio: DomicilioDTO;
   // servicios: ServicioDTOSimple[];
   // profesionales: ProfesionalDTOSimple[];

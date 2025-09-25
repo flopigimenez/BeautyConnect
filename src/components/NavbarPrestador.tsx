@@ -35,13 +35,14 @@ const NavbarPrestador = () => {
             </Link>
           </div>
 
+          <Link to="/prestador/panel" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
+            Panel
+          </Link>
+
           <div className="ml-10 flex items-center space-x-4">
             {user ? (
               <>
                 <span className="text-sm text-gray-700 font-primary">Hola, {user.email}</span>
-                <Link to="/prestador/calendario" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
-                  Calendario
-                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"

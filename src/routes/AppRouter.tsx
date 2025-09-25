@@ -63,7 +63,7 @@ export const AppRouter = () => {
         {/* Rutas protegidas para prestadores */}
         <Route path="/prestador/panel"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
               <ResumenCitas />
             </ProtectedRoute>
           }
@@ -113,7 +113,7 @@ export const AppRouter = () => {
         <Route
           path="/admin/solicitudDeSalones"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
               <SolicitudDeSalones />
             </ProtectedRoute>
           }
@@ -121,7 +121,7 @@ export const AppRouter = () => {
         <Route
           path="/admin/centrosAceptados"
           element={
-            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
               <CentrosAceptados />
             </ProtectedRoute>
           }
@@ -129,7 +129,7 @@ export const AppRouter = () => {
         <Route
           path="/admin/centrosRechazados"
           element={
-            <ProtectedRoute allowedRoles={[Rol.CLIENTE]}>
+            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
               <CentrosRechazados />
             </ProtectedRoute>
           }

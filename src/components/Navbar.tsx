@@ -3,12 +3,13 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal";
-import { Link } from "react-router-dom";
+import { Link} from "react-router-dom";
 import NavbarPrestador from "./NavbarPrestador";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Rol } from "../types/enums/Rol";
 import { clearCentro } from "../redux/store/miCentroSlice";
 import { clearUser } from "../redux/store/authSlice";
+import NavbarAdmin from "./NavbarAdmin";
 
 const isRolValue = (value: string | null | undefined): value is Rol => {
   return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
@@ -34,7 +35,7 @@ const NavbarCliente = () => {
     await signOut(auth);
     dispatch(clearUser());
     dispatch(clearCentro());
-    
+
   };
 
   return (
@@ -103,6 +104,10 @@ const Navbar = () => {
   const roleFromUser = user?.usuario?.rol ?? null;
   const firebaseRole = firebaseUser?.role ?? null;
   const role: Rol | null = roleFromUser ?? (isRolValue(firebaseRole) ? firebaseRole : null);
+
+  if (role === Rol.SUPERADMIN) {
+    return <NavbarAdmin />;
+  }
 
   if (role === Rol.PRESTADOR_DE_SERVICIO) {
     return <NavbarPrestador />;

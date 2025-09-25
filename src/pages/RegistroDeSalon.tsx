@@ -4,11 +4,12 @@ import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { useNavigate } from "react-router-dom";
 import { setCentro } from "../redux/store/miCentroSlice";
-import { useAppDispatch } from "../redux/store/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 const RegistroDeSalon = () => {
+    const user = useAppSelector((state) => state.user.user);
     const [horariosCentro, setHorariosCentro] = useState<HorarioCentroDTO>({ dia: "", horaMInicio: "", horaMFinalizacion: "", horaTInicio: "", horaTFinalizacion: "" });
     const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({
         nombre: "",
@@ -16,6 +17,7 @@ const RegistroDeSalon = () => {
         imagen: "",
         docValido: "",
         cuit: parseInt(""),
+        prestadorDeServicioId: user!.id,
         domicilio: {
             calle: "",
             numero: parseInt(""),

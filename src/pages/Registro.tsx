@@ -219,7 +219,7 @@ const Registro = () => {
                             />
                         </div>
                         {prestador == false && (
-                            <div className="mb-5 bg-gray-100 p-3 rounded-2xl">
+                            <div className="mb-5 bg-gray-200 p-3 rounded-2xl">
                                 <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Direccion</label>
                                 <div className="flex gap-2 mb-5">
                                     <div className="w-[50%]">
