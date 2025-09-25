@@ -6,7 +6,6 @@ import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/Pro
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 import { ServicioService } from "../../services/ServicioService";
-import { PrestadorServicioService } from "../../services/PrestadorServicioService";
 type Props = {
   profesional: ProfesionalResponseDTO;
   centroId?: number;
@@ -46,8 +45,6 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
 
   const crearRelacion = (dto: ProfesionalServicioDTO) =>
     api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
-  const eliminarRelacion = (id: number) =>
-    api<void>(`/api/prof-servicios/delete/${id}`, { method: "DELETE" });
 
   useEffect(() => {
     const load = async () => {
@@ -148,6 +145,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                           )}
                         </td>
                         <td className="px-4 py-2 space-x-2">
+
                           <button
                             className="rounded-full bg-[#C19BA8] px-3 py-1 text-sm text-white hover:bg-[#b78fa0] disabled:opacity-50"
                             disabled={saving}
@@ -161,10 +159,39 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                   duracion: r.duracion || 30,
                                   disponibilidades: [],
                                 };
-                                const created = await crearRelacion(dto);
-                                setRelacion((prev) => ({ ...prev, [s.id]: { id: created.id, duracion: created.duracion ?? dto.duracion, configured: true } }));
+                                let relacionActualizada: ProfesionalServicioResponseDTO | null = null;
+                                const relacionId = r.id;
+
+                                if (!r.configured) {
+                                  if (typeof relacionId === "number") {
+                                    relacionActualizada = await profesionalServicioService.cambiarEstado(relacionId);
+                                  } else {
+                                    try {
+                                      const existente = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, s.id);
+                                      const existenteId = existente?.id;
+                                      if (typeof existenteId === "number") {
+                                        relacionActualizada = await profesionalServicioService.cambiarEstado(existenteId);
+                                      }
+                                    } catch {
+                                      // ignoramos si no existe una relacion previa
+                                    }
+                                  }
+                                }
+
+                                if (!relacionActualizada) {
+                                  relacionActualizada = await crearRelacion(dto);
+                                }
+
+                                setRelacion((prev) => ({
+                                  ...prev,
+                                  [s.id]: {
+                                    id: relacionActualizada.id,
+                                    duracion: relacionActualizada.duracion ?? dto.duracion,
+                                    configured: true,
+                                  },
+                                }));
                               } catch (e: unknown) {
-                                alert((e as Error).message ?? "Error al guardar relación");
+                                alert((e as Error).message ?? "Error al guardar relacion");
                               } finally {
                                 setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
                               }
@@ -180,7 +207,11 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                 if (!confirm("¿Desvincular servicio de este profesional?")) return;
                                 try {
                                   setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
-                                  await profesionalServicioService.cambiarEstado(r.id);
+                                  const relacionId = r.id;
+                                  if (typeof relacionId !== "number") {
+                                    throw new Error("No se encontro la relacion a desvincular");
+                                  }
+                                  await profesionalServicioService.cambiarEstado(relacionId);
                                   setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { duracion: 30, configured: false }) }));
                                 } catch (e: unknown) {
                                   alert((e as Error).message ?? "Error al eliminar relación");
@@ -210,3 +241,4 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     </div>
   );
 }
+

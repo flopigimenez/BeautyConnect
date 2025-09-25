@@ -57,17 +57,17 @@ export const obtenerAuthUser = createAsyncThunk<
     const uid = firebaseUser.uid;
     const role = firebaseUser.role;
 
+    console.log("rol", role);
+
     if (role === "CLIENTE") {
         const c = await clienteService.getByUid(uid);
         if (c?.id) return c;
-        const p = await prestadorService.getByUid(uid);
-        if (p?.id) return p;
     } else {
         const p = await prestadorService.getByUid(uid);
         if (p?.id) return p;
-        const c = await clienteService.getByUid(uid);
-        if (c?.id) return c;
     }
+
+    setUser(storedUser!);
 
     throw new Error("No se pudo hidratar el usuario por uid");
 });
@@ -173,20 +173,20 @@ const authSlice = createSlice({
                 state.error = action.error.message || "Error al actualizar usuario";
             });
         builder
-           /* .addCase(hydrateAuthUserFromApi.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(hydrateAuthUserFromApi.fulfilled, (state, action) => {
-                state.loading = false;
-                state.user = action.payload;
-                // persistimos aquí también por si no pasa por setUser
-                localStorage.setItem("user", JSON.stringify(action.payload));
-            })
-            .addCase(hydrateAuthUserFromApi.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.error.message ?? "No se pudo hidratar el usuario";
-            });*/
-             .addCase(obtenerAuthUser.pending, (state) => {
+            /* .addCase(hydrateAuthUserFromApi.pending, (state) => {
+                 state.loading = true;
+             })
+             .addCase(hydrateAuthUserFromApi.fulfilled, (state, action) => {
+                 state.loading = false;
+                 state.user = action.payload;
+                 // persistimos aquí también por si no pasa por setUser
+                 localStorage.setItem("user", JSON.stringify(action.payload));
+             })
+             .addCase(hydrateAuthUserFromApi.rejected, (state, action) => {
+                 state.loading = false;
+                 state.error = action.error.message ?? "No se pudo hidratar el usuario";
+             });*/
+            .addCase(obtenerAuthUser.pending, (state) => {
                 state.loading = true;
             })
             .addCase(obtenerAuthUser.fulfilled, (state, action) => {
