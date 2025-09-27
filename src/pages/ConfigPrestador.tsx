@@ -13,11 +13,13 @@ import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
+import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import type { Rol } from "../types/enums/Rol";
 
 import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
+import { DomicilioService } from "../services/DomicilioService";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
 
@@ -103,6 +105,7 @@ const ConfigPrestador = () => {
 
   const prestadorService = useMemo(() => new PrestadorServicioService(), []);
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
+  const domicilioService = useMemo(() => new DomicilioService(), []);
 
   // 1) Carga por UID desde Firebase y trae Prestador + Centro
   useEffect(() => {
@@ -269,34 +272,50 @@ const ConfigPrestador = () => {
                 validationSchema={centroSchema}
                 onSubmit={async (values, { setSubmitting }) => {
                   try {
-            const payload: CentroDeEsteticaDTO = {
-              nombre: values.nombre,
-              descripcion: values.descripcion,
-              cuit: Number(values.cuit),
-              docValido: values.docValido,
-              imagen: values.imagen, // si luego subís a Cloudinary, setea la URL acá
-              domicilio: {
-                calle: values.domicilio.calle,
-                numero: Number(values.domicilio.numero),
-                localidad: values.domicilio.localidad,
-                codigoPostal: Number(values.domicilio.codigoPostal),
-              },
-              horariosCentro: values.horariosCentro.map((horario) => ({
-                dia: horario.dia,
-                horaMInicio: horario.horaMInicio,
-                horaMFinalizacion: horario.horaMFinalizacion,
-                horaTInicio: horario.horaTInicio,
-                horaTFinalizacion: horario.horaTFinalizacion,
-              })),
-            };
+                    const prestadorId = prestador?.id ?? centro?.prestadorDeServicio?.id;
+                    if (!prestadorId) {
+                      throw new Error("No se encontró el prestador asociado al centro.");
+                    }
+
+                    const domicilioPayload: DomicilioDTO = {
+                      calle: values.domicilio.calle,
+                      numero: Number(values.domicilio.numero),
+                      localidad: values.domicilio.localidad,
+                      codigoPostal: Number(values.domicilio.codigoPostal),
+                    };
+
+                    const payload: CentroDeEsteticaDTO = {
+                      nombre: values.nombre,
+                      descripcion: values.descripcion,
+                      cuit: Number(values.cuit),
+                      docValido: values.docValido,
+                      imagen: values.imagen, // si luego subís a Cloudinary, setea la URL acá
+                      prestadorDeServicioId: prestadorId,
+                      domicilio: domicilioPayload,
+                      horariosCentro: values.horariosCentro.map((horario) => ({
+                        dia: horario.dia,
+                        horaMInicio: horario.horaMInicio,
+                        horaMFinalizacion: horario.horaMFinalizacion,
+                        horaTInicio: horario.horaTInicio,
+                        horaTFinalizacion: horario.horaTFinalizacion,
+                      })),
+                    };
 
                     let saved: CentroEsteticaResponseDTO;
+                    let updatedDomicilio = centro?.domicilio ?? null;
+
                     if (centro?.id) {
+                      if (centro?.domicilio?.id) {
+                        updatedDomicilio = await domicilioService.updateDomicilio(centro.domicilio.id, domicilioPayload);
+                      }
                       saved = await centroService.update(centro.id, payload);
                     } else {
                       saved = await centroService.create(payload);
+                      updatedDomicilio = saved.domicilio ?? updatedDomicilio;
                     }
-                    setCentro(saved);
+
+                    const nextCentro = updatedDomicilio ? { ...saved, domicilio: updatedDomicilio } : saved;
+                    setCentro(nextCentro);
 
                     Swal.fire({
                       icon: "success",
@@ -317,7 +336,7 @@ const ConfigPrestador = () => {
                   }
                 }}
               >
-                {({ isSubmitting, values }) => (
+                {({ isSubmitting, values, errors }) => (
                   <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FieldBox label="Nombre del centro" name="nombre" />
                     <FieldBox label="CUIT" name="cuit" type="number" />
@@ -386,7 +405,9 @@ const ConfigPrestador = () => {
                             ) : (
                               <p className="text-sm text-gray-500">Agregá al menos un horario para tu centro.</p>
                             )}
-                            <ErrorMessage name="horariosCentro" component="span" className="text-xs text-red-600" />
+                            {typeof errors.horariosCentro === "string" ? (
+                              <span className="text-xs text-red-600">{errors.horariosCentro}</span>
+                            ) : null}
                             <button
                               type="button"
                               onClick={() =>
