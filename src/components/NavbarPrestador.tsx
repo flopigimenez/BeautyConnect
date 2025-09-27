@@ -4,13 +4,16 @@ import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
 import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
-import { useAppSelector } from "../redux/store/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Estado } from "../types/enums/Estado";
+import { clearUser } from "../redux/store/authSlice";
+import { clearCentro } from "../redux/store/miCentroSlice";
 
 const NavbarPrestador = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const centro = useAppSelector((state) => state.miCentro.centro);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -25,7 +28,8 @@ const NavbarPrestador = () => {
 
   const handleLogout = async () => {
     await signOut(auth);
-    localStorage.removeItem("user");
+    dispatch(clearUser());
+    dispatch(clearCentro());
   };
 
   return (
@@ -38,10 +42,10 @@ const NavbarPrestador = () => {
             </Link>
           </div>
 
-           {/* {centro?.estado === Estado.ACEPTADO && (  */}
-            <Link to="/prestador/panel" className="text-gray-600 hover:text-gray-900 font-primary">
-              Panel
-            </Link>
+          {/* {centro?.estado === Estado.ACEPTADO && (  */}
+          <Link to="/prestador/panel" className="text-gray-600 hover:text-gray-900 font-primary">
+            Panel
+          </Link>
           {/* )} */}
 
           <div className="ml-10 flex items-center space-x-4">

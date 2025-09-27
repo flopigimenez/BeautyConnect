@@ -36,7 +36,7 @@ const NavbarCliente = () => {
     await signOut(auth);
     dispatch(clearUser());
     dispatch(clearCentro());
-    localStorage.removeItem("user");
+    // localStorage.removeItem("user");
 
   };
 
