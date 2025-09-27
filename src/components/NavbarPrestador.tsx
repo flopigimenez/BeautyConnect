@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/config";
-import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Estado } from "../types/enums/Estado";
@@ -71,7 +70,7 @@ const NavbarPrestador = () => {
         </div>
       </div>
 
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      {/* <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} /> */}
       <hr className="border-secondary border-1 w-full" />
     </nav>
   );

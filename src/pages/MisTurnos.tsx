@@ -191,115 +191,111 @@ export default function MisTurnos() {
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto px-15 py-16">
-                    {turnosFiltrados.length == 0 ? (
-                        <h2 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52] text-center pt-5">No tenes turnos</h2>
-                    ) : (
-                        <CustomTable<TurnoResponseDTO>
-                            title="Mis Turnos"
-                            columns={[
-                                {
-                                    header: "Fecha", accessor: "fecha", render: row => {
-                                        const fecha = new Date(row.fecha);
-                                        return fecha.toLocaleDateString("es-AR");
-                                    }
-                                },
-                                { header: "Hora", accessor: "hora" },
-                                {
-                                    header: "Servicio", accessor: "profesionalServicio", render: row =>
-                                        row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                                            .split('_')
-                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(' ')
-                                },
-                                {
-                                    header: "Profesional", accessor: "profesionalServicio", render: row =>
-                                        `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
-                                    ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
-                                },
-                                {
-                                    header: "Estado", accessor: "estado", render: row => (
-                                        <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
-                                            {row.estado.toLowerCase()
-                                                .split('_')
-                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                                .join(' ')}
-                                        </span>
-                                    )
-                                },
-                                {
-                                    header: "Centro",
-                                    accessor: "centroDeEsteticaResponseDTO",
-                                    render: (row) => row.centroDeEstetica?.nombre.toLowerCase()
+                    <CustomTable<TurnoResponseDTO>
+                        title="Mis Turnos"
+                        columns={[
+                            {
+                                header: "Fecha", accessor: "fecha", render: row => {
+                                    const fecha = new Date(row.fecha);
+                                    return fecha.toLocaleDateString("es-AR");
+                                }
+                            },
+                            { header: "Hora", accessor: "hora" },
+                            {
+                                header: "Servicio", accessor: "profesionalServicio", render: row =>
+                                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
                                         .split('_')
                                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ') ?? row.centroDeEsteticaResponseDTO?.nombre.toLowerCase()
+                                        .join(' ')
+                            },
+                            {
+                                header: "Profesional", accessor: "profesionalServicio", render: row =>
+                                    `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
+                                    ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
+                            },
+                            {
+                                header: "Estado", accessor: "estado", render: row => (
+                                    <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
+                                        {row.estado.toLowerCase()
                                             .split('_')
                                             .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(' ') ?? "Sin centro"
-                                },
-                                {
-                                    header: "Acciones",
-                                    render: (row) => {
-                                        const centroId = row.centroDeEstetica?.id ?? row.centroDeEsteticaResponseDTO?.id ?? null;
-                                        const resenaRegistrada = centroId ? resenasPorCentro[centroId] ?? null : null;
+                                            .join(' ')}
+                                    </span>
+                                )
+                            },
+                            {
+                                header: "Centro",
+                                accessor: "centroDeEsteticaResponseDTO",
+                                render: (row) => row.centroDeEstetica?.nombre.toLowerCase()
+                                    .split('_')
+                                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                    .join(' ') ?? row.centroDeEsteticaResponseDTO?.nombre.toLowerCase()
+                                        .split('_')
+                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                        .join(' ') ?? "Sin centro"
+                            },
+                            {
+                                header: "Acciones",
+                                render: (row) => {
+                                    const centroId = row.centroDeEstetica?.id ?? row.centroDeEsteticaResponseDTO?.id ?? null;
+                                    const resenaRegistrada = centroId ? resenasPorCentro[centroId] ?? null : null;
 
-                                        if (resenaRegistrada != null) {
-                                            return (
-                                                <span className="text-yellow-500 font-semibold" title={`${resenaRegistrada} de 5`}>
-                                                    {renderStars(resenaRegistrada)}
-                                                </span>
-                                            );
-                                        }
-
-                                        const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.FINALIZADO;
-
-                                        if (!habilitado) {
-                                            return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
-                                        }
-
+                                    if (resenaRegistrada != null) {
                                         return (
-                                            <button
-                                                onClick={() => abrirModalResena(row)}
-                                                className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition"
-                                            >
-                                                Dejar reseña
-                                            </button>
+                                            <span className="text-yellow-500 font-semibold" title={`${resenaRegistrada} de 5`}>
+                                                {renderStars(resenaRegistrada)}
+                                            </span>
                                         );
                                     }
-                                },
-                                {
-                                    header: "",
-                                    accessor: "estado",
-                                    render: (row) => {
-                                        const isPending = row.estado === EstadoTurno.PENDIENTE;
 
-                                        return (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    disabled={!isPending}
-                                                    className={`py-1 px-2 rounded-full text-primary transition ${isPending
-                                                            ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
-                                                            : "bg-gray-400 cursor-not-allowed"
-                                                        }`}
-                                                    onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
-                                                >
-                                                    Cancelar turno
-                                                </button>
-                                            </div>
-                                        );
+                                    const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.FINALIZADO;
+
+                                    if (!habilitado) {
+                                        return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
                                     }
+
+                                    return (
+                                        <button
+                                            onClick={() => abrirModalResena(row)}
+                                            className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition"
+                                        >
+                                            Dejar reseña
+                                        </button>
+                                    );
                                 }
+                            },
+                            {
+                                header: "",
+                                accessor: "estado",
+                                render: (row) => {
+                                    const isPending = row.estado === EstadoTurno.PENDIENTE;
 
-                            ]}
-                            data={turnosFiltrados.slice().reverse() ?? []}
-                            borrarFiltros={{
-                                onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
-                            }}
-                            filtros={{
-                                onClick: () => setModalFiltro(true),
-                            }}
-                        />
-                    )}
+                                    return (
+                                        <div className="flex gap-2">
+                                            <button
+                                                disabled={!isPending}
+                                                className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                                                    ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                                                    : "bg-gray-400 cursor-not-allowed"
+                                                    }`}
+                                                onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                                            >
+                                                Cancelar turno
+                                            </button>
+                                        </div>
+                                    );
+                                }
+                            }
+
+                        ]}
+                        data={turnosFiltrados.slice().reverse() ?? []}
+                        borrarFiltros={{
+                            onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
+                        }}
+                        filtros={{
+                            onClick: () => setModalFiltro(true),
+                        }}
+                    />
                 </main>
             </div>
             {modalFiltro && (

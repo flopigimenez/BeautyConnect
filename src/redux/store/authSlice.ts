@@ -57,15 +57,14 @@ export const obtenerAuthUser = createAsyncThunk<
     const uid = firebaseUser.uid;
     const role = firebaseUser.role;
 
-    console.log("rol", role);
-
     if (role === "CLIENTE") {
         const c = await clienteService.getByUid(uid);
         if (c?.id) return c;
-    } else {
-        const p = await prestadorService.getByUid(uid);
-        if (p?.id) return p;
-    }
+    } else
+        if (role === "PRESTADOR_DE_SERVICIO") {
+            const p = await prestadorService.getByUid(uid);
+            if (p?.id) return p;
+        }
 
     setUser(storedUser!);
 

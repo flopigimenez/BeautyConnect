@@ -6,16 +6,20 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Rol } from "../types/enums/Rol";
 import { updateUserCliente, updateUserPrestador } from "../redux/store/authSlice";
 import { useNavigate } from "react-router-dom";
-import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 
 const RegistroGoogle = () => {
     const navigate = useNavigate();
     const { user, error } = useAppSelector((state) => state.user);
-    const [domicilio, setDomicilio] = useState<DomicilioDTO>({ calle: "", numero: parseInt(""), localidad: "", codigoPostal: parseInt("") });
     const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({
         nombre: user?.nombre ?? "",
         apellido: user?.apellido ?? "",
         telefono: user?.telefono ?? "",
+        domicilio: {
+            calle: user?.domicilio?.calle ?? "",
+            numero: user?.domicilio?.numero ?? parseInt(""),
+            localidad: user?.domicilio?.localidad ?? "",
+            codigoPostal: user?.domicilio?.codigoPostal ?? parseInt(""),
+        },
         usuario: {
             mail: user?.usuario.mail ?? "",
             rol: user?.usuario.rol ?? Rol.CLIENTE,
@@ -28,11 +32,7 @@ const RegistroGoogle = () => {
         e.preventDefault();
 
         if (user?.usuario.rol === Rol.CLIENTE) {
-            const cliente: ClienteDTO = {
-                ...registro,
-                domicilio: domicilio, 
-            };
-            dispatch(updateUserCliente(cliente));
+            dispatch(updateUserCliente(registro));
             navigate("/");
         } else {
             dispatch(updateUserPrestador(registro));
@@ -91,8 +91,8 @@ const RegistroGoogle = () => {
                                         id="direccion"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Calle"
-                                        value={domicilio.calle}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, calle: e.target.value }))}
+                                        value={user?.domicilio?.calle}
+                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, calle: e.target.value }, }))}
                                         required
                                     />
                                 </div>
@@ -103,8 +103,8 @@ const RegistroGoogle = () => {
                                         id="numero"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Número"
-                                        value={domicilio.numero}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, numero: parseInt(e.target.value) }))}
+                                        value={user?.domicilio?.numero || ""}
+                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, numero: parseInt(e.target.value) }, }))}
                                         required
                                     />
                                 </div>
@@ -117,8 +117,8 @@ const RegistroGoogle = () => {
                                         id="localidad"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Localidad"
-                                        value={domicilio.localidad}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, localidad: e.target.value }))}
+                                        value={user?.domicilio?.localidad}
+                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, localidad: e.target.value }, }))}
                                         required
                                     />
                                 </div>
@@ -129,8 +129,8 @@ const RegistroGoogle = () => {
                                         id="codigoPostal"
                                         className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                         placeholder="Código postal"
-                                        value={domicilio.codigoPostal}
-                                        onChange={(e) => setDomicilio(prev => ({ ...prev, codigoPostal: parseInt(e.target.value) }))}
+                                        value={user?.domicilio?.codigoPostal || ""}
+                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, codigoPostal: parseInt(e.target.value) }, }))}
                                         required
                                     />
                                 </div>

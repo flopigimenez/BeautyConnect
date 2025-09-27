@@ -13,7 +13,7 @@ import { setUser } from "../redux/store/authSlice";
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
-import { RxCross2 } from "react-icons/rx";
+import Swal from "sweetalert2";
 
 const Registro = () => {
     const navigate = useNavigate();
@@ -40,12 +40,24 @@ const Registro = () => {
             !contrasenia ||
             !confirmPassword
         ) {
-            alert("Por favor, completa todos los campos.");
+            Swal.fire({
+                text: 'Por favor, completa todos los campos',
+                position: "center",
+                icon: "warning",
+                showConfirmButton: false,
+                timer: 1500
+            });
             return;
         }
 
         if (prestador === undefined) {
-            alert("Por favor, selecciona si es prestador o cliente");
+            Swal.fire({
+                text: "Por favor, selecciona si es prestador o cliente",
+                position: "center",
+                icon: "warning",
+                showConfirmButton: false,
+                timer: 1500
+            });
             return;
         }
 
@@ -83,7 +95,14 @@ const Registro = () => {
             });
 
             if (!resp.ok) throw new Error(await resp.text());
-            alert("Usuario registrado correctamente en backend");
+            Swal.fire({
+                title: '¡Registro exitoso!',
+                text: '¡Bienvenido a BeautyConnect!',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 1500,
+                width: '350px',
+            });
 
             const data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
             dispatch(setUser(data));
@@ -94,14 +113,28 @@ const Registro = () => {
                 navigate("/");
             }
         } catch (err) {
-            console.error(err);
-            alert("Error al registrar");
+            Swal.fire({
+                text: (err as Error).message || "Error en el registro",
+                position: "center",
+                icon: "error",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#a27e8f',
+                width: '450px',
+            });
+            setError((err as Error).message || "Error en el registro");
         }
     };
 
     const handleGoogleSignIn = async () => {
         if (prestador === undefined) {
-            alert("Por favor, selecciona si es prestador o cliente");
+            Swal.fire({
+                text: "Por favor, selecciona si es prestador o cliente",
+                position: "center",
+                icon: "warning",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#a27e8f',
+                width: '450px',
+            });
             return;
         }
 
@@ -132,13 +165,29 @@ const Registro = () => {
                 })
             });
 
+            if (!resp.ok) throw new Error(await resp.text());
+            Swal.fire({
+                title: '¡Registro con Google exitoso!',
+                text: '¡Bienvenido a BeautyConnect!',
+                icon: 'success',
+                showConfirmButton: false,
+                timer: 2000,
+            });
+
             const data: ClienteResponseDTO | PrestadorServicioResponseDTO = await resp.json();
             dispatch(setUser(data));
 
             // completar datos registro
             navigate("/FinalizarRegistroGoogle")
         } catch (err: unknown) {
-            setError((err as Error).message || "Error en el inicio con Google");
+            Swal.fire({
+                text: "Error al registarse con Google",
+                position: "center",
+                icon: "error",
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#a27e8f',
+                width: '450px',
+            });
         }
     };
 
@@ -147,7 +196,7 @@ const Registro = () => {
             <Navbar />
             {error ? (<p className="text-red-500">{error}</p>) : (
                 <div className="bg-primary w-screen pt-25 flex flex-col items-center">
-                    <h1 className="font-secondary text-2xl font-bold mb-3">¡Bienvenido a BeautyConnect!</h1>
+                    <h1 className="font-secondary text-2xl font-bold mb-3 text-tertiary">¡Bienvenido a BeautyConnect!</h1>
                     <p className="font-primary">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
@@ -296,10 +345,15 @@ const Registro = () => {
                             >
                                 Registrarse
                             </button>
+                            <div className="w-[90%] flex items-center my-2">
+                                <div className="flex-grow border-t border-gray-300"></div>
+                                <span className="mx-4 text-gray-500">o</span>
+                                <div className="flex-grow border-t border-gray-300"></div>
+                            </div>
                             <button
                                 type="button"
                                 onClick={handleGoogleSignIn}
-                                className="w-[90%] bg-white text-gray-800 border rounded-full py-2 mt-3 flex items-center justify-center font-secondary gap-2 cursor-pointer hover:bg-gray-200"
+                                className="w-[90%] bg-white text-gray-800 border rounded-full py-2 flex items-center justify-center font-secondary gap-2 cursor-pointer hover:bg-gray-200"
                             >
                                 <FcGoogle />
                                 Registrarse con Google

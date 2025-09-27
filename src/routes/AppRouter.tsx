@@ -22,6 +22,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { Rol } from "../types/enums/Rol";
 import CentrosRechazados from "../pages/CentrosRechazados";
 import CentrosAceptados from "../pages/CentrosAceptados";
+import IniciarSesion from "../pages/IniciarSesion";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -41,6 +42,7 @@ export const AppRouter = () => {
         <Route path="/registro" element={<Registro />} />
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
         <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle />} />
+        <Route path="/iniciarSesion" element={<IniciarSesion />}/>
 
         {/* Rutas protegidas para clientes */}
         <Route

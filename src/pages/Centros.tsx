@@ -11,6 +11,7 @@ import { Estado } from "../types/enums/Estado";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { ReseniaService } from "../services/ReseniaService";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
+import Swal from "sweetalert2";
 
 const RATING_SCALE = 5;
 const FULL_STAR = "\u2605";
@@ -33,6 +34,7 @@ const Centros = () => {
     const centros = useAppSelector((state) => state.centros.centros);
     const reseniaService = useMemo(() => new ReseniaService(), []);
     const [reseniasPorCentro, setReseniasPorCentro] = useState<Record<number, ResenaStats>>({});
+    const user = useAppSelector((state) => state.user.user);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
@@ -196,9 +198,9 @@ const Centros = () => {
                                     >
                                         <img src={centro.imagen} alt={centro.nombre} className="w-full h-40 object-cover rounded-md mb-4" />
                                         <h3 className="text-lg font-bold font-primary">{centro.nombre.toLowerCase()
-                                                .split('_')
-                                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                                .join(' ')}</h3>
+                                            .split('_')
+                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                            .join(' ')}</h3>
                                         <p className="text-gray-600 font-primary">{centro.descripcion}</p>
                                         {cantidadResenias > 0 && (
                                             <p className="mt-2 text-tertiary font-primary">
@@ -249,14 +251,14 @@ const Centros = () => {
                                         <p className="text-gray-600 font-primary"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
                                         {centroSeleccionado.domicilio && (
                                             <p className="text-gray-600 font-primary">
-                                               <b>Domicilio:</b> {centroSeleccionado.domicilio.calle} {centroSeleccionado.domicilio.numero}, {centroSeleccionado.domicilio.localidad} - CP: {centroSeleccionado.domicilio.codigoPostal}
+                                                <b>Domicilio:</b> {centroSeleccionado.domicilio.calle} {centroSeleccionado.domicilio.numero}, {centroSeleccionado.domicilio.localidad} - CP: {centroSeleccionado.domicilio.codigoPostal}
                                             </p>
                                         )}
                                         <div>
                                             <p className="text-gray-600 font-primary"><b>Servicios:</b> {centroSeleccionado.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()).join(", ")}</p>
                                         </div>
 
-                                           
+
                                     </div>
                                     <div className="flex justify-around mt-3 mb-2">
                                         <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
@@ -265,7 +267,13 @@ const Centros = () => {
                                             Ver reseñas
                                         </button>
                                         <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
-                                            onClick={() => navigate(`/turno/${centroSeleccionado.id}`)}
+                                            onClick={() => user ? navigate(`/turno/${centroSeleccionado.id}`) : (navigate('/IniciarSesion'),
+                                                Swal.fire({
+                                                    icon: 'info',
+                                                    title: 'Debes iniciar sesión para pedir un turno',
+                                                    showConfirmButton: true,
+                                                    confirmButtonColor: '#a27e8f',
+                                                }))}
                                         >
                                             Pedir turno
                                         </button>

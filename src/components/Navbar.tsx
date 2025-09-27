@@ -1,8 +1,3 @@
-import { useEffect, useState } from "react";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import type { User } from "firebase/auth";
-import { auth } from "../firebase/config";
-import LoginModal from "./modals/LoginModal";
 import { Link } from "react-router-dom";
 import NavbarPrestador from "./NavbarPrestador";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
@@ -10,35 +5,79 @@ import { Rol } from "../types/enums/Rol";
 import { clearCentro } from "../redux/store/miCentroSlice";
 import { clearUser } from "../redux/store/authSlice";
 import NavbarAdmin from "./NavbarAdmin";
+import Swal from "sweetalert2";
+import { useEffect } from "react";
+import { fetchTurnosCliente } from "../redux/store/misTurnosSlice";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase/config";
 
 const isRolValue = (value: string | null | undefined): value is Rol => {
   return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
 };
 
 const NavbarCliente = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const turno = useAppSelector((state) => state.turno.turno);
+  const user = useAppSelector((state) => state.user.user);
+  const turnos = useAppSelector((state) => state.misTurnos.misTurnos);
+
+  const turnoCount = turnos.filter(
+    (t) => t.estado === "PENDIENTE"
+  ).length;
 
   useEffect(() => {
+    if (user?.id && turnos.length > 0) {
+      dispatch(fetchTurnosCliente(user.id));
+    }
+  }, [user, dispatch]);
+
+  /*useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+      setFirebaseUser(firebaseUser);
       if (firebaseUser) {
         setIsLoginOpen(false);
       }
     });
 
     return () => unsubscribe();
-  }, []);
+  }, []);*/
 
   const handleLogout = async () => {
-    await signOut(auth);
-    dispatch(clearUser());
-    dispatch(clearCentro());
-    // localStorage.removeItem("user");
-
-  };
+    Swal.fire({
+      title: '¿Deseas cerrar sesión?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#a27e8f',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar'
+    }).then( async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // Cerrar sesión
+          await signOut(auth);
+          dispatch(clearUser());
+          dispatch(clearCentro());
+          Swal.fire({
+            title: 'Sesión cerrada',
+            text: 'Has cerrado sesión exitosamente.',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1500
+          });
+        } catch (error) {
+          console.error('Error al cerrar sesión:', error);
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al cerrar sesión.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+        // await signOut(auth);
+        // localStorage.removeItem("user");
+      }
+    });
+  }
 
   return (
     <nav className="bg-primary shadow-md fixed top-0 w-full z-50">
@@ -65,9 +104,9 @@ const NavbarCliente = () => {
                   </Link>
                   <Link to="/misTurnos" className="text-gray-600 hover:text-gray-900 font-primary relative inline-block">
                     Turnos
-                    {turno && (
+                    {turnos && turnoCount > 0 && (
                       <span className="absolute top-0 right-0 -mt-1 -mr-3 bg-secondary text-primary text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                        1
+                        {turnoCount}
                       </span>
                     )}
                   </Link>
@@ -79,7 +118,7 @@ const NavbarCliente = () => {
           <div className="ml-10 flex items-center space-x-4">
             {user ? (
               <>
-                <span className="text-sm text-gray-700 font-primary">Hola, {user.email}</span>
+                <span className="text-sm text-gray-700 font-primary">Hola, {user.usuario.mail}</span>
                 <button
                   onClick={handleLogout}
                   className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"
@@ -88,18 +127,15 @@ const NavbarCliente = () => {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsLoginOpen(true)}
-                className="text-gray-600 hover:text-gray-900 font-primary"
-              >
+              <Link to="/Registro" className="text-gray-600 hover:text-gray-900 font-primary">
                 Ingresar
-              </button>
+              </Link>
             )}
           </div>
         </div>
       </div>
 
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      {/* <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} /> */}
       <hr className="border-secondary border-1 w-full" />
     </nav>
   );

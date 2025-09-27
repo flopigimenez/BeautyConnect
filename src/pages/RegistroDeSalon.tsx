@@ -24,7 +24,7 @@ const RegistroDeSalon = () => {
             localidad: "",
             codigoPostal: parseInt(""),
         },
-        horariosCentro: [],
+        horariosCentro: [] as HorarioCentroDTO[],
     });
     const centroService = new CentroDeEsteticaService();
     const navigate = useNavigate();
