@@ -1,4 +1,4 @@
-// src/pages/Turnos.tsx
+﻿// src/pages/Turnos.tsx
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,7 +34,7 @@ const Turnos = () => {
   const cliente = useAppSelector((state) => state.user.user);
   console.log("Cliente en Turnos:", cliente);
 
-  // Servicios (instancias simples; si querés, memoizá con useMemo)
+  // Servicios 
   const profServicioService = new ProfesionalServicioService();
   const turnosDispService = new TurnosDispService();
   const clienteService = new ClienteService();
@@ -82,7 +82,7 @@ const Turnos = () => {
     fetchProfesionales();
   }, [servicioSeleccionado]);
 
-  // 2) Cuando hay profesional y servicio -> cargar relación exacta (duración y psId)
+  // 2) Cuando hay profesional y servicio -> cargar relaciÃ³n exacta (duraciÃ³n y psId)
   useEffect(() => {
     (async () => {
       if (!profesionalSeleccionado || !servicioSeleccionado) {
@@ -119,7 +119,7 @@ const Turnos = () => {
           profesionalSeleccionado.id,
           servicioSeleccionado.id,
           fechaSeleccionada,
-          10 // step en minutos; podés hacerlo configurable
+          10 // step en minutos; podÃ©s hacerlo configurable
         );
         setInicios(resp.inicios ?? []);
       } catch (e) {
@@ -294,15 +294,17 @@ const Turnos = () => {
                 <h2 className="mt-13 font-secondary text-l font-bold pb-2">Selecciona la fecha</h2>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Elegí una fecha"
+                    label="Elegí­ una fecha"
                     value={value}
                     onChange={(newValue) => {
                       setValue(newValue);
                       setFechaSeleccionada(newValue ? newValue.format("YYYY-MM-DD") : null);
                     }}
                     shouldDisableDate={(date) => {
-                      // Deshabilitar fechas pasadas
-                      if (date.isBefore(dayjs(), "day")) return true;
+                      if (!date) return false;
+                      const today = dayjs();
+                      // Deshabilitar fechas pasadas y el día actual
+                      if (date.isSame(today, "day") || date.isBefore(today, "day")) return true;
                       // (Opcional) Deshabilitar fines de semana
                       const d = date.day();
                       if (d === 0 || d === 6) return true;
@@ -332,7 +334,7 @@ const Turnos = () => {
 
                 {fechaSeleccionada && inicios.length === 0 && (
                   <p className="mt-3 text-sm text-gray-600">
-                    No hay horarios disponibles para la fecha seleccionada. Probá con otro día.
+                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro día.
                   </p>
                 )}
                 {!loadingClienteInfo && !clienteInfo && (

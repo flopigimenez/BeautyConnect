@@ -40,7 +40,7 @@ export default function MisTurnos() {
     const [resenaError, setResenaError] = useState<string | null>(null);
     const [resenaExito, setResenaExito] = useState<string | null>(null);
 
-    const [resenasPorCentro, setResenasPorCentro] = useState<Record<number, number>>({});
+    const [resenasPorTurno, setResenasPorTurno] = useState<Record<number, number>>({});
 
 
     const resenaService = useMemo(() => new ReseniaService(), []);
@@ -52,7 +52,7 @@ export default function MisTurnos() {
 
     useEffect(() => {
         if (user?.usuario?.rol !== "CLIENTE" || !user?.id) {
-            setResenasPorCentro({});
+            setResenasPorTurno({});
             return;
         }
 
@@ -64,14 +64,13 @@ export default function MisTurnos() {
                 if (!activo) return;
                 const acumulado: Record<number, number> = {};
                 todas
-                    .filter(resena => resena.cliente?.id === user.id && resena.centroDeEstetica?.id)
+                    .filter(resena => resena.cliente?.id === user.id && resena.turno?.id)
                     .forEach(resena => {
-                        const centroId = resena.centroDeEstetica?.id;
-                        if (centroId) {
-                            acumulado[centroId] = resena.puntuacion;
+                        if (resena.turno?.id) {
+                            acumulado[resena.turno.id] = resena.puntuacion;
                         }
                     });
-                setResenasPorCentro(acumulado);
+                setResenasPorTurno(acumulado);
             } catch (error) {
                 console.error("No se pudieron cargar las reseñas existentes", error);
             }
@@ -110,14 +109,19 @@ export default function MisTurnos() {
         }
 
         const centroId = turnoParaResena.centroDeEstetica?.id ?? turnoParaResena.centroDeEsteticaResponseDTO?.id;
+        const turnoId = turnoParaResena.id;
+        if (!turnoId) {
+            setResenaError("No se pudo identificar el turno.");
+            return;
+        }
 
         if (!centroId) {
             setResenaError("No se pudo identificar el centro de estética.");
             return;
         }
 
-        if (resenasPorCentro[centroId] != null) {
-            setResenaError("Ya dejaste una reseña para este centro.");
+        if (resenasPorTurno[turnoId] != null) {
+            setResenaError("Ya dejaste una reseña para este turno.");
             return;
         }
 
@@ -133,10 +137,11 @@ export default function MisTurnos() {
                 comentario: resenaForm.comentario.trim(),
                 clienteId: user.id,
                 centroDeEsteticaId: centroId,
+                turnoId: turnoParaResena.id
             });
             setResenaExito("Reseña enviada con éxito.");
             setResenaError(null);
-            setResenasPorCentro(prev => ({ ...prev, [centroId]: resenaForm.puntuacion }));
+            setResenasPorTurno(prev => ({ ...prev, [turnoId]: resenaForm.puntuacion }));
             if (user?.id) {
                 dispatch(fetchTurnosCliente(user.id));
             }
@@ -196,8 +201,11 @@ export default function MisTurnos() {
                         columns={[
                             {
                                 header: "Fecha", accessor: "fecha", render: row => {
-                                    const fecha = new Date(row.fecha);
-                                    return fecha.toLocaleDateString("es-AR");
+                                    if (!row.fecha) return "-";
+                                    const parts = row.fecha.split("-");
+                                    if (parts.length !== 3) return row.fecha;
+                                    const [year, month, day] = parts;
+                                    return `${day}/${month}/${year}`;
                                 }
                             },
                             { header: "Hora", accessor: "hora" },
@@ -237,8 +245,7 @@ export default function MisTurnos() {
                             {
                                 header: "Acciones",
                                 render: (row) => {
-                                    const centroId = row.centroDeEstetica?.id ?? row.centroDeEsteticaResponseDTO?.id ?? null;
-                                    const resenaRegistrada = centroId ? resenasPorCentro[centroId] ?? null : null;
+                                    const resenaRegistrada = resenasPorTurno[row.id] ?? null;
 
                                     if (resenaRegistrada != null) {
                                         return (

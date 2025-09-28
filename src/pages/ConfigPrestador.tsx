@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
@@ -20,6 +20,7 @@ import type { Rol } from "../types/enums/Rol";
 import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { DomicilioService } from "../services/DomicilioService";
+import { HorarioCentroService } from "../services/HorarioCentroService";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
 
@@ -93,6 +94,7 @@ const DIA_OPTIONS = [
   { value: "SUNDAY", label: "Domingo" },
 ];
 
+type HorarioCentroFormValue = HorarioCentroDTO & { id?: number | null };
 const ConfigPrestador = () => {
   const [showPwd, setShowPwd] = useState(false);
   const [tab, setTab] = useState<"prestador" | "centro">("prestador");
@@ -106,6 +108,7 @@ const ConfigPrestador = () => {
   const prestadorService = useMemo(() => new PrestadorServicioService(), []);
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
   const domicilioService = useMemo(() => new DomicilioService(), []);
+  const horarioCentroService = useMemo(() => new HorarioCentroService(), []);
 
   // 1) Carga por UID desde Firebase y trae Prestador + Centro
   useEffect(() => {
@@ -135,7 +138,7 @@ const ConfigPrestador = () => {
 
         setPrestador(p);
 
-        // Centro por UID de prestador (depende de tu API; si el Prestador viene con centro.id, podrías usar getById)
+        // Centro por UID de prestador (depende de tu API; si el Prestador viene con centro.id, podrÃ­as usar getById)
         const c = await centroService.getByPrestadorId(p.id);
         setCentro(c);
       } catch (e) {
@@ -267,15 +270,25 @@ const ConfigPrestador = () => {
                     localidad: centro?.domicilio?.localidad ?? "",
                     codigoPostal: (centro?.domicilio)?.codigoPostal ?? 0,
                   },
-                  horariosCentro: centro?.horariosCentro?.map((horario: HorarioCentroDTO) => ({ ...horario })) ?? [],
+                  horariosCentro: centro?.horariosCentro?.map((horario: any) => ({
+                    id: typeof horario.id === "number" ? horario.id : undefined,
+                    dia: horario.dia,
+                    horaMInicio: horario.horaMInicio,
+                    horaMFinalizacion: horario.horaMFinalizacion,
+                    horaTInicio: horario.horaTInicio,
+                    horaTFinalizacion: horario.horaTFinalizacion,
+                  })) ?? [],
                 }}
                 validationSchema={centroSchema}
-                onSubmit={async (values, { setSubmitting }) => {
+                onSubmit={async (values, { setSubmitting, setFieldValue }) => {
                   try {
                     const prestadorId = prestador?.id ?? centro?.prestadorDeServicio?.id;
                     if (!prestadorId) {
                       throw new Error("No se encontró el prestador asociado al centro.");
                     }
+
+                    const horariosForm = (values.horariosCentro ?? []) as HorarioCentroFormValue[];
+                    const prevHorarios = centro?.horariosCentro ?? [];
 
                     const domicilioPayload: DomicilioDTO = {
                       calle: values.domicilio.calle,
@@ -292,13 +305,7 @@ const ConfigPrestador = () => {
                       imagen: values.imagen, // si luego subís a Cloudinary, setea la URL acá
                       prestadorDeServicioId: prestadorId,
                       domicilio: domicilioPayload,
-                      horariosCentro: values.horariosCentro.map((horario) => ({
-                        dia: horario.dia,
-                        horaMInicio: horario.horaMInicio,
-                        horaMFinalizacion: horario.horaMFinalizacion,
-                        horaTInicio: horario.horaTInicio,
-                        horaTFinalizacion: horario.horaTFinalizacion,
-                      })),
+                      horariosCentro: [], // gestionado via HorarioCentroService
                     };
 
                     let saved: CentroEsteticaResponseDTO;
@@ -314,8 +321,61 @@ const ConfigPrestador = () => {
                       updatedDomicilio = saved.domicilio ?? updatedDomicilio;
                     }
 
-                    const nextCentro = updatedDomicilio ? { ...saved, domicilio: updatedDomicilio } : saved;
+                    const centroId = saved.id;
+                    const baseCentro = updatedDomicilio ? { ...saved, domicilio: updatedDomicilio } : saved;
+
+                    const prevIds = prevHorarios
+                      .map((horario: any) => (typeof horario.id === "number" ? horario.id : null))
+                      .filter((id): id is number => id != null);
+                    const currentIds = horariosForm
+                      .map((horario) => (typeof horario.id === "number" ? horario.id : null))
+                      .filter((id): id is number => id != null);
+
+                    const idsToDelete = prevIds.filter((id) => !currentIds.includes(id));
+                    if (idsToDelete.length > 0) {
+                      await Promise.all(idsToDelete.map((id) => horarioCentroService.delete(id)));
+                    }
+
+                    if (horariosForm.length > 0) {
+                      await Promise.all(
+                        horariosForm.map((horario) => {
+                          const horarioPayload: HorarioCentroDTO = {
+                            dia: horario.dia,
+                            horaMInicio: horario.horaMInicio,
+                            horaMFinalizacion: horario.horaMFinalizacion,
+                            horaTInicio: horario.horaTInicio,
+                            horaTFinalizacion: horario.horaTFinalizacion,
+                          };
+
+                          if (horario.id) {
+                            return horarioCentroService.updateHorarioCentro(horario.id, horarioPayload);
+                          }
+
+                          return horarioCentroService.createHorarioCentro(centroId, horarioPayload);
+                        }),
+                      );
+                    }
+
+                    const refreshed = await centroService.getById(centroId);
+                    const fallbackHorarios = horariosForm.map((horario) => ({
+                      dia: horario.dia,
+                      horaMInicio: horario.horaMInicio,
+                      horaMFinalizacion: horario.horaMFinalizacion,
+                      horaTInicio: horario.horaTInicio,
+                      horaTFinalizacion: horario.horaTFinalizacion,
+                    }));
+                    const nextCentro = refreshed ? refreshed : { ...baseCentro, horariosCentro: fallbackHorarios };
                     setCentro(nextCentro);
+
+                    const updatedHorariosForFormik = (refreshed?.horariosCentro ?? horariosForm).map((horario: any) => ({
+                      id: typeof horario.id === "number" ? horario.id : undefined,
+                      dia: horario.dia,
+                      horaMInicio: horario.horaMInicio,
+                      horaMFinalizacion: horario.horaMFinalizacion,
+                      horaTInicio: horario.horaTInicio,
+                      horaTFinalizacion: horario.horaTFinalizacion,
+                    }));
+                    setFieldValue("horariosCentro", updatedHorariosForFormik, false);
 
                     Swal.fire({
                       icon: "success",
@@ -365,8 +425,8 @@ const ConfigPrestador = () => {
                         {({ push, remove }) => (
                           <div className="space-y-4">
                             {values.horariosCentro && values.horariosCentro.length > 0 ? (
-                              values.horariosCentro.map((_, index) => (
-                                <div key={index} className="rounded-lg border border-[#E9DDE1] p-4">
+                              values.horariosCentro.map((horario, index) => (
+                                <div key={horario.id ?? index} className="rounded-lg border border-[#E9DDE1] p-4">
                                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                                     <label className="flex flex-col gap-1 md:w-1/3">
                                       <span className="text-sm font-medium text-[#703F52]">Día</span>
@@ -408,10 +468,11 @@ const ConfigPrestador = () => {
                             {typeof errors.horariosCentro === "string" ? (
                               <span className="text-xs text-red-600">{errors.horariosCentro}</span>
                             ) : null}
-                            <button
+                            {/* <button
                               type="button"
                               onClick={() =>
                                 push({
+                                  id: undefined,
                                   dia: "",
                                   horaMInicio: "",
                                   horaMFinalizacion: "",
@@ -422,7 +483,7 @@ const ConfigPrestador = () => {
                               className="rounded-full bg-[#703F52] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#5f3244]"
                             >
                               Agregar horario
-                            </button>
+                            </button> */}
                           </div>
                         )}
                       </FieldArray>

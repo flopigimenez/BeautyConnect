@@ -119,7 +119,7 @@ const Landing = () => {
   </h2>
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
-    {centros.map((centro) => (
+    {centros.slice(0, 3).map((centro) => (
       <div
         key={centro.id}
         className="group relative overflow-hidden rounded-xl shadow-md"

@@ -3,4 +3,5 @@ export interface ReseniaDTO {
     comentario: string;
     clienteId: number;
     centroDeEsteticaId: number;
+    turnoId: number;
 }
