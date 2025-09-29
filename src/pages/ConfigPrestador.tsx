@@ -20,6 +20,7 @@ import type { Rol } from "../types/enums/Rol";
 import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { DomicilioService } from "../services/DomicilioService";
+import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
 import { HorarioCentroService } from "../services/HorarioCentroService";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
@@ -44,6 +45,7 @@ const centroSchema = Yup.object({
     calle: Yup.string().required("Requerido"),
     numero: Yup.number().typeError("Numérico").required("Requerido"),
     localidad: Yup.string().required("Requerido"),
+    provincia: Yup.string().required("Requerido"),
     codigoPostal: Yup.string().required("Requerido"),
   }).required(),
   horariosCentro: Yup.array().of(
@@ -269,6 +271,7 @@ const ConfigPrestador = () => {
                     numero: centro?.domicilio?.numero ?? 0,
                     localidad: centro?.domicilio?.localidad ?? "",
                     codigoPostal: (centro?.domicilio)?.codigoPostal ?? 0,
+                    provincia: centro?.domicilio?.provincia ?? "",
                   },
                   horariosCentro: centro?.horariosCentro?.map((horario: any) => ({
                     id: typeof horario.id === "number" ? horario.id : undefined,
@@ -295,6 +298,7 @@ const ConfigPrestador = () => {
                       numero: Number(values.domicilio.numero),
                       localidad: values.domicilio.localidad,
                       codigoPostal: Number(values.domicilio.codigoPostal),
+                      provincia: values.domicilio.provincia,
                     };
 
                     const payload: CentroDeEsteticaDTO = {
@@ -396,7 +400,7 @@ const ConfigPrestador = () => {
                   }
                 }}
               >
-                {({ isSubmitting, values, errors }) => (
+                {({ isSubmitting, values, errors, setFieldValue }) => (
                   <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FieldBox label="Nombre del centro" name="nombre" />
                     <FieldBox label="CUIT" name="cuit" type="number" />
@@ -408,14 +412,27 @@ const ConfigPrestador = () => {
 
                     <div className="md:col-span-2 mt-2">
                       <h3 className="text-lg font-semibold text-[#703F52] mb-2">Domicilio</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <FieldBox label="Calle" name="domicilio.calle" />
-                        <FieldBox label="Número" name="domicilio.numero" type="number" />
-                        <FieldBox label="Código Postal" name="domicilio.codigoPostal" />
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                        <FieldBox label="Localidad" name="domicilio.localidad" />
-                      </div>
+                      <AddressFieldset
+                        value={{
+                          calle: values.domicilio.calle ?? "",
+                          numero: values.domicilio.numero !== undefined && values.domicilio.numero !== null && values.domicilio.numero !== ""
+                            ? Number(values.domicilio.numero)
+                            : undefined,
+                          codigoPostal: values.domicilio.codigoPostal !== undefined && values.domicilio.codigoPostal !== null && values.domicilio.codigoPostal !== ""
+                            ? Number(values.domicilio.codigoPostal)
+                            : undefined,
+                          provincia: values.domicilio.provincia ?? "",
+                          localidad: values.domicilio.localidad ?? "",
+                        }}
+                        onChange={(next: AddressValue) => {
+                          setFieldValue("domicilio.calle", next.calle);
+                          setFieldValue("domicilio.numero", next.numero ?? "");
+                          setFieldValue("domicilio.codigoPostal", next.codigoPostal ?? "");
+                          setFieldValue("domicilio.localidad", next.localidad);
+                          setFieldValue("domicilio.provincia", next.provincia);
+                        }}
+                        className="bg-gray-50 rounded-2xl p-4"
+                      />
                     </div>
 
 

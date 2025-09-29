@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { Rol } from "../types/enums/Rol";
 
 interface AuthRequest {
     idToken: string;
@@ -42,20 +43,25 @@ const IniciarSesion = () => {
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            const tokenResult = await auth.currentUser?.getIdTokenResult(true);
+            const roleClaim = typeof tokenResult?.claims?.role === "string" ? tokenResult.claims.role : null;
+
             dispatch(obtenerAuthUser());
 
+            const redirectPath = roleClaim === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : "/";
+
             Swal.fire({
-                title: '¡Inicio de sesión exitoso!',
-                text: '¡Bienvenido de nuevo a BeautyConnect!',
+                title: 'Inicio de sesion exitoso',
+                text: 'Bienvenido de nuevo a BeautyConnect',
                 icon: 'success',
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#a27e8f',
             });
 
-            navigate("/");
+            navigate(redirectPath);
         } catch (error) {
             Swal.fire({
-                text: 'Error al iniciar sesión',
+                text: 'Error al iniciar sesion',
                 icon: 'error',
                 confirmButtonText: 'Aceptar',
                 confirmButtonColor: '#a27e8f',
@@ -77,7 +83,6 @@ const IniciarSesion = () => {
             const user = result.user;
             const idToken = await user.getIdToken(true);
 
-            // Crear el objeto que espera tu backend
             const authRequest: AuthRequest = {
                 idToken: idToken,
                 mail: user.email || undefined,
@@ -93,34 +98,34 @@ const IniciarSesion = () => {
 
             if (!resp.ok) {
                 const errorText = await resp.text();
-                throw new Error(errorText || 'Error en la autenticación con Google');
+                throw new Error(errorText || 'Error en la autenticacion con Google');
             }
 
             const userData = await resp.json();
 
-            // Guardar el usuario en Redux
             dispatch(setUser(userData));
 
             Swal.fire({
-                title: "¡Inicio de sesión con Google exitoso!",
-                text: "¡Bienvenido a BeautyConnect!",
+                title: "Inicio de sesion con Google exitoso",
+                text: "Bienvenido a BeautyConnect",
                 icon: "success",
                 showConfirmButton: false,
                 timer: 2000,
             });
 
-            navigate("/");
+            const googleRole = userData?.usuario?.rol;
+            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : "/";
+            navigate(redirectPath);
         } catch (error: any) {
             console.error("Error en login con Google:", error);
 
-            let errorMessage = "Error al iniciar sesión con Google";
+            let errorMessage = "Error al iniciar sesion con Google";
 
             if (error.code === 'auth/popup-closed-by-user') {
                 errorMessage = "El popup de Google fue cerrado";
             } else if (error.code === 'auth/popup-blocked') {
                 errorMessage = "El popup de Google fue bloqueado. Por favor, permite los popups para este sitio";
             } else if (error.message) {
-                // Mensaje específico del backend
                 errorMessage = error.message;
             }
 

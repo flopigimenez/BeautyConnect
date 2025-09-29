@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { FaUserCircle } from "react-icons/fa";
 import { ClienteService } from "../services/ClienteService";
+import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
 import type { ClienteDTO } from "../types/cliente/ClienteDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { Rol } from "../types/enums/Rol";
@@ -24,10 +25,7 @@ export default function MiPerfil() {
   const [telefono, setTelefono] = useState("");
   const [mailVista, setMailVista] = useState(""); // solo visual
   const [uid, setUid] = useState("");
-  const [calle, setCalle] = useState("");
-  const [numero, setNumero] = useState("");
-  const [localidad, setLocalidad] = useState("");
-  const [codigoPostal, setCodigoPostal] = useState("");
+  const [domicilioForm, setDomicilioForm] = useState<AddressValue>({ calle: "", numero: undefined, codigoPostal: undefined, provincia: "", localidad: "" });
 
   useEffect(() => {
     const auth = getAuth();
@@ -51,20 +49,20 @@ export default function MiPerfil() {
           setApellido(found.apellido ?? "");
           setTelefono(found.telefono ?? "");
           setMailVista(found.usuario?.mail ?? user.email ?? "");
-          setCalle(found.domicilio?.calle ?? "");
-          setNumero(found.domicilio?.numero != null ? String(found.domicilio.numero) : "");
-          setLocalidad(found.domicilio?.localidad ?? "");
-          setCodigoPostal(found.domicilio?.codigoPostal != null ? String(found.domicilio.codigoPostal) : "");
+          setDomicilioForm({
+            calle: found.domicilio?.calle ?? "",
+            numero: found.domicilio?.numero ?? undefined,
+            codigoPostal: found.domicilio?.codigoPostal ?? undefined,
+            localidad: found.domicilio?.localidad ?? "",
+            provincia: (found.domicilio as any)?.provincia ?? "",
+          });
         } else {
           setCliente(null);
           setNombre("");
           setApellido("");
           setTelefono("");
           setMailVista(user.email ?? "");
-          setCalle("");
-          setNumero("");
-          setLocalidad("");
-          setCodigoPostal("");
+          setDomicilioForm({ calle: "", numero: undefined, codigoPostal: undefined, localidad: "", provincia: "" });
         }
       } catch (e: unknown) {
         if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
@@ -97,10 +95,11 @@ export default function MiPerfil() {
         rol: cliente?.usuario?.rol ?? DEFAULT_ROL,
       },
       domicilio: {
-        calle,
-        numero: Number(numero) || 0,
-        localidad,
-        codigoPostal: Number(codigoPostal) || 0,
+        calle: domicilioForm.calle,
+        numero: domicilioForm.numero ?? 0,
+        localidad: domicilioForm.localidad,
+        codigoPostal: domicilioForm.codigoPostal ?? 0,
+        provincia: domicilioForm.provincia,
       },
     };
 
@@ -121,10 +120,13 @@ export default function MiPerfil() {
       setApellido(updated.apellido ?? "");
       setTelefono(updated.telefono ?? "");
       setMailVista(updated.usuario?.mail ?? mailVista);
-      setCalle(updated.domicilio?.calle ?? "");
-      setNumero(updated.domicilio?.numero != null ? String(updated.domicilio.numero) : "");
-      setLocalidad(updated.domicilio?.localidad ?? "");
-      setCodigoPostal(updated.domicilio?.codigoPostal != null ? String(updated.domicilio.codigoPostal) : "");
+      setDomicilioForm({
+        calle: updated.domicilio?.calle ?? "",
+        numero: updated.domicilio?.numero ?? undefined,
+        codigoPostal: updated.domicilio?.codigoPostal ?? undefined,
+        localidad: updated.domicilio?.localidad ?? "",
+        provincia: (updated.domicilio as any)?.provincia ?? "",
+      });
       Swal.fire({
         icon: "success",
         title: "Éxito!",
@@ -220,48 +222,11 @@ export default function MiPerfil() {
 
                 <section>
                   <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">Domicilio</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-[#374151] font-primary">Calle</label>
-                      <input
-                        type="text"
-                        value={calle}
-                        onChange={(e) => setCalle(e.target.value)}
-                        placeholder="Ej: Av. Siempre Viva"
-                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#374151] font-primary">Número</label>
-                      <input
-                        type="number"
-                        value={numero}
-                        onChange={(e) => setNumero(e.target.value)}
-                        placeholder="Ej: 742"
-                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#374151] font-primary">Localidad</label>
-                      <input
-                        type="text"
-                        value={localidad}
-                        onChange={(e) => setLocalidad(e.target.value)}
-                        placeholder="Ciudad"
-                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-[#374151] font-primary">Código Postal</label>
-                      <input
-                        type="number"
-                        value={codigoPostal}
-                        onChange={(e) => setCodigoPostal(e.target.value)}
-                        placeholder="Ej: 5500"
-                        className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
-                      />
-                    </div>
-                  </div>
+                  <AddressFieldset
+                    value={domicilioForm}
+                    onChange={setDomicilioForm}
+                    className="bg-gray-50 rounded-2xl p-4"
+                  />
                 </section>
 
                 {/* Configuraci�n de cuenta */}

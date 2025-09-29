@@ -22,6 +22,13 @@ type ResenaStats = {
     cantidad: number;
 };
 
+type FiltroCentroState = {
+    servicio: TipoDeServicio | null;
+    resena: string | null;
+    provincia: string | null;
+    localidad: string | null;
+};
+
 const construirEtiquetaEstrellas = (promedio: number) => {
     const estrellasLlenas = Math.round(promedio);
     const estrellasVacias = Math.max(0, RATING_SCALE - estrellasLlenas);
@@ -90,15 +97,47 @@ const Centros = () => {
     }, [centros, reseniaService]);
     //Filtros
     const [modalFiltro, setModalFiltro] = useState(false);
-    const [filtroAplicado, setFiltroAplicado] = useState({
-        servicio: null as TipoDeServicio | null,
-        resena: null as string | null,
+    const [filtroAplicado, setFiltroAplicado] = useState<FiltroCentroState>({
+        servicio: null,
+        resena: null,
+        provincia: null,
+        localidad: null,
     });
-    const [filtroTemporal, setFiltroTemporal] = useState({
-        servicio: null as TipoDeServicio | null,
-        resena: null as string | null,
+    const [filtroTemporal, setFiltroTemporal] = useState<FiltroCentroState>({
+        servicio: null,
+        resena: null,
+        provincia: null,
+        localidad: null,
     });
     const [filtro, setFiltro] = useState<string>("");
+
+    const provinciasDisponibles = useMemo(() => {
+        const provincias = new Set<string>();
+        centros.forEach((centro) => {
+            const provincia = centro.domicilio?.provincia;
+            if (provincia) {
+                provincias.add(provincia);
+            }
+        });
+        return Array.from(provincias).sort((a, b) => a.localeCompare(b));
+    }, [centros]);
+
+    const localidadesDisponibles = useMemo(() => {
+        const localidades = new Set<string>();
+        centros.forEach((centro) => {
+            const domicilio = centro.domicilio;
+            if (!domicilio) {
+                return;
+            }
+            if (filtroTemporal.provincia && domicilio.provincia !== filtroTemporal.provincia) {
+                return;
+            }
+            if (domicilio.localidad) {
+                localidades.add(domicilio.localidad);
+            }
+        });
+        return Array.from(localidades).sort((a, b) => a.localeCompare(b));
+    }, [centros, filtroTemporal.provincia]);
 
     const filtrarCentros = () => {
         let resultado = [...centros];
@@ -109,6 +148,22 @@ const Centros = () => {
                     servicio.tipoDeServicio === filtroAplicado.servicio
                 )
             );
+        }
+
+        if (filtroAplicado.provincia) {
+            const provinciaFiltro = filtroAplicado.provincia.toLowerCase();
+            resultado = resultado.filter(centro => {
+                const provinciaCentro = centro.domicilio?.provincia?.toLowerCase();
+                return provinciaCentro === provinciaFiltro;
+            });
+        }
+
+        if (filtroAplicado.localidad) {
+            const localidadFiltro = filtroAplicado.localidad.toLowerCase();
+            resultado = resultado.filter(centro => {
+                const localidadCentro = centro.domicilio?.localidad?.toLowerCase();
+                return localidadCentro === localidadFiltro;
+            });
         }
 
         if (filtroAplicado.resena === "true") {
@@ -171,7 +226,7 @@ const Centros = () => {
                     <div className="flex justify-center gap-5 md:pr-[15vh] mt-5">
                         <button className="cursor-pointer text-tertiary" onClick={() => setModalFiltro(true)}><IoFilterCircleOutline size={40} /></button>
                         <button className="cursor-pointer text-tertiary font-secondary font-black hover:underline"
-                            onClick={() => { setFiltroAplicado({ servicio: null, resena: null }); setFiltroTemporal({ servicio: null, resena: null }); setFiltro("") }}
+                            onClick={() => { setFiltroAplicado({ servicio: null, resena: null, provincia: null, localidad: null }); setFiltroTemporal({ servicio: null, resena: null, provincia: null, localidad: null }); setFiltro(""); }}
                         >
                             Borrar filtro
                         </button>
@@ -296,39 +351,91 @@ const Centros = () => {
                                     </button>
                                 </div>
                                 <h2 className="text-xl font-bold font-primary mb-4 mt-3 text-center">Filtrar Centros</h2>
-                                <div className="flex justify-around mx-3 mb-4">
-                                    <div>
+                                <div className="flex flex-wrap justify-center gap-4 mx-3 mb-4">
+                                    <div className="min-w-[45%]">
                                         <label className="block text-md font-primary mb-2 font-bold pl-2">Servicio</label>
                                         <select
-                                            className="border border-secondary text-sm font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
+                                            className="border border-secondary text-sm font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition w-full"
                                             value={filtroTemporal.servicio || ""}
-                                            onChange={(e) => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, servicio: e.target.value as TipoDeServicio })); }}
+                                            onChange={(e) => {
+                                                setPaginaActual(1);
+                                                const { value } = e.target;
+                                                setFiltroTemporal(prev => ({
+                                                    ...prev,
+                                                    servicio: value ? value as TipoDeServicio : null,
+                                                }));
+                                            }}
                                         >
                                             <option value="">Seleccionar servicio</option>
                                             {Object.values(TipoDeServicio).map((tipo) => (
                                                 <option key={tipo} value={tipo}>
                                                     {tipo.toLowerCase()
-                                                        .split('_')
+                                                        .split("_")
                                                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                                        .join(' ')}
+                                                        .join(" ")}
                                                 </option>
                                             ))}
                                         </select>
                                     </div>
-
-                                    <div className="mx-3 mb-4">
-                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Reseñas</label>
+                                    <div className="min-w-[45%]">
+                                        <label className="block text-md font-primary mb-2 font-bold pl-2">Provincia</label>
+                                        <select
+                                            className="border border-secondary text-sm font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition w-full"
+                                            value={filtroTemporal.provincia || ""}
+                                            onChange={(e) => {
+                                                setPaginaActual(1);
+                                                const value = e.target.value;
+                                                setFiltroTemporal(prev => ({
+                                                    ...prev,
+                                                    provincia: value || null,
+                                                    localidad: null,
+                                                }));
+                                            }}
+                                        >
+                                            <option value="">Seleccionar provincia</option>
+                                            {provinciasDisponibles.map((provincia) => (
+                                                <option key={provincia} value={provincia}>
+                                                    {provincia}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="min-w-[45%]">
+                                        <label className="block text-md font-primary mb-2 font-bold pl-2">Localidad</label>
+                                        <select
+                                            className="border border-secondary text-sm font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition w-full"
+                                            value={filtroTemporal.localidad || ""}
+                                            onChange={(e) => {
+                                                setPaginaActual(1);
+                                                const value = e.target.value;
+                                                setFiltroTemporal(prev => ({
+                                                    ...prev,
+                                                    localidad: value || null,
+                                                }));
+                                            }}
+                                            disabled={localidadesDisponibles.length === 0}
+                                        >
+                                            <option value="">Seleccionar localidad</option>
+                                            {localidadesDisponibles.map((localidad) => (
+                                                <option key={localidad} value={localidad}>
+                                                    {localidad}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col justify-end">
+                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Resenas</label>
                                         <button
-                                            onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, resena: prev.resena == "true" ? null : "true" })); }}
+                                            onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, resena: prev.resena === "true" ? null : "true" })); }}
                                             className={`border border-secondary text-sm font-primary px-4 py-1 rounded-full cursor-pointer hover:bg-secondary transition ${filtroTemporal.resena === "true" ? "bg-secondary text-white" : ""}`}
                                         >
-                                            Ordenar por reseñas
+                                            Ordenar por resenas
                                         </button>
                                     </div>
                                 </div>
                                 <div className="flex justify-center mx-3">
                                     <button
-                                        onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado(filtroTemporal); }}
+                                        onClick={() => { setModalFiltro(false); setPaginaActual(1); setFiltroAplicado({ ...filtroTemporal }); }}
                                         className="font-primary text-md px-4 py-1 mb-3 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"
                                     >
                                         Aplicar Filtro

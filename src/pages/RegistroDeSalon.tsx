@@ -1,10 +1,13 @@
-import { useState } from "react"
+import { useState, type FormEvent } from "react";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
+import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { useNavigate } from "react-router-dom";
 import { setCentro } from "../redux/store/miCentroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
+
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
@@ -16,19 +19,41 @@ const RegistroDeSalon = () => {
         descripcion: "",
         imagen: "",
         docValido: "",
-        cuit: parseInt(""),
-        prestadorDeServicioId: user!.id,
+        cuit: 0,
+        prestadorDeServicioId: user?.id ?? 0,
         domicilio: {
             calle: "",
-            numero: parseInt(""),
+            numero: 0,
             localidad: "",
-            codigoPostal: parseInt(""),
+            codigoPostal: 0,
+            provincia: "",
         },
         horariosCentro: [] as HorarioCentroDTO[],
+    });
+    const [domicilioForm, setDomicilioForm] = useState<AddressValue>({
+        calle: "",
+        numero: undefined,
+        codigoPostal: undefined,
+        provincia: "",
+        localidad: "",
     });
     const centroService = new CentroDeEsteticaService();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+
+    const handleAddressChange = (next: AddressValue) => {
+        setDomicilioForm(next);
+        setRegistroDeSalon((prev) => ({
+            ...prev,
+            domicilio: {
+                calle: next.calle,
+                numero: next.numero ?? 0,
+                localidad: next.localidad,
+                codigoPostal: next.codigoPostal ?? 0,
+                provincia: next.provincia,
+            },
+        }));
+    };
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
         const file = e.target.files?.[0];
@@ -47,12 +72,11 @@ const RegistroDeSalon = () => {
         });
 
         const data = await resp.json();
-        if (fileType == "image") {
-            setRegistroDeSalon(prev => ({ ...prev, imagen: data.secure_url }))
+        if (fileType === "image") {
+            setRegistroDeSalon((prev) => ({ ...prev, imagen: data.secure_url }));
         } else {
-            setRegistroDeSalon(prev => ({ ...prev, docValido: data.secure_url }))
+            setRegistroDeSalon((prev) => ({ ...prev, docValido: data.secure_url }));
         }
-
     };
 
     const handleEliminarHorario = (index: number) => {
@@ -62,33 +86,70 @@ const RegistroDeSalon = () => {
         }));
     };
 
+    const handleRegistrarSalon = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-    const handleRegistrarSalon = async () => {
+        if (!user?.id) {
+            alert("No se encontro el usuario prestador asociado.");
+            return;
+        }
+
+        if (!domicilioForm.calle || !domicilioForm.numero || !domicilioForm.provincia || !domicilioForm.localidad) {
+            alert("Completa la direccion del salon (calle, altura, provincia y localidad).");
+            return;
+        }
+
+        const domicilioDTO: DomicilioDTO = {
+            calle: domicilioForm.calle,
+            numero: domicilioForm.numero ?? 0,
+            localidad: domicilioForm.localidad,
+            codigoPostal: domicilioForm.codigoPostal ?? 0,
+            provincia: domicilioForm.provincia,
+        };
+
+        if (!registroDeSalon.nombre || !registroDeSalon.descripcion) {
+            alert("Completa los datos basicos del salon (nombre y descripcion).");
+            return;
+        }
+
+        if (!registroDeSalon.cuit) {
+            alert("Ingresa un CUIT valido.");
+            return;
+        }
+
+        const payload: CentroDeEsteticaDTO = {
+            ...registroDeSalon,
+            cuit: Number(registroDeSalon.cuit),
+            prestadorDeServicioId: user.id,
+            domicilio: domicilioDTO,
+        };
+
         try {
-            const centro = await centroService.post(registroDeSalon);
+            const centro = await centroService.post(payload);
             dispatch(setCentro(centro));
             alert("Centro registrado");
             navigate("/PendienteAprobacion");
         } catch (error) {
-            console.error("Error al registrar el centro de estética:", error);
+            console.error("Error al registrar el centro de estetica:", error);
+            alert("No se pudo registrar el centro. Intentalo nuevamente.");
         }
-    }
+    };
 
-    const diasEnEspañol: Record<string, string> = {
+    const diasEnEspanol: Record<string, string> = {
         MONDAY: "Lunes",
         TUESDAY: "Martes",
-        WEDNESDAY: "Miércoles",
+        WEDNESDAY: "Miercoles",
         THURSDAY: "Jueves",
         FRIDAY: "Viernes",
-        SATURDAY: "Sábado",
-        SUNDAY: "Domingo"
+        SATURDAY: "Sabado",
+        SUNDAY: "Domingo",
     };
 
     return (
         <>
             <div className="bg-primary w-screen pt-8 flex flex-col items-center">
                 <h1 className="font-secondary text-2xl font-bold">Registra tu salón</h1>
-                <form className="mt-5 w-[45rem]">
+                <form className="mt-5 w-[45rem]" onSubmit={handleRegistrarSalon}>
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="nombre">Nombre del salón</label>
                         <input
@@ -97,7 +158,7 @@ const RegistroDeSalon = () => {
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             placeholder="Ingresa tu nombre completo"
                             value={registroDeSalon.nombre}
-                            onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, nombre: e.target.value }))}
+                            onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, nombre: e.target.value }))}
                         />
                     </div>
                     <div className="mb-5">
@@ -106,13 +167,13 @@ const RegistroDeSalon = () => {
                             type="text"
                             id="descripcion"
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                            placeholder="Ingresa una descripción del salon"
+                            placeholder="Ingresa una descripción del salón"
                             value={registroDeSalon.descripcion}
-                            onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, descripcion: e.target.value }))}
+                            onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, descripcion: e.target.value }))}
                         />
                     </div>
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="image">Ingresa una imagen de tu salon</label>
+                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="image">Ingresa una imagen de tu salón</label>
                         <input
                             type="file"
                             accept="image/*"
@@ -122,64 +183,17 @@ const RegistroDeSalon = () => {
                         />
                     </div>
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Direccion</label>
-                        <div className="flex gap-2 mb-5">
-                            <div className="w-[50%]">
-                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="calle">Calle</label>
-                                <input
-                                    type="text"
-                                    id="direccion"
-                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Calle"
-                                    value={registroDeSalon.domicilio.calle}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, calle: e.target.value }, }))}
-                                    required
-                                />
-                            </div>
-                            <div className="w-[50%]">
-                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="numero">Numero</label>
-                                <input
-                                    type="number"
-                                    id="numero"
-                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Número"
-                                    value={registroDeSalon.domicilio.numero || ""}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, numero: parseInt(e.target.value) }, }))}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <div className="w-[50%]">
-                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="localidad">Localidad</label>
-                                <input
-                                    type="text"
-                                    id="localidad"
-                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Localidad"
-                                    value={registroDeSalon.domicilio.localidad}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, localidad: e.target.value }, }))}
-                                    required
-                                />
-                            </div>
-                            <div className="w-[50%]">
-                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="codigoPostal">Código postal</label>
-                                <input
-                                    type="number"
-                                    id="codigoPostal"
-                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Código postal"
-                                    value={registroDeSalon.domicilio.codigoPostal || ""}
-                                    onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, domicilio: { ...prev.domicilio, codigoPostal: parseInt(e.target.value) }, }))}
-                                    required
-                                />
-                            </div>
-                        </div>
+                        <AddressFieldset
+                            value={domicilioForm}
+                            onChange={handleAddressChange}
+                            className="bg-gray-50 rounded-2xl p-4"
+                        />
                     </div>
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="file">Ingresa un documento que acredite la validez tu salón:</label>
                         <input
                             type="file"
+                            accept="image/*,application/pdf"
                             id="file"
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             onChange={(e) => handleUpload(e, "auto")}
@@ -193,94 +207,73 @@ const RegistroDeSalon = () => {
                             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                             placeholder="Ingresa el cuit de tu negocio"
                             value={registroDeSalon.cuit || ""}
-                            onChange={(e) => setRegistroDeSalon(prev => ({ ...prev, cuit: parseInt(e.target.value) }))}
-                            required
+                            onChange={(e) => setRegistroDeSalon((prev) => ({ ...prev, cuit: e.target.value ? parseInt(e.target.value, 10) : 0 }))}
                         />
                     </div>
 
                     <div className="mb-5">
-                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="HorarioComercial">Horario comercial</label>
-                        <div className="flex gap-2 mb-5">
-                            {/* <p className="font-primary text-gray-400 pt-2">De</p> */}
-                            <select
-                                id="dia"
-                                className="w-[30%] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                value={horariosCentro.dia}
-                                onChange={(e) =>
-                                    setHorariosCentro((prev) => ({ ...prev, dia: e.target.value }))
-                                }
-                                required
-                            >
-                                <option value="">Selecciona un día</option>
-                                <option value="MONDAY">Lunes</option>
-                                <option value="TUESDAY">Martes</option>
-                                <option value="WEDNESDAY">Miércoles</option>
-                                <option value="THURSDAY">Jueves</option>
-                                <option value="FRIDAY">Viernes</option>
-                                <option value="SATURDAY">Sábado</option>
-                            </select>
-
-                            <p className="font-primary text-gray-400 pt-2">, De</p>
-                            <input
-                                type="time"
-                                id="horaInicio"
-                                className="w-[25%] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                placeholder="Hora inicio mañana"
-                                value={horariosCentro.horaMInicio}
-                                onChange={(e) => setHorariosCentro(prev => ({ ...prev, horaMInicio: e.target.value }))}
-                                required
-                            />
-                            <p className="font-primary text-gray-400 pt-2">hs a</p>
-
-                            <input
-                                type="time"
-                                id="horaFin"
-                                className="w-[25%] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                placeholder="Hora finalizacion mañana"
-                                value={horariosCentro.horaMFinalizacion}
-                                onChange={(e) => setHorariosCentro(prev => ({ ...prev, horaMFinalizacion: e.target.value }))}
-                                required
-                            />
-
-                            <p className="font-primary text-gray-400 pt-2">hs y</p>
+                        <label className="block text-gray-700 font-primary font-bold mb-2">Horarios</label>
+                        <div className="flex gap-2 mb-3">
+                            <div className="w-1/2">
+                                <label className="block text-gray-400 font-primary text-sm mb-1 pl-1" htmlFor="dia">Día</label>
+                                <select
+                                    id="dia"
+                                    className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                    value={horariosCentro.dia}
+                                    onChange={(e) => setHorariosCentro((prev) => ({ ...prev, dia: e.target.value }))}
+                                >
+                                    <option value="">Selecciona un día</option>
+                                    {Object.entries(diasEnEspanol).map(([key, label]) => (
+                                        <option key={key} value={key}>{label}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
-                        <div className="flex gap-2">
-                            <p className="font-primary text-gray-400 pt-2 ml-[32%]">de</p>
-
+                        <div className="flex gap-2 mb-2">
                             <input
                                 type="time"
-                                id="horaInicio"
-                                className="w-[25%] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                className="w-1/4 p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                placeholder="Hora inicio"
+                                value={horariosCentro.horaMInicio}
+                                onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMInicio: e.target.value }))}
+                                required
+                            />
+                            <input
+                                type="time"
+                                className="w-1/4 p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                placeholder="Hora finalización"
+                                value={horariosCentro.horaMFinalizacion}
+                                onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMFinalizacion: e.target.value }))}
+                                required
+                            />
+                            <input
+                                type="time"
+                                className="w-1/4 p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                                 placeholder="Hora inicio tarde"
                                 value={horariosCentro.horaTInicio}
-                                onChange={(e) => setHorariosCentro(prev => ({ ...prev, horaTInicio: e.target.value }))}
+                                onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTInicio: e.target.value }))}
                                 required
                             />
-                            <p className="font-primary text-gray-400 pt-2">hs a</p>
                             <input
                                 type="time"
-                                id="horaFin"
-                                className="w-[25%] p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                placeholder="Hora finalizacion tarde"
+                                className="w-1/4 p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                placeholder="Hora finalización tarde"
                                 value={horariosCentro.horaTFinalizacion}
-                                onChange={(e) => setHorariosCentro(prev => ({ ...prev, horaTFinalizacion: e.target.value }))}
+                                onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTFinalizacion: e.target.value }))}
                                 required
                             />
-                            <p className="font-primary text-gray-400 pt-2">hs</p>
-
                         </div>
-
-                        <div className="flex justify-end pt-5">
+                        <div className="flex justify-end pt-2">
                             <button
                                 type="button"
                                 onClick={() => {
                                     if (horariosCentro.dia && horariosCentro.horaMInicio && horariosCentro.horaMFinalizacion && horariosCentro.horaTInicio && horariosCentro.horaTFinalizacion) {
                                         setRegistroDeSalon((prev) => ({
                                             ...prev,
-                                            horariosCentro: [...prev.horariosCentro, horariosCentro]
+                                            horariosCentro: [...prev.horariosCentro, horariosCentro],
                                         }));
-                                        setHorariosCentro({ dia: "", horaMInicio: "", horaMFinalizacion: "", horaTInicio: "", horaTFinalizacion: "" }); // limpiar inputs
+                                        setHorariosCentro({ dia: "", horaMInicio: "", horaMFinalizacion: "", horaTInicio: "", horaTFinalizacion: "" });
                                     }
                                 }}
                                 className="font-primary text-sm h-8 px-4 py-1 mb-5 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"
@@ -289,13 +282,13 @@ const RegistroDeSalon = () => {
                             </button>
                         </div>
 
-                        <div className="mb-5 bg-gray-100 rounded-2xl w-[100%] p-3">
+                        <div className="mb-5 bg-gray-100 rounded-2xl w-full p-3">
                             <h3 className="font-bold mb-2 font-primary">Horarios agregados:</h3>
                             <ul className="list-disc pl-5 font-primary mb-3">
                                 {registroDeSalon.horariosCentro.map((d, i) => (
-                                    <div key={i} className="flex justify-around">
+                                    <div key={`${d.dia}-${i}`} className="flex justify-between">
                                         <li>
-                                            {diasEnEspañol[d.dia]} de {d.horaMInicio}hs - {d.horaMFinalizacion}hs y {d.horaTInicio}hs - {d.horaTFinalizacion}hs
+                                            {diasEnEspanol[d.dia]} de {d.horaMInicio}hs - {d.horaMFinalizacion}hs y {d.horaTInicio}hs - {d.horaTFinalizacion}hs
                                         </li>
                                         <button
                                             type="button"
@@ -314,7 +307,6 @@ const RegistroDeSalon = () => {
                         <button
                             type="submit"
                             className="w-[30%] bg-secondary text-white font-bold py-2 rounded-full cursor-pointer hover:bg-[#a27e8f] transition font-secondary"
-                            onClick={handleRegistrarSalon}
                         >
                             Enviar
                         </button>
@@ -323,7 +315,7 @@ const RegistroDeSalon = () => {
                 </form>
             </div>
         </>
-    )
-}
+    );
+};
 
-export default RegistroDeSalon
+export default RegistroDeSalon;

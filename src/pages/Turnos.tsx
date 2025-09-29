@@ -82,7 +82,7 @@ const Turnos = () => {
     fetchProfesionales();
   }, [servicioSeleccionado]);
 
-  // 2) Cuando hay profesional y servicio -> cargar relaciÃ³n exacta (duraciÃ³n y psId)
+  // 2) Cuando hay profesional y servicio -> cargar relación exacta (duración y psId)
   useEffect(() => {
     (async () => {
       if (!profesionalSeleccionado || !servicioSeleccionado) {
@@ -119,7 +119,7 @@ const Turnos = () => {
           profesionalSeleccionado.id,
           servicioSeleccionado.id,
           fechaSeleccionada,
-          10 // step en minutos; podÃ©s hacerlo configurable
+          10 // step en minutos; podés hacerlo configurable
         );
         setInicios(resp.inicios ?? []);
       } catch (e) {
@@ -204,16 +204,16 @@ const Turnos = () => {
 
       {/* Bloqueos de vista, sin afectar hooks */}
       {!cliente ? (
-        <div className="flex justify-center items-center pt-30 flex-col">
+        <div className="flex flex-1 justify-center items-center pt-30 flex-col w-full bg-[#FFFBFA]">
           <p className="text-2xl font-primary font-bold text-tertiary">Por favor, inicia sesión</p>
         </div>
       ) : !centroSeleccionado ? (
-        <div className="flex justify-center items-center pt-30 flex-col">
+        <div className="flex flex-1 justify-center items-center pt-30 flex-col w-full bg-[#FFFBFA]">
           <p className="text-2xl font-primary font-bold text-tertiary">Centro no encontrado</p>
           <img src={logo} alt="" />
         </div>
       ) : (
-        <div className="bg-primary w-screen pt-25 flex justify-center items-center flex-col">
+        <div className="w-full flex-1 pt-25 flex justify-center items-center flex-col bg-[#FFFBFA]">
           {loading && <p>Cargando...</p>}
           {error && <p className="text-red-500">{error}</p>}
           {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
@@ -225,7 +225,7 @@ const Turnos = () => {
             Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos
           </h1>
 
-          <div className="mt-10">
+          <div className="mt-10 ">
             <p className="font-primary text-left">{pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}</p>
             <div className="w-[50rem] h-1.5 rounded-full overflow-hidden flex mt-5">
               <div className="w-1/2 bg-secondary"></div>
@@ -294,7 +294,7 @@ const Turnos = () => {
                 <h2 className="mt-13 font-secondary text-l font-bold pb-2">Selecciona la fecha</h2>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DatePicker
-                    label="Elegí­ una fecha"
+                    label="Elegí una fecha"
                     value={value}
                     onChange={(newValue) => {
                       setValue(newValue);
@@ -334,12 +334,12 @@ const Turnos = () => {
 
                 {fechaSeleccionada && inicios.length === 0 && (
                   <p className="mt-3 text-sm text-gray-600">
-                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro día.
+                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro d�a.
                   </p>
                 )}
                 {!loadingClienteInfo && !clienteInfo && (
                   <p className="mt-3 text-sm text-red-500 font-primary">
-                    No pudimos cargar tus datos de cliente. Intenta recargar la página o volver a iniciar sesión.
+                    No pudimos cargar tus datos de cliente. Intenta recargar la p�gina o volver a iniciar sesi�n.
                   </p>
                 )}
               </>
@@ -413,3 +413,6 @@ const Turnos = () => {
 };
 
 export default Turnos;
+
+
+
