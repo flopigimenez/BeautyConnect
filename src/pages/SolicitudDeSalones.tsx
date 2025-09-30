@@ -6,6 +6,8 @@ import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/Centro
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
+import Footer from "../components/Footer";
+
 // import { RxCross2 } from "react-icons/rx";
 
 export default function SolicitudDeSalones() {
@@ -138,6 +140,7 @@ export default function SolicitudDeSalones() {
                     />
                 </main>
             </div>
+            <Footer />
         </div>
     );
 }
