@@ -11,9 +11,17 @@ import AddressFieldset, { type AddressValue } from "../components/AddressFieldse
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
+const createEmptyHorario = (): HorarioCentroDTO => ({
+    dia: "",
+    horaMInicio: "",
+    horaMFinalizacion: "",
+    horaTInicio: "",
+    horaTFinalizacion: "",
+});
+
 const RegistroDeSalon = () => {
     const user = useAppSelector((state) => state.user.user);
-    const [horariosCentro, setHorariosCentro] = useState<HorarioCentroDTO>({ dia: "", horaMInicio: "", horaMFinalizacion: "", horaTInicio: "", horaTFinalizacion: "" });
+    const [horariosCentro, setHorariosCentro] = useState<HorarioCentroDTO>(createEmptyHorario());
     const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({
         nombre: "",
         descripcion: "",
@@ -117,11 +125,17 @@ const RegistroDeSalon = () => {
             return;
         }
 
+        if (registroDeSalon.horariosCentro.length === 0) {
+            alert("Agrega al menos un horario para tu centro.");
+            return;
+        }
+
         const payload: CentroDeEsteticaDTO = {
             ...registroDeSalon,
             cuit: Number(registroDeSalon.cuit),
             prestadorDeServicioId: user.id,
             domicilio: domicilioDTO,
+            horariosCentro: registroDeSalon.horariosCentro.map((horario) => ({ ...horario })),
         };
 
         try {
@@ -237,7 +251,6 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora inicio"
                                 value={horariosCentro.horaMInicio}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMInicio: e.target.value }))}
-                                // required
                             />
                             <input
                                 type="time"
@@ -245,7 +258,6 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora finalización"
                                 value={horariosCentro.horaMFinalizacion}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMFinalizacion: e.target.value }))}
-                                //required
                             />
                             <input
                                 type="time"
@@ -253,7 +265,6 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora inicio tarde"
                                 value={horariosCentro.horaTInicio}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTInicio: e.target.value }))}
-                                //required
                             />
                             <input
                                 type="time"
@@ -261,7 +272,6 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora finalización tarde"
                                 value={horariosCentro.horaTFinalizacion}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTFinalizacion: e.target.value }))}
-                                //required
                             />
                         </div>
                         <div className="flex justify-end pt-2">
@@ -271,9 +281,9 @@ const RegistroDeSalon = () => {
                                     if (horariosCentro.dia && horariosCentro.horaMInicio && horariosCentro.horaMFinalizacion && horariosCentro.horaTInicio && horariosCentro.horaTFinalizacion) {
                                         setRegistroDeSalon((prev) => ({
                                             ...prev,
-                                            horariosCentro: [...prev.horariosCentro, horariosCentro],
+                                            horariosCentro: [...prev.horariosCentro, { ...horariosCentro }],
                                         }));
-                                        setHorariosCentro({ dia: "", horaMInicio: "", horaMFinalizacion: "", horaTInicio: "", horaTFinalizacion: "" });
+                                        setHorariosCentro(createEmptyHorario());
                                     }
                                 }}
                                 className="font-primary text-sm h-8 px-4 py-1 mb-5 bg-secondary text-white rounded-full hover:scale-105 transition cursor-pointer"

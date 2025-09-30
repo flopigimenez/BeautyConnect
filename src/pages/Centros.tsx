@@ -12,6 +12,8 @@ import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/Centro
 import { ReseniaService } from "../services/ReseniaService";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import Swal from "sweetalert2";
+import Footer from "../components/Footer";
+
 
 const RATING_SCALE = 5;
 const FULL_STAR = "\u2605";
@@ -214,7 +216,7 @@ const Centros = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-full pt-25">
+            <div className="bg-primary w-full pt-25 min-h-screen flex flex-col">
                 <h1 className="font-secondary text-2xl font-bold text-center mb-5">Centros de Belleza</h1>
                 <div className="flex-wrap justify-center items-center px-[5vh] md:flex md:justify-around md:px-[10vh]">
                     <div className="relative md:w-[55%] mt-5">
@@ -446,6 +448,7 @@ const Centros = () => {
                     )}
                 </div>
             </div>
+            <Footer />
 
         </>
     )

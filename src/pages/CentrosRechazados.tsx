@@ -4,7 +4,6 @@ import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
-import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 
 export default function CentrosRechazados() {

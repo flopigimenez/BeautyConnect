@@ -1,4 +1,4 @@
-﻿// src/pages/Turnos.tsx
+// src/pages/Turnos.tsx
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
@@ -20,9 +20,9 @@ import { ProfesionalServicioService } from "../services/ProfesionalServicioServi
 import { TurnosDispService } from "../services/TurnosDispService";
 import { createTurno, setTurno } from "../redux/store/turnoSlice";
 import { setUser } from "../redux/store/authSlice";
+import Footer from "../components/Footer";
 
-
-
+import Swal from "sweetalert2";
 
 const Turnos = () => {
   const navigate = useNavigate();
@@ -199,7 +199,7 @@ const Turnos = () => {
 
   // ---- Render ----
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-[#FFFBFA]">
       <Navbar />
 
       {/* Bloqueos de vista, sin afectar hooks */}
@@ -334,12 +334,12 @@ const Turnos = () => {
 
                 {fechaSeleccionada && inicios.length === 0 && (
                   <p className="mt-3 text-sm text-gray-600">
-                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro d�a.
+                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro día.
                   </p>
                 )}
                 {!loadingClienteInfo && !clienteInfo && (
                   <p className="mt-3 text-sm text-red-500 font-primary">
-                    No pudimos cargar tus datos de cliente. Intenta recargar la p�gina o volver a iniciar sesi�n.
+                    No pudimos cargar tus datos de cliente. Intenta recargar la página o volver a iniciar sesión.
                   </p>
                 )}
               </>
@@ -392,12 +392,12 @@ const Turnos = () => {
                         .unwrap()
                         .then(() => {
                           dispatch(setTurno(nuevoTurno));
-                          alert("Turno creado exitosamente!");
+                          Swal.fire("Turno creado exitosamente!");
                           navigate("/");
                         })
-                        .catch((err) => alert(`Error al crear turno: ${String(err)}`));
+                        .catch((err) => Swal.fire(`Error al crear turno: ${String(err)}`));
                     } else {
-                      alert("Por favor, selecciona fecha y hora.");
+                      Swal.fire("Por favor, selecciona fecha y hora.");
                     }
                   }
                 }}
@@ -408,11 +408,9 @@ const Turnos = () => {
           </div>
         </div>
       )}
-    </>
+      <Footer />
+    </div>
   );
 };
 
 export default Turnos;
-
-
-

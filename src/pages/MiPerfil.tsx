@@ -4,13 +4,15 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { FaUserCircle } from "react-icons/fa";
 import { ClienteService } from "../services/ClienteService";
-import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
+import AddressFieldset from "../components/AddressFieldset";
+import type { AddressValue } from "../components/AddressFieldset";
 import type { ClienteDTO } from "../types/cliente/ClienteDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { Rol } from "../types/enums/Rol";
 const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import Swal from "sweetalert2";
+import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 
 export default function MiPerfil() {
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +33,7 @@ export default function MiPerfil() {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        setError("No hay sesi�n activa.");
+        setError("No hay sesión activa.");
         setLoading(false);
         return;
       }
@@ -54,7 +56,7 @@ export default function MiPerfil() {
             numero: found.domicilio?.numero ?? undefined,
             codigoPostal: found.domicilio?.codigoPostal ?? undefined,
             localidad: found.domicilio?.localidad ?? "",
-            provincia: (found.domicilio as any)?.provincia ?? "",
+            provincia: (found.domicilio as DomicilioDTO)?.provincia ?? "",
           });
         } else {
           setCliente(null);
@@ -81,7 +83,7 @@ export default function MiPerfil() {
     const auth = getAuth();
     const user = auth.currentUser;
     if (!user) {
-      setError("No hay sesi�n activa.");
+      setError("No hay sesión activa.");
       return;
     }
 
@@ -125,7 +127,7 @@ export default function MiPerfil() {
         numero: updated.domicilio?.numero ?? undefined,
         codigoPostal: updated.domicilio?.codigoPostal ?? undefined,
         localidad: updated.domicilio?.localidad ?? "",
-        provincia: (updated.domicilio as any)?.provincia ?? "",
+        provincia: (updated.domicilio as DomicilioDTO)?.provincia ?? "",
       });
       Swal.fire({
         icon: "success",
