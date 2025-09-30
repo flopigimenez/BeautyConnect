@@ -22,6 +22,7 @@ import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { DomicilioService } from "../services/DomicilioService";
 import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
 import { HorarioCentroService } from "../services/HorarioCentroService";
+import { useAppSelector } from "../redux/store/hooks";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
 
@@ -111,12 +112,14 @@ const ConfigPrestador = () => {
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
   const domicilioService = useMemo(() => new DomicilioService(), []);
   const horarioCentroService = useMemo(() => new HorarioCentroService(), []);
+  
+  const miCentroSlice = useAppSelector((state) => state.miCentro.centro);
 
   // 1) Carga por UID desde Firebase y trae Prestador + Centro
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (user) => {
-      
+
       if (!user) {
         setLoading(false);
         Swal.fire({ icon: "error", title: "Sesión", text: "No hay sesión activa" });
@@ -157,9 +160,11 @@ const ConfigPrestador = () => {
     <>
       <NavbarPrestador />
       <div className="flex flex-1 overflow-hidden">
-        <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
-          <Sidebar />
-        </aside>
+        {miCentroSlice?.estado === "ACEPTADO" && (
+          <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
+            <Sidebar />
+          </aside>
+        )}
 
         <main className="flex-1 overflow-auto px-6 py-10 bg-[#FFFBFA] min-h-[calc(100vh-64px)]">
           <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 py-20">
@@ -200,10 +205,10 @@ const ConfigPrestador = () => {
                     let saved: PrestadorServicioResponseDTO;
                     if (prestador?.id) {
                       saved = await prestadorService.actualizarPrestadorServicio(prestador.id, payload);
-                    
-                      
-                    
-                    setPrestador(saved);
+
+
+
+                      setPrestador(saved);
                     }
                     Swal.fire({
                       icon: "success",
@@ -230,15 +235,15 @@ const ConfigPrestador = () => {
                     <FieldBox label="Apellido" name="apellido" />
                     <FieldBox label="Teléfono" name="telefono" />
                     <div>
-                    <FieldBox label="Email (usuario)" name="usuario.mail" type="email" disabled />
-                     <button
+                      <FieldBox label="Email (usuario)" name="usuario.mail" type="email" disabled />
+                      <button
                         type="button"
                         onClick={() => setShowPwd(true)}
                         className="text-sm text-[#C19BA8] hover:underline"
                       >
                         Cambiar contraseña
                       </button>
-                      </div>
+                    </div>
 
                     <div className="md:col-span-2 flex justify-end gap-2 mt-4">
                       <button
@@ -518,10 +523,10 @@ const ConfigPrestador = () => {
                   </Form>
                 )}
               </Formik>
-              
+
             )
             }
-                                <CambiarPasswordModal isOpen={showPwd} onClose={() => setShowPwd(false)} />
+            <CambiarPasswordModal isOpen={showPwd} onClose={() => setShowPwd(false)} />
 
           </div>
         </main>

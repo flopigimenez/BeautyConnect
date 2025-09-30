@@ -96,7 +96,7 @@ export default function AddressFieldset(props: {
 
       <div className="flex gap-2 mb-3">
         <div className="w-1/2">
-          <label className="block text-gray-400 text-sm mb-1 pl-1">Código Postal (opcional)</label>
+          <label className="block text-gray-400 text-sm mb-1 pl-1">Código Postal</label>
           <input
             type="number"
             className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"

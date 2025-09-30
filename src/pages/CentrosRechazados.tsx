@@ -5,15 +5,12 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
-import { Switch } from "@mui/material";
-import Swal from "sweetalert2";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 
 export default function CentrosRechazados() {
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
-    const centroService = new CentroDeEsteticaService();
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.RECHAZADO));

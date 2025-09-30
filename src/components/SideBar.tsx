@@ -5,6 +5,7 @@ import { PiUsers } from "react-icons/pi";
 import { RiScissorsLine } from "react-icons/ri";
 import { IoSettingsOutline } from "react-icons/io5";
 import { CiUser } from "react-icons/ci";
+
 type Item = {
   to: string;
   label: string;
@@ -12,13 +13,12 @@ type Item = {
 };
 
 const items: Item[] = [
-  { to: "/prestador/panel",       label: "Panel", icon: LuPanelsLeftBottom },
-  { to: "/prestador/calendario",  label: "Calendario", icon: CiCalendarDate },
-  { to: "/prestador/clientes",    label: "Clientes", icon: PiUsers },
-  { to: "/prestador/servicio",   label: "Servicios", icon: RiScissorsLine },
+  { to: "/prestador/panel", label: "Panel", icon: LuPanelsLeftBottom },
+  { to: "/prestador/calendario", label: "Calendario", icon: CiCalendarDate },
+  { to: "/prestador/clientes", label: "Clientes", icon: PiUsers },
+  { to: "/prestador/servicio", label: "Servicios", icon: RiScissorsLine },
   { to: "/prestador/profesionales", label: "Profesionales", icon: CiUser },
-  { to: "/prestador/configPrestador",      label: "Configuración", icon: IoSettingsOutline },
-
+  { to: "/prestador/configPrestador", label: "Configuración", icon: IoSettingsOutline },
 ];
 
 export default function Sidebar() {

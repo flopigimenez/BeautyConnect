@@ -6,7 +6,7 @@ import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { useNavigate } from "react-router-dom";
 import { setCentro } from "../redux/store/miCentroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
+import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
 
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -237,7 +237,7 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora inicio"
                                 value={horariosCentro.horaMInicio}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMInicio: e.target.value }))}
-                                required
+                                // required
                             />
                             <input
                                 type="time"
@@ -245,7 +245,7 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora finalización"
                                 value={horariosCentro.horaMFinalizacion}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaMFinalizacion: e.target.value }))}
-                                required
+                                //required
                             />
                             <input
                                 type="time"
@@ -253,7 +253,7 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora inicio tarde"
                                 value={horariosCentro.horaTInicio}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTInicio: e.target.value }))}
-                                required
+                                //required
                             />
                             <input
                                 type="time"
@@ -261,7 +261,7 @@ const RegistroDeSalon = () => {
                                 placeholder="Hora finalización tarde"
                                 value={horariosCentro.horaTFinalizacion}
                                 onChange={(e) => setHorariosCentro((prev) => ({ ...prev, horaTFinalizacion: e.target.value }))}
-                                required
+                                //required
                             />
                         </div>
                         <div className="flex justify-end pt-2">

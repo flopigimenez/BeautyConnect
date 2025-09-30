@@ -6,9 +6,13 @@ import { PrestadorServicioService } from "../../services/PrestadorServicioServic
 import type { ClienteResponseDTO } from "../../types/cliente/ClienteResponseDTO";
 import type { PrestadorServicioResponseDTO } from "../../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { RootState } from "../store";
+import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
+import { setCentro } from "./miCentroSlice";
+import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 const clienteService = new ClienteService();
 const prestadorService = new PrestadorServicioService();
+const centroService = new CentroDeEsteticaService();
 
 interface FirebaseUserState {
     uid: string;
@@ -44,7 +48,7 @@ export const obtenerAuthUser = createAsyncThunk<
     ClienteResponseDTO | PrestadorServicioResponseDTO,
     void,
     { state: RootState }
->("auth/obtenerAuthUser", async (_arg, { getState }) => {
+>("auth/obtenerAuthUser", async (_arg, { getState, dispatch }) => {
     const state = getState();
     const storedUser = state.user.user;
     if (storedUser && "id" in storedUser) {
@@ -63,6 +67,8 @@ export const obtenerAuthUser = createAsyncThunk<
     } else
         if (role === "PRESTADOR_DE_SERVICIO") {
             const p = await prestadorService.getByUid(uid);
+            const c = await centroService.getByPrestadorId(p?.id!);
+            dispatch(setCentro(c as CentroEsteticaResponseDTO));
             if (p?.id) return p;
         }
 

@@ -30,17 +30,6 @@ const NavbarCliente = () => {
     }
   }, [user, dispatch]);
 
-  /*useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setFirebaseUser(firebaseUser);
-      if (firebaseUser) {
-        setIsLoginOpen(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);*/
-
   const handleLogout = async () => {
     Swal.fire({
       title: '¿Deseas cerrar sesión?',
@@ -73,8 +62,6 @@ const NavbarCliente = () => {
             confirmButtonText: 'Aceptar'
           });
         }
-        // await signOut(auth);
-        // localStorage.removeItem("user");
       }
     });
   }
@@ -134,8 +121,6 @@ const NavbarCliente = () => {
           </div>
         </div>
       </div>
-
-      {/* <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} /> */}
       <hr className="border-secondary border-1 w-full" />
     </nav>
   );
