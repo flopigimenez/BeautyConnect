@@ -15,10 +15,20 @@ type DayCell = {
   inCurrentMonth: boolean;
 };
 
+const extractUid = (candidate: unknown): string | null => {
+  if (!candidate || typeof candidate !== "object") return null;
+  const maybeUid = (candidate as { uid?: unknown }).uid;
+  if (typeof maybeUid === "string" && maybeUid) {
+    return maybeUid;
+  }
+  const nestedUid = (candidate as { usuario?: { uid?: unknown } }).usuario?.uid;
+  return typeof nestedUid === "string" && nestedUid ? nestedUid : null;
+};
+
 export default function Calendario() {
   const { user: authUser, firebaseUser } = useAppSelector((s) => s.user);
-  const user = authUser as any;
-  const uid = user?.uid ?? user?.usuario?.uid ?? firebaseUser?.uid ?? null;
+  const uid = extractUid(authUser) ?? firebaseUser?.uid ?? null;
+
 
   const [centroId, setCentroId] = useState<number | null>(null);
   const [loadingCentro, setLoadingCentro] = useState<boolean>(true);
@@ -100,8 +110,7 @@ export default function Calendario() {
         const turnoCentroId =
           t.centroDeEstetica?.id ??
           t.centroDeEsteticaResponseDTO?.id ??
-          (t as any).centroId ??
-          (t as any).centroDeEsteticaId ??
+          (t as TurnoResponseDTO).centroDeEstetica?.id ??
           null;
         if (turnoCentroId && turnoCentroId !== centroId) continue;
       }

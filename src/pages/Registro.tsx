@@ -12,8 +12,9 @@ import { useAppDispatch } from "../redux/store/hooks";
 import { setUser } from "../redux/store/authSlice";
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
-import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
-import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
+//import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
+import AddressFieldset from "../components/AddressFieldset";
+import type { AddressValue } from "../components/AddressFieldset";
 import Swal from "sweetalert2";
 
 const Registro = () => {
@@ -195,7 +196,7 @@ const Registro = () => {
             navigate("/FinalizarRegistroGoogle")
         } catch (err: unknown) {
             Swal.fire({
-                text: "Error al registarse con Google",
+                text: (err as Error).message || "Error al registarse con Google",
                 position: "center",
                 icon: "error",
                 confirmButtonText: 'Aceptar',

@@ -1,10 +1,10 @@
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { auth } from "../firebase/config";
 import { useAppDispatch } from "../redux/store/hooks";
 import { clearUser } from "../redux/store/authSlice";
-import { clearCentro } from "../redux/store/miCentroSlice";
+//import { clearCentro } from "../redux/store/miCentroSlice";
 
 const NavbarAdmin = () => {
     const [user, setUser] = useState<User | null>(null);

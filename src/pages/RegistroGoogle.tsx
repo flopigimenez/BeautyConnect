@@ -19,6 +19,7 @@ const RegistroGoogle = () => {
             numero: user?.domicilio?.numero ?? parseInt(""),
             localidad: user?.domicilio?.localidad ?? "",
             codigoPostal: user?.domicilio?.codigoPostal ?? parseInt(""),
+            provincia: user?.domicilio?.provincia ?? "",
         },
         usuario: {
             mail: user?.usuario.mail ?? "",
@@ -131,6 +132,18 @@ const RegistroGoogle = () => {
                                         placeholder="Código postal"
                                         value={user?.domicilio?.codigoPostal || ""}
                                         onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, codigoPostal: parseInt(e.target.value) }, }))}
+                                        required
+                                    />
+                                </div>
+                                <div className="w-[50%]">
+                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="provincia">Provincia</label>
+                                    <input
+                                        type="text"
+                                        id="provincia"
+                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                                        placeholder="Provincia"
+                                        value={user?.domicilio?.provincia || ""}
+                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, provincia: e.target.value }, }))}
                                         required
                                     />
                                 </div>

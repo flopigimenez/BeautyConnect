@@ -11,6 +11,7 @@ import { EstadoTurno } from "../types/enums/EstadoTurno";
 import { ReseniaService } from "../services/ReseniaService";
 import { RxCross2 } from "react-icons/rx";
 import { TurnoService } from "../services/TurnoService";
+import Swal from "sweetalert2";
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
@@ -186,6 +187,12 @@ export default function MisTurnos() {
         try {
             await turnoService.cambiarEstado(id, estado);
             dispatch(fetchTurnosCliente(user!.id))
+            Swal.fire( "Desea cancelar el turno?", "", "warning"
+            ).then((result) => {
+                if (result.isConfirmed) {
+                    cambiarEstado(id, EstadoTurno.CANCELADO);
+                }
+            });
         } catch (error) {
             console.log(error);
         }
@@ -286,9 +293,11 @@ export default function MisTurnos() {
                                                     : "bg-gray-400 cursor-not-allowed"
                                                     }`}
                                                 onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+
                                             >
                                                 Cancelar turno
                                             </button>
+
                                         </div>
                                     );
                                 }
