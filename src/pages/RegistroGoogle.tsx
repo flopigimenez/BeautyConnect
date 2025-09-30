@@ -1,43 +1,80 @@
-import { useState } from "react";
+﻿import { useEffect, useState } from "react"
 import Navbar from "../components/Navbar"
-import type { ClienteDTO } from "../types/cliente/ClienteDTO";
-import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
-import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { Rol } from "../types/enums/Rol";
-import { updateUserCliente, updateUserPrestador } from "../redux/store/authSlice";
-import { useNavigate } from "react-router-dom";
+import type { ClienteDTO } from "../types/cliente/ClienteDTO"
+import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO"
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks"
+import { Rol } from "../types/enums/Rol"
+import { updateUserCliente, updateUserPrestador } from "../redux/store/authSlice"
+import { useNavigate } from "react-router-dom"
+import Footer from "../components/Footer"
+import AddressFieldset, { type AddressValue } from "../components/AddressFieldset"
 
 const RegistroGoogle = () => {
-    const navigate = useNavigate();
-    const { user, error } = useAppSelector((state) => state.user);
-    const [registro, setRegistro] = useState<ClienteDTO | PrestadorServicioDTO>({
+    const navigate = useNavigate()
+    const { user, error } = useAppSelector((state) => state.user)
+    const dispatch = useAppDispatch()
+
+    const isCliente = user?.usuario.rol === Rol.CLIENTE
+
+    const getInitialRegistro = (): PrestadorServicioDTO => ({
         nombre: user?.nombre ?? "",
         apellido: user?.apellido ?? "",
         telefono: user?.telefono ?? "",
-        domicilio: {
-            calle: user?.domicilio?.calle ?? "",
-            numero: user?.domicilio?.numero ?? parseInt(""),
-            localidad: user?.domicilio?.localidad ?? "",
-            codigoPostal: user?.domicilio?.codigoPostal ?? parseInt(""),
-            provincia: user?.domicilio?.provincia ?? "",
-        },
         usuario: {
             mail: user?.usuario.mail ?? "",
             rol: user?.usuario.rol ?? Rol.CLIENTE,
             uid: user?.usuario.uid ?? "",
         },
-    });
-    const dispatch = useAppDispatch();
+    })
+
+    const getInitialAddress = (): AddressValue => {
+        const domicilio = user?.domicilio
+        if (domicilio) {
+            return {
+                calle: domicilio.calle ?? "",
+                numero: domicilio.numero ?? undefined,
+                localidad: domicilio.localidad ?? "",
+                codigoPostal: domicilio.codigoPostal ?? undefined,
+                provincia: domicilio.provincia ?? "",
+            }
+        }
+
+        return {
+            calle: "",
+            numero: undefined,
+            localidad: "",
+            codigoPostal: undefined,
+            provincia: "",
+        }
+    }
+
+    const [registro, setRegistro] = useState<PrestadorServicioDTO>(getInitialRegistro)
+    const [domicilioForm, setDomicilioForm] = useState<AddressValue>(getInitialAddress)
+
+    useEffect(() => {
+        setRegistro(getInitialRegistro())
+        setDomicilioForm(getInitialAddress())
+    }, [user])
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+        e.preventDefault()
 
-        if (user?.usuario.rol === Rol.CLIENTE) {
-            dispatch(updateUserCliente(registro));
-            navigate("/");
+        if (isCliente) {
+            const payload: ClienteDTO = {
+                ...registro,
+                domicilio: {
+                    calle: domicilioForm.calle,
+                    numero: domicilioForm.numero ?? 0,
+                    localidad: domicilioForm.localidad,
+                    codigoPostal: domicilioForm.codigoPostal ?? 0,
+                    provincia: domicilioForm.provincia,
+                },
+            }
+            dispatch(updateUserCliente(payload))
+            navigate("/")
         } else {
-            dispatch(updateUserPrestador(registro));
-            navigate("/RegistroDeSalon");
+            dispatch(updateUserPrestador(registro))
+            navigate("/RegistroDeSalon")
         }
     }
 
@@ -45,7 +82,7 @@ const RegistroGoogle = () => {
         <>
             <Navbar />
             {error ? (<p className="text-red-500">{error}</p>) : (
-                <div className="bg-primary w-screen pt-25 flex flex-col items-center">
+                <div className="bg-primary w-screen pt-25 flex flex-col items-center min-h-screen">
 
                     <h1 className="font-secondary text-2xl font-bold mb-3">Finaliza tu registro</h1>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
@@ -72,83 +109,26 @@ const RegistroGoogle = () => {
                             />
                         </div>
                         <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="telefono">Teléfono</label>
+                            <label className="block text-gray-700 font-primary mb-2" htmlFor="telefono">Telefono</label>
                             <input
                                 type="number"
                                 id="telefono"
                                 className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                placeholder="Ingresa tu número de teléfono"
+                                placeholder="Ingresa tu numero de telefono"
                                 value={registro.telefono || ""}
                                 onChange={(e) => setRegistro(prev => ({ ...prev, telefono: e.target.value }))}
                             />
                         </div>
-                        <div className="mb-5">
-                            <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
-                            <div className="flex gap-2 mb-5">
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="calle">Calle</label>
-                                    <input
-                                        type="text"
-                                        id="direccion"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Calle"
-                                        value={user?.domicilio?.calle}
-                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, calle: e.target.value }, }))}
-                                        required
-                                    />
-                                </div>
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="numero">Numero</label>
-                                    <input
-                                        type="number"
-                                        id="numero"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Número"
-                                        value={user?.domicilio?.numero || ""}
-                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, numero: parseInt(e.target.value) }, }))}
-                                        required
-                                    />
-                                </div>
+                        {isCliente && (
+                            <div className="mb-5">
+                                <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
+                                <AddressFieldset
+                                    value={domicilioForm}
+                                    onChange={setDomicilioForm}
+                                    className="bg-white rounded-2xl p-4 border border-gray-200"
+                                />
                             </div>
-                            <div className="flex gap-2">
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="localidad">Localidad</label>
-                                    <input
-                                        type="text"
-                                        id="localidad"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Localidad"
-                                        value={user?.domicilio?.localidad}
-                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, localidad: e.target.value }, }))}
-                                        required
-                                    />
-                                </div>
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="codigoPostal">Código postal</label>
-                                    <input
-                                        type="number"
-                                        id="codigoPostal"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Código postal"
-                                        value={user?.domicilio?.codigoPostal || ""}
-                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, codigoPostal: parseInt(e.target.value) }, }))}
-                                        required
-                                    />
-                                </div>
-                                <div className="w-[50%]">
-                                    <label className="block text-gray-600 font-primary text-sm mb-1" htmlFor="provincia">Provincia</label>
-                                    <input
-                                        type="text"
-                                        id="provincia"
-                                        className="w-full p-2 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
-                                        placeholder="Provincia"
-                                        value={user?.domicilio?.provincia || ""}
-                                        onChange={(e) => setRegistro((prev) => ({ ...prev, domicilio: { ...prev, provincia: e.target.value }, }))}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        )}
                         <div className="flex flex-col items-center mb-5">
                             <button
                                 type="submit"
@@ -161,6 +141,7 @@ const RegistroGoogle = () => {
 
                 </div>
             )}
+            <Footer />
         </>
     )
 }
