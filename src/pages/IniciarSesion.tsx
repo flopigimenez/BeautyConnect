@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useAppDispatch } from "../redux/store/hooks";
+import { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { obtenerAuthUser, setUser } from "../redux/store/authSlice";
@@ -48,17 +48,18 @@ const IniciarSesion = () => {
 
             dispatch(obtenerAuthUser());
 
-            const redirectPath = roleClaim === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : "/";
+            const redirectPath = roleClaim === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : roleClaim === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : "/";
 
             Swal.fire({
                 title: 'Inicio de sesion exitoso',
                 text: 'Bienvenido de nuevo a BeautyConnect',
                 icon: 'success',
-                confirmButtonText: 'Aceptar',
-                confirmButtonColor: '#a27e8f',
+                showConfirmButton: false,
+                timer: 1000
             });
 
             navigate(redirectPath);
+
         } catch (error) {
             Swal.fire({
                 text: 'Error al iniciar sesion',
@@ -114,8 +115,9 @@ const IniciarSesion = () => {
             });
 
             const googleRole = userData?.usuario?.rol;
-            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : "/";
+            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : "/";
             navigate(redirectPath);
+
         } catch (error: any) {
             console.error("Error en login con Google:", error);
 
@@ -141,6 +143,20 @@ const IniciarSesion = () => {
             setGoogleLoading(false);
         }
     };
+
+    /*const redirigir = async () => {
+        const tokenResult = await auth.currentUser?.getIdTokenResult(true);
+        const roleClaim = typeof tokenResult?.claims?.role === "string" ? tokenResult.claims.role : null;
+        const redirectPath = roleClaim === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" :
+            roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.PENDIENTE ? "/PendienteAprobacion" :
+                roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.RECHAZADO ? "/prestador/configPrestador" :
+                    roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.ACEPTADO ? "/prestador/panel" : "/";
+        
+        setTimeout(() => {
+            navigate(redirectPath);
+            redirectPath;
+        }, 1000);
+    }*/
 
     return (
         <>

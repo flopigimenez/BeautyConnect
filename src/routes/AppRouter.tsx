@@ -23,6 +23,7 @@ import { Rol } from "../types/enums/Rol";
 import CentrosRechazados from "../pages/CentrosRechazados";
 import CentrosAceptados from "../pages/CentrosAceptados";
 import IniciarSesion from "../pages/IniciarSesion";
+import Redirigir from "../pages/Redirigir";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -36,13 +37,12 @@ export const AppRouter = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/turno/:id" element={<Turnos />} />
         <Route path="/Centros" element={<Centros />} />
-        <Route path="/PendienteAprobacion" element={<PendienteAprobacion />} />
         {/* <Route path="/calificaciones" element={<Calificaciones />} /> */}
         <Route path="/centros/:id/resenias" element={<ReseniasCentro />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
         <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle />} />
-        <Route path="/iniciarSesion" element={<IniciarSesion />}/>
+        <Route path="/iniciarSesion" element={<IniciarSesion />} />
 
         {/* Rutas protegidas para clientes */}
         <Route
@@ -63,9 +63,26 @@ export const AppRouter = () => {
         />
 
         {/* Rutas protegidas para prestadores */}
-        <Route path="/prestador/panel"
+
+         <Route path="/redirigir"
           element={
             <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+              <Redirigir />
+            </ProtectedRoute>
+          }
+        /> 
+
+        <Route path="/PendienteAprobacion"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["PENDIENTE"]}>
+              <PendienteAprobacion />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/prestador/panel"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["ACEPTADO"]}>
               <ResumenCitas />
             </ProtectedRoute>
           }
@@ -73,7 +90,7 @@ export const AppRouter = () => {
         <Route
           path="/prestador/clientes"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["ACEPTADO"]}>
               <Clientes />
             </ProtectedRoute>
           }
@@ -81,7 +98,7 @@ export const AppRouter = () => {
         <Route
           path="/prestador/servicio"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["ACEPTADO"]}>
               <ServiciosPage />
             </ProtectedRoute>
           }
@@ -89,7 +106,7 @@ export const AppRouter = () => {
         <Route
           path="/prestador/profesionales"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["ACEPTADO"]}>
               <Profesionales />
             </ProtectedRoute>
           }
@@ -97,7 +114,7 @@ export const AppRouter = () => {
         <Route
           path="/prestador/configPrestador"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["RECHAZADO", "ACEPTADO"]}>
               <ConfigPrestador />
             </ProtectedRoute>
           }
@@ -105,7 +122,7 @@ export const AppRouter = () => {
         <Route
           path="/prestador/calendario"
           element={
-            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]}>
+            <ProtectedRoute allowedRoles={[Rol.PRESTADOR_DE_SERVICIO]} allowedCentroEstados={["ACEPTADO"]}>
               <Calendario />
             </ProtectedRoute>
           }

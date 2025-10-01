@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { setCentro } from "../redux/store/miCentroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
+import Swal from "sweetalert2";
 
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -141,11 +142,11 @@ const RegistroDeSalon = () => {
         try {
             const centro = await centroService.post(payload);
             dispatch(setCentro(centro));
-            alert("Centro registrado");
+            Swal.fire("Centro registrado correctamente.");
             navigate("/PendienteAprobacion");
         } catch (error) {
             console.error("Error al registrar el centro de estetica:", error);
-            alert("No se pudo registrar el centro. Intentalo nuevamente.");
+            Swal.fire("No se pudo registrar el centro. Intentalo nuevamente.");
         }
     };
 

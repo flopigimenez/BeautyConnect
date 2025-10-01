@@ -2,14 +2,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { Estado } from "../types/enums/Estado";
 import { clearUser } from "../redux/store/authSlice";
 import { clearCentro } from "../redux/store/miCentroSlice";
 import Swal from "sweetalert2";
 
 const NavbarPrestador = () => {
   const user = useAppSelector((state) => state.user.user);
-  const centro = useAppSelector((state) => state.miCentro.centro);
   const dispatch = useAppDispatch();
 
   const handleLogout = async () => {
@@ -58,19 +56,6 @@ const NavbarPrestador = () => {
             </Link>
           </div>
 
-
-          {centro?.estado === Estado.ACEPTADO && (
-            <Link to="/prestador/panel" className="text-gray-600 hover:text-gray-900 font-primary">
-              Panel
-            </Link>
-          )}
-
-          {centro?.estado === Estado.RECHAZADO && (
-            <Link to="/prestador/configPrestador" className="text-gray-600 hover:text-gray-900 font-primary">
-              Configuración
-            </Link>
-          )}
-
           <div className="ml-10 flex items-center space-x-4">
             {user ? (
               <>
@@ -82,11 +67,7 @@ const NavbarPrestador = () => {
                   Cerrar sesion
                 </button>
               </>
-            ) : (
-              <Link to="/Registro" className="text-gray-600 hover:text-gray-900 font-primary">
-                Ingresar
-              </Link>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

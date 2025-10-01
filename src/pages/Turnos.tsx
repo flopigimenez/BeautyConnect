@@ -213,7 +213,7 @@ const Turnos = () => {
           <img src={logo} alt="" />
         </div>
       ) : (
-        <div className="w-full flex-1 pt-25 flex justify-center items-center flex-col bg-[#FFFBFA]">
+        <div className="w-full flex-1 pt-25 pb-10 flex justify-center items-center flex-col bg-[#FFFBFA]">
           {loading && <p>Cargando...</p>}
           {error && <p className="text-red-500">{error}</p>}
           {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
@@ -345,7 +345,7 @@ const Turnos = () => {
               </>
             )}
 
-            <div className="flex justify-center items-center mt-15 gap-15">
+            <div className="flex justify-center items-center mt-10 gap-15">
               <button
                 className="rounded-full bg-secondary px-33 py-2 font-primary"
                 onClick={() => {

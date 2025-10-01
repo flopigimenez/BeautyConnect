@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { fetchTurnosCliente } from "../redux/store/misTurnosSlice";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
+import { Estado } from "../types/enums/Estado";
 
 const isRolValue = (value: string | null | undefined): value is Rol => {
   return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
@@ -19,6 +20,7 @@ const NavbarCliente = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
   const turnos = useAppSelector((state) => state.misTurnos.misTurnos);
+  const centro = useAppSelector((state) => state.miCentro.centro);
 
   const turnoCount = turnos.filter(
     (t) => t.estado === "PENDIENTE"
@@ -114,7 +116,7 @@ const NavbarCliente = () => {
                 </button>
               </>
             ) : (
-              <Link to="/Registro" className="text-gray-600 hover:text-gray-900 font-primary">
+              <Link to="/iniciarSesion" className="text-gray-600 hover:text-gray-900 font-primary">
                 Ingresar
               </Link>
             )}
@@ -136,9 +138,9 @@ const Navbar = () => {
   if (role === Rol.SUPERADMIN) {
     return <NavbarAdmin />;
   }
-
+  
   if (role === Rol.PRESTADOR_DE_SERVICIO) {
-    return <NavbarPrestador />;
+    return <NavbarPrestador />
   }
 
   return <NavbarCliente />;

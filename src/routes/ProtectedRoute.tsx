@@ -7,14 +7,17 @@ interface ProtectedRouteProps {
   children: ReactElement;
   allowedRoles?: Rol[];
   redirectTo?: string;
+  allowedCentroEstados?: string[];
 }
 
 export function ProtectedRoute({
   children,
   allowedRoles,
   redirectTo = "/",
+  allowedCentroEstados,
 }: ProtectedRouteProps) {
   const { user, firebaseUser, loading } = useAppSelector((state) => state.user);
+  const centro = useAppSelector((state) => state.miCentro.centro);
 
   const role: Rol | null = user?.usuario?.rol ?? (firebaseUser?.role as Rol | null ?? null);
   const isLoggedIn = Boolean(user ?? firebaseUser?.uid);
@@ -33,6 +36,10 @@ export function ProtectedRoute({
 
   if (allowedRoles?.length && (!role || !allowedRoles.includes(role))) {
     return <Navigate to={redirectTo} replace />;
+  }
+
+  if (allowedCentroEstados && centro?.estado) {
+    if (!allowedCentroEstados.includes(centro.estado)) { return <Navigate to={redirectTo} replace />; }
   }
 
   return children;
