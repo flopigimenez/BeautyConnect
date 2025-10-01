@@ -20,7 +20,6 @@ const NavbarCliente = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
   const turnos = useAppSelector((state) => state.misTurnos.misTurnos);
-  const centro = useAppSelector((state) => state.miCentro.centro);
 
   const turnoCount = turnos.filter(
     (t) => t.estado === "PENDIENTE"

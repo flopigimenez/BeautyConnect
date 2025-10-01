@@ -77,6 +77,16 @@ const NavbarAdmin = () => {
                             Centros rechazados
                         </button>
                     </Link>
+                    <Link to="/admin/clientes" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
+                        <button className={getBtnClass("clientes")} onClick={() => handleSelect("clientes")}>
+                            Clientes
+                        </button>
+                    </Link>
+                    <Link to="/admin/prestadores" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
+                        <button className={getBtnClass("prestadores")} onClick={() => handleSelect("prestadores")}>
+                            Prestadores
+                        </button>
+                    </Link>
                     <div className="ml-10 flex items-center space-x-4">
                         {user ? (
                             <>

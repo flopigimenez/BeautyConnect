@@ -6,6 +6,7 @@ import clienteReducer from '../redux/store/clienteSlice'
 import misTurnosReducer from './store/misTurnosSlice'
 import turnoReducer from '../redux/store/turnoSlice'
 import miCentroReducer from '../redux/store/miCentroSlice'
+import prestadorReducer from '../redux/store/prestadores'
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     misTurnos: misTurnosReducer,
     turno: turnoReducer,
     miCentro: miCentroReducer,
+    prestadores: prestadorReducer,
   },
 })
 

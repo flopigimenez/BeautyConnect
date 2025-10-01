@@ -14,12 +14,21 @@ export class PrestadorServicioService extends BackendClient<PrestadorServicioDTO
     async actualizarPrestadorServicio(id: number, data: PrestadorServicioDTO): Promise<PrestadorServicioResponseDTO> {
         const url = `${this.baseUrl}/update/${id}`;
         const res = await fetch(url, {
-            method: "PATCH", 
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
         });
         if (!res.ok) throw new Error("No se pudo actualizar el prestador de servicio");
         return (await res.json()) as PrestadorServicioResponseDTO;
+    }
+
+    async cambiarEstadoActivo(id: number): Promise<PrestadorServicioResponseDTO> {
+        const resp = await fetch(`${this.baseUrl}/cambiarEstadoActivo/${id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" }
+        });
+        if (!resp.ok) throw new Error("No se pudo cambiar el estado activo");
+        return await resp.json();
     }
 
 }

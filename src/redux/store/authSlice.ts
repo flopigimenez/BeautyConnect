@@ -9,10 +9,13 @@ import type { RootState } from "../store";
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 import { setCentro } from "./miCentroSlice";
 import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { SuperAdminResponseDTO } from "../../types/superAdmin/SuperAdminResponseDTO";
+import { SuperAdminService } from "../../services/SuperAdminService";
 
 const clienteService = new ClienteService();
 const prestadorService = new PrestadorServicioService();
 const centroService = new CentroDeEsteticaService();
+const superAdminService = new SuperAdminService();
 
 interface FirebaseUserState {
     uid: string;
@@ -21,7 +24,7 @@ interface FirebaseUserState {
 }
 
 interface AuthState {
-    user: ClienteResponseDTO | PrestadorServicioResponseDTO | null;
+    user: ClienteResponseDTO | PrestadorServicioResponseDTO | SuperAdminResponseDTO | null;
     firebaseUser: FirebaseUserState | null;
     loading: boolean;
     error: string | null;
@@ -45,7 +48,7 @@ const initialState: AuthState = {
 };
 
 export const obtenerAuthUser = createAsyncThunk<
-    ClienteResponseDTO | PrestadorServicioResponseDTO,
+    ClienteResponseDTO | PrestadorServicioResponseDTO | SuperAdminResponseDTO,
     void,
     { state: RootState }
 >("auth/obtenerAuthUser", async (_arg, { getState, dispatch }) => {
@@ -70,7 +73,11 @@ export const obtenerAuthUser = createAsyncThunk<
             const c = await centroService.getByPrestadorId(p?.id!);
             dispatch(setCentro(c as CentroEsteticaResponseDTO));
             if (p?.id) return p;
+        } if (role === "SUPERADMIN") {
+            const a = await superAdminService.getByUid(uid);
+            if (a?.id) return a;
         }
+        
 
     setUser(storedUser!);
 
@@ -131,7 +138,7 @@ const authSlice = createSlice({
         setFirebaseUser: (state, action: PayloadAction<FirebaseUserState | null>) => {
             state.firebaseUser = action.payload;
         },
-        setUser: (state, action: PayloadAction<ClienteResponseDTO | PrestadorServicioResponseDTO>) => {
+        setUser: (state, action: PayloadAction<ClienteResponseDTO | PrestadorServicioResponseDTO | SuperAdminResponseDTO>) => {
             if ("usuario" in action.payload) {
                 state.user = action.payload;
             } else {

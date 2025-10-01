@@ -24,6 +24,8 @@ import CentrosRechazados from "../pages/CentrosRechazados";
 import CentrosAceptados from "../pages/CentrosAceptados";
 import IniciarSesion from "../pages/IniciarSesion";
 import Redirigir from "../pages/Redirigir";
+import AdminClientes from "../pages/AdminClientes";
+import AdminPrestadores from "../pages/AdminPrestadores";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -150,6 +152,22 @@ export const AppRouter = () => {
           element={
             <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
               <CentrosRechazados />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/clientes"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
+              <AdminClientes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/prestadores"
+          element={
+            <ProtectedRoute allowedRoles={[Rol.SUPERADMIN]}>
+              <AdminPrestadores />
             </ProtectedRoute>
           }
         />
