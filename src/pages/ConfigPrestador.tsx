@@ -528,10 +528,10 @@ const ConfigPrestador = () => {
                       <AddressFieldset
                         value={{
                           calle: values.domicilio.calle ?? "",
-                          numero: values.domicilio.numero !== undefined && values.domicilio.numero !== null && values.domicilio.numero !== ""
+                          numero: values.domicilio.numero !== undefined && values.domicilio.numero !== null && values.domicilio.numero !== parseInt("")
                             ? Number(values.domicilio.numero)
                             : undefined,
-                          codigoPostal: values.domicilio.codigoPostal !== undefined && values.domicilio.codigoPostal !== null && values.domicilio.codigoPostal !== ""
+                          codigoPostal: values.domicilio.codigoPostal !== undefined && values.domicilio.codigoPostal !== null && values.domicilio.codigoPostal !== parseInt("")
                             ? Number(values.domicilio.codigoPostal)
                             : undefined,
                           provincia: values.domicilio.provincia ?? "",
