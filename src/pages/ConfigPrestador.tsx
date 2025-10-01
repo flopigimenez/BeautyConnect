@@ -1,6 +1,6 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
@@ -20,8 +20,7 @@ import type { Rol } from "../types/enums/Rol";
 import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { DomicilioService } from "../services/DomicilioService";
-import AddressFieldset, { AddressValue } from "../components/AddressFieldset";
-import { HorarioCentroService } from "../services/HorarioCentroService";
+import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
 
@@ -56,7 +55,7 @@ const centroSchema = Yup.object({
       horaTInicio: Yup.string().required("Requerido"),
       horaTFinalizacion: Yup.string().required("Requerido"),
     })
-  ).min(1, "Agrega al menos un horario"),
+  ).default([]),
 });
 
 const Tab = ({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) => (
@@ -96,6 +95,50 @@ const DIA_OPTIONS = [
   { value: "SUNDAY", label: "Domingo" },
 ];
 
+const formatHorarioValue = (value?: string | null) => value?.trim() || "-";
+
+const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
+type CloudinaryResourceType = "image" | "auto";
+type CentroUploadField = "imagen" | "docValido";
+type SetFieldValueFn = (field: string, value: unknown, shouldValidate?: boolean) => void;
+
+const uploadFileToCloudinary = async (file: File, resourceType: CloudinaryResourceType) => {
+  if (!cloudName || !uploadPreset) {
+    throw new Error("Falta configuracion de Cloudinary.");
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
+    method: "POST",
+    body: formData,
+  });
+
+  let data: any = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const message =
+      (data && typeof data?.error?.message === "string" ? data.error.message : undefined) ??
+      "No se pudo subir el archivo a Cloudinary.";
+    throw new Error(message);
+  }
+
+  if (!data || typeof data.secure_url !== "string") {
+    throw new Error("Cloudinary no devolvio una URL valida.");
+  }
+
+  return data.secure_url as string;
+};
+
 type HorarioCentroFormValue = HorarioCentroDTO & { id?: number | null };
 const ConfigPrestador = () => {
   const [showPwd, setShowPwd] = useState(false);
@@ -106,11 +149,54 @@ const ConfigPrestador = () => {
 
   const [prestador, setPrestador] = useState<PrestadorServicioResponseDTO | null>(null);
   const [centro, setCentro] = useState<CentroEsteticaResponseDTO | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [pendingUploads, setPendingUploads] = useState<{ imagen?: string | null; docValido?: string | null }>({});
 
   const prestadorService = useMemo(() => new PrestadorServicioService(), []);
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
   const domicilioService = useMemo(() => new DomicilioService(), []);
-  const horarioCentroService = useMemo(() => new HorarioCentroService(), []);
+
+  const handleCloudinaryUpload = async (
+    event: ChangeEvent<HTMLInputElement>,
+    resourceType: CloudinaryResourceType,
+    fieldName: CentroUploadField,
+    setFieldValue: SetFieldValueFn,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const setUploading = fieldName === "imagen" ? setUploadingImage : setUploadingDoc;
+    setUploading(true);
+
+    try {
+      const secureUrl = await uploadFileToCloudinary(file, resourceType);
+      setFieldValue(fieldName, secureUrl);
+      setPendingUploads((prev) => ({ ...prev, [fieldName]: secureUrl }));
+      setCentro((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        return { ...prev, [fieldName]: secureUrl } as CentroEsteticaResponseDTO;
+      });
+    } catch (error) {
+      console.error(error);
+      const fallbackMessage =
+        fieldName === "imagen" ? "No se pudo subir la imagen." : "No se pudo subir el documento.";
+      const message = error instanceof Error ? error.message : fallbackMessage;
+      Swal.fire({
+        icon: "error",
+        title: "Error al subir archivo",
+        text: message,
+        confirmButtonColor: "#C19BA8",
+      });
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
 
   // 1) Carga por UID desde Firebase y trae Prestador + Centro
   useEffect(() => {
@@ -225,7 +311,7 @@ const ConfigPrestador = () => {
                 }}
               >
                 {({ isSubmitting }) => (
-                  <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Form className="grid grid-cols-1 md:grid-cols-2 gap-4" encType="multipart/form-data">
                     <FieldBox label="Nombre" name="nombre" />
                     <FieldBox label="Apellido" name="apellido" />
                     <FieldBox label="Teléfono" name="telefono" />
@@ -283,15 +369,12 @@ const ConfigPrestador = () => {
                   })) ?? [],
                 }}
                 validationSchema={centroSchema}
-                onSubmit={async (values, { setSubmitting, setFieldValue }) => {
+                onSubmit={async (values, { setSubmitting }) => {
                   try {
                     const prestadorId = prestador?.id ?? centro?.prestadorDeServicio?.id;
                     if (!prestadorId) {
-                      throw new Error("No se encontró el prestador asociado al centro.");
+                      throw new Error("No se encontro el prestador asociado al centro.");
                     }
-
-                    const horariosForm = (values.horariosCentro ?? []) as HorarioCentroFormValue[];
-                    const prevHorarios = centro?.horariosCentro ?? [];
 
                     const domicilioPayload: DomicilioDTO = {
                       calle: values.domicilio.calle,
@@ -301,15 +384,18 @@ const ConfigPrestador = () => {
                       provincia: values.domicilio.provincia,
                     };
 
+                    const imagenUrl = (pendingUploads.imagen ?? values.imagen)?.trim() || centro?.imagen || "";
+                    const docUrl = (pendingUploads.docValido ?? values.docValido)?.trim() || centro?.docValido || "";
+
                     const payload: CentroDeEsteticaDTO = {
                       nombre: values.nombre,
                       descripcion: values.descripcion,
                       cuit: Number(values.cuit),
-                      docValido: values.docValido,
-                      imagen: values.imagen, // si luego subís a Cloudinary, setea la URL acá
+                      docValido: docUrl,
+                      imagen: imagenUrl,
                       prestadorDeServicioId: prestadorId,
                       domicilio: domicilioPayload,
-                      horariosCentro: [], // gestionado via HorarioCentroService
+                      horariosCentro: [],
                     };
 
                     let saved: CentroEsteticaResponseDTO;
@@ -328,62 +414,18 @@ const ConfigPrestador = () => {
                     const centroId = saved.id;
                     const baseCentro = updatedDomicilio ? { ...saved, domicilio: updatedDomicilio } : saved;
 
-                    const prevIds = prevHorarios
-                      .map((horario: any) => (typeof horario.id === "number" ? horario.id : null))
-                      .filter((id): id is number => id != null);
-                    const currentIds = horariosForm
-                      .map((horario) => (typeof horario.id === "number" ? horario.id : null))
-                      .filter((id): id is number => id != null);
-
-                    const idsToDelete = prevIds.filter((id) => !currentIds.includes(id));
-                    if (idsToDelete.length > 0) {
-                      await Promise.all(idsToDelete.map((id) => horarioCentroService.delete(id)));
-                    }
-
-                    if (horariosForm.length > 0) {
-                      await Promise.all(
-                        horariosForm.map((horario) => {
-                          const horarioPayload: HorarioCentroDTO = {
-                            dia: horario.dia,
-                            horaMInicio: horario.horaMInicio,
-                            horaMFinalizacion: horario.horaMFinalizacion,
-                            horaTInicio: horario.horaTInicio,
-                            horaTFinalizacion: horario.horaTFinalizacion,
-                          };
-
-                          if (horario.id) {
-                            return horarioCentroService.updateHorarioCentro(horario.id, horarioPayload);
-                          }
-
-                          return horarioCentroService.createHorarioCentro(centroId, horarioPayload);
-                        }),
-                      );
-                    }
-
                     const refreshed = await centroService.getById(centroId);
-                    const fallbackHorarios = horariosForm.map((horario) => ({
-                      dia: horario.dia,
-                      horaMInicio: horario.horaMInicio,
-                      horaMFinalizacion: horario.horaMFinalizacion,
-                      horaTInicio: horario.horaTInicio,
-                      horaTFinalizacion: horario.horaTFinalizacion,
-                    }));
-                    const nextCentro = refreshed ? refreshed : { ...baseCentro, horariosCentro: fallbackHorarios };
+                    const fallbackHorarios = centro?.horariosCentro ?? values.horariosCentro ?? [];
+                    const nextCentro = refreshed
+                      ? { ...refreshed, imagen: imagenUrl, docValido: docUrl }
+                      : { ...baseCentro, horariosCentro: fallbackHorarios, imagen: imagenUrl, docValido: docUrl };
                     setCentro(nextCentro);
-
-                    const updatedHorariosForFormik = (refreshed?.horariosCentro ?? horariosForm).map((horario: any) => ({
-                      id: typeof horario.id === "number" ? horario.id : undefined,
-                      dia: horario.dia,
-                      horaMInicio: horario.horaMInicio,
-                      horaMFinalizacion: horario.horaMFinalizacion,
-                      horaTInicio: horario.horaTInicio,
-                      horaTFinalizacion: horario.horaTFinalizacion,
-                    }));
-                    setFieldValue("horariosCentro", updatedHorariosForFormik, false);
+                    setPendingUploads({});
+                    console.log(nextCentro);
 
                     Swal.fire({
                       icon: "success",
-                      title: "¡Centro actualizado!",
+                      title: "Centro actualizado!",
                       text: "Los datos del centro se guardaron correctamente.",
                       confirmButtonColor: "#C19BA8",
                     });
@@ -400,15 +442,82 @@ const ConfigPrestador = () => {
                   }
                 }}
               >
-                {({ isSubmitting, values, errors, setFieldValue }) => (
-                  <Form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {({ isSubmitting, values, setFieldValue }) => (
+                  <Form className="grid grid-cols-1 md:grid-cols-2 gap-4" encType="multipart/form-data">
                     <FieldBox label="Nombre del centro" name="nombre" />
                     <FieldBox label="CUIT" name="cuit" type="number" />
                     <div className="md:col-span-2">
                       <FieldBox label="Descripción" name="descripcion" />
                     </div>
-                    <FieldBox label="Documento válido (link/ID)" name="docValido" />
-                    <FieldBox label="Imagen (URL)" name="imagen" />
+                    <div className="flex flex-col gap-2">
+                      <span className="text-sm font-medium text-[#703F52]">Documento valido</span>
+                      <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(event) => handleCloudinaryUpload(event, "auto", "docValido", setFieldValue)}
+                          disabled={uploadingDoc}
+                          className="w-full rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        />
+                        {uploadingDoc ? (
+                          <span className="text-sm text-[#703F52]">Subiendo documento...</span>
+                        ) : values.docValido ? (
+                          <a
+                            href={values.docValido}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-[#703F52] underline"
+                          >
+                            Ver documento actual
+                          </a>
+                        ) : (
+                          <span className="text-sm text-gray-500">Sin documento cargado</span>
+                        )}
+                      </div>
+                      <Field
+                        name="docValido"
+                        placeholder="URL del documento"
+                        className="rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                      />
+                      <ErrorMessage name="docValido" component="span" className="text-xs text-red-600" />
+                    </div>
+
+                    <div className="md:col-span-2 flex flex-col gap-2">
+                      <span className="text-sm font-medium text-[#703F52]">Imagen del centro</span>
+                      <div className="flex flex-col gap-4 md:flex-row">
+                        <div className="flex-1 space-y-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) => handleCloudinaryUpload(event, "image", "imagen", setFieldValue)}
+                            disabled={uploadingImage}
+                            className="w-full rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                          />
+                          {uploadingImage ? (
+                            <span className="text-sm text-[#703F52]">Subiendo imagen...</span>
+                          ) : null}
+                          <Field
+                            name="imagen"
+                            placeholder="URL de la imagen"
+                            className="w-full rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                          />
+                          <ErrorMessage name="imagen" component="span" className="text-xs text-red-600" />
+                        </div>
+                        <div className="flex w-full max-w-xs items-center justify-center">
+                          {values.imagen ? (
+                            <img
+                              src={values.imagen}
+                              alt="Vista previa del centro"
+                              className="h-40 w-full rounded-2xl border border-[#E9DDE1] object-cover shadow-sm"
+                            />
+                          ) : (
+                            <div className="flex h-40 w-full items-center justify-center rounded-2xl border border-dashed border-[#E9DDE1] bg-[#FFFBFA] text-center text-sm text-gray-500">
+                              Sin imagen cargada
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="md:col-span-2 mt-2">
                       <h3 className="text-lg font-semibold text-[#703F52] mb-2">Domicilio</h3>
@@ -437,73 +546,53 @@ const ConfigPrestador = () => {
 
 
                     <div className="md:col-span-2 mt-4">
-                      <h3 className="text-lg font-semibold text-[#703F52] mb-2">Horarios de atención</h3>
-                      <FieldArray name="horariosCentro">
-                        {({ push, remove }) => (
-                          <div className="space-y-4">
-                            {values.horariosCentro && values.horariosCentro.length > 0 ? (
-                              values.horariosCentro.map((horario, index) => (
-                                <div key={horario.id ?? index} className="rounded-lg border border-[#E9DDE1] p-4">
-                                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                                    <label className="flex flex-col gap-1 md:w-1/3">
-                                      <span className="text-sm font-medium text-[#703F52]">Día</span>
-                                      <Field
-                                        as="select"
-                                        name={`horariosCentro[${index}].dia`}
-                                        className="rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40 bg-white"
-                                      >
-                                        <option value="">Seleccioná un día</option>
-                                        {DIA_OPTIONS.map((option) => (
-                                          <option key={option.value} value={option.value}>
-                                            {option.label}
-                                          </option>
-                                        ))}
-                                      </Field>
-                                      <ErrorMessage name={`horariosCentro[${index}].dia`} component="span" className="text-xs text-red-600" />
-                                    </label>
-                                    {values.horariosCentro.length > 1 && (
-                                      <button
-                                        type="button"
-                                        onClick={() => remove(index)}
-                                        className="self-start rounded-full border border-red-200 px-3 py-1 text-sm text-red-600 hover:bg-red-50"
-                                      >
-                                        Eliminar
-                                      </button>
-                                    )}
+                      <h3 className="text-lg font-semibold text-[#703F52] mb-2">Horarios de atencion</h3>
+                      {values.horariosCentro && values.horariosCentro.length > 0 ? (
+                        <div className="space-y-4">
+                          {values.horariosCentro.map((horario: HorarioCentroFormValue, index) => {
+                            const diaLabel =
+                              DIA_OPTIONS.find((option) => option.value === horario.dia)?.label ?? horario.dia ?? "-";
+                            return (
+                              <div key={horario.id ?? index} className="rounded-lg border border-[#E9DDE1] bg-[#FFFBFA] p-4">
+                                <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                                  <span className="text-sm font-medium text-[#703F52]">Dia</span>
+                                  <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
+                                    {diaLabel}
+                                  </span>
+                                </div>
+                                <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-sm font-medium text-[#703F52]">Hora manana (inicio)</span>
+                                    <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
+                                      {formatHorarioValue(horario.horaMInicio)}
+                                    </span>
                                   </div>
-                                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <FieldBox label="Hora mañana (inicio)" name={`horariosCentro[${index}].horaMInicio`} type="time" />
-                                    <FieldBox label="Hora mañana (fin)" name={`horariosCentro[${index}].horaMFinalizacion`} type="time" />
-                                    <FieldBox label="Hora tarde (inicio)" name={`horariosCentro[${index}].horaTInicio`} type="time" />
-                                    <FieldBox label="Hora tarde (fin)" name={`horariosCentro[${index}].horaTFinalizacion`} type="time" />
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-sm font-medium text-[#703F52]">Hora manana (fin)</span>
+                                    <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
+                                      {formatHorarioValue(horario.horaMFinalizacion)}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-sm font-medium text-[#703F52]">Hora tarde (inicio)</span>
+                                    <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
+                                      {formatHorarioValue(horario.horaTInicio)}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-sm font-medium text-[#703F52]">Hora tarde (fin)</span>
+                                    <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
+                                      {formatHorarioValue(horario.horaTFinalizacion)}
+                                    </span>
                                   </div>
                                 </div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-gray-500">Agregá al menos un horario para tu centro.</p>
-                            )}
-                            {typeof errors.horariosCentro === "string" ? (
-                              <span className="text-xs text-red-600">{errors.horariosCentro}</span>
-                            ) : null}
-                            {/* <button
-                              type="button"
-                              onClick={() =>
-                                push({
-                                  id: undefined,
-                                  dia: "",
-                                  horaMInicio: "",
-                                  horaMFinalizacion: "",
-                                  horaTInicio: "",
-                                  horaTFinalizacion: "",
-                                })
-                              }
-                              className="rounded-full bg-[#703F52] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#5f3244]"
-                            >
-                              Agregar horario
-                            </button> */}
-                          </div>
-                        )}
-                      </FieldArray>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">Este centro aun no tiene horarios de atencion cargados.</p>
+                      )}
                     </div>
 
                     <div className="md:col-span-2 flex justify-end gap-2 mt-4">
@@ -532,3 +621,5 @@ const ConfigPrestador = () => {
 };
 
 export default ConfigPrestador;
+
+
