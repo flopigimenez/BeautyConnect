@@ -105,12 +105,12 @@ export default function SolicitudDeSalones() {
                             {
                                 header: "Acciones", render: (row) => (
                                     <div className="flex gap-2">
-                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102"
+                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102 cursor-pointer"
                                             onClick={() => cambiarEstado(row.id, Estado.ACEPTADO)}
                                         >
                                             Aprobar
                                         </button>
-                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102"
+                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102 cursor-pointer"
                                             onClick={() => cambiarEstado(row.id, Estado.RECHAZADO)}
                                         >
                                             Rechazar

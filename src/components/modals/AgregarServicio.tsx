@@ -205,7 +205,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50"
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
                     >
                       Cancelar
                     </button>

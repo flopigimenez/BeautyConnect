@@ -271,7 +271,7 @@ export default function MisTurnos() {
                                     return (
                                         <button
                                             onClick={() => abrirModalResena(row)}
-                                            className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition"
+                                            className="bg-[#C19BA8] text-white px-4 py-1 rounded-full hover:bg-[#C4A1B5] transition cursor-pointer"
                                         >
                                             Dejar reseña
                                         </button>
@@ -379,7 +379,7 @@ export default function MisTurnos() {
                                     setFiltroAplicado(filtroTemporal);
                                     setModalFiltro(false);
                                 }}
-                                className="bg-[#C19BA8] px-4 py-2 rounded-full hover:bg-[#C4A1B5] text-white mr-2"
+                                className="bg-[#C19BA8] px-4 py-2 rounded-full hover:bg-[#C4A1B5] text-white mr-2 cursor-pointer"
                             >
                                 Aplicar Filtro
 
