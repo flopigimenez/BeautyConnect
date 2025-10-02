@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 
 const NavbarAdmin = () => {
     const user = useAppSelector((state) => state.user.user);
-    const [seleccionado, setSeleccionado] = useState<string>(localStorage.getItem("navSeleccionado") || "");
+    const [seleccionado, setSeleccionado] = useState<string>(localStorage.getItem("navSeleccionado") || "solicitud");
     const dispatch = useAppDispatch();
 
     const handleLogout = async () => {
