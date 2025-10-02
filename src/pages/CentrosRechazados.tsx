@@ -5,6 +5,8 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
+import Footer from "../components/Footer";
+
 
 export default function CentrosRechazados() {
     const dispatch = useAppDispatch();
@@ -109,6 +111,7 @@ export default function CentrosRechazados() {
                     />
                 </main>
             </div>
+            <Footer />
         </div>
     );
 }

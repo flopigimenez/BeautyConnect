@@ -8,6 +8,8 @@ import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { Switch } from "@mui/material";
 import Swal from "sweetalert2";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
+import Footer from "../components/Footer";
+
 
 export default function CentrosAceptados() {
     const dispatch = useAppDispatch();
@@ -122,6 +124,7 @@ export default function CentrosAceptados() {
                     />
                 </main>
             </div>
+            <Footer />
         </div>
     );
 }
