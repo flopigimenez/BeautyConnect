@@ -127,7 +127,7 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     >
                       {saving ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Profesional"}
                     </button>
-                    <button type="button" onClick={onClose} className="px-5 py-2 rounded-full border hover:bg-gray-100">
+                    <button type="button" onClick={onClose} className="px-5 py-2 rounded-full border hover:bg-gray-100 cursor-pointer">
                       Cancelar
                     </button>
                   </div>

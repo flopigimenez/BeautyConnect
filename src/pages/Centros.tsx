@@ -275,7 +275,7 @@ const Centros = () => {
                         <button
                             onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
                             disabled={paginaActual === 1}
-                            className="px-4 py-2 bg-white disabled:opacity-50"
+                            className="px-4 py-2 bg-white disabled:opacity-50 cursor-pointer"
                         >
                             <IoIosArrowBack className="inline-block mr-2" />
                         </button>
@@ -285,7 +285,7 @@ const Centros = () => {
                         <button
                             onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
                             disabled={paginaActual === totalPaginas}
-                            className="px-4 py-2 bg-white disabled:opacity-50"
+                            className="px-4 py-2 bg-white disabled:opacity-50 cursor-pointer"
                         >
                             <IoIosArrowForward className="inline-block ml-2" />
                         </button>
@@ -297,7 +297,7 @@ const Centros = () => {
                                 <div className="relative">
                                     <button
                                         onClick={() => setModalCentro(false)}
-                                        className="absolute right-2 text-gray-500 hover:text-gray-700"
+                                        className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer" 
                                     >
                                         <RxCross2 size={24} />
                                     </button>

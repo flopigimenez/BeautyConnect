@@ -347,7 +347,7 @@ const Turnos = () => {
 
             <div className="flex justify-center items-center mt-10 gap-15">
               <button
-                className="rounded-full bg-secondary px-33 py-2 font-primary"
+                className="rounded-full bg-secondary px-33 py-2 font-primary cursor-pointer"
                 onClick={() => {
                   if (pasos === 1) {
                     setServicioSeleccionado(null);
@@ -365,7 +365,7 @@ const Turnos = () => {
               </button>
 
               <button
-                className="rounded-full bg-secondary px-33 py-2 font-primary disabled:opacity-50"
+                className="rounded-full bg-secondary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer"
                 disabled={pasos === 2 && !puedeConfirmar}
                 onClick={() => {
                   if (pasos === 1) {

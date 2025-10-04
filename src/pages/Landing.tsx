@@ -162,7 +162,7 @@ const Landing = () => {
                   <button className="mt-3">
                     <Link
                       to={`/centros/${centro.id}`}
-                      className="inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                      className="inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] cursor-pointer shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
                     >
                       Ver más
                     </Link>

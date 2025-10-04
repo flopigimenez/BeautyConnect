@@ -63,27 +63,27 @@ const NavbarAdmin = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-around h-16">
                     <Link to="/admin/centrosAceptados" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
-                        <button className={getBtnClass("centroA")} onClick={() => handleSelect("centroA")}>
+                        <button className={`${getBtnClass("centroA")} cursor-pointer`} onClick={() => handleSelect("centroA")}>
                             Centros aceptados
                         </button>
                     </Link>
                     <Link to="/admin/solicitudDeSalones" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
-                        <button className={getBtnClass("solicitud")} onClick={() => handleSelect("solicitud")}>
+                        <button className={`${getBtnClass("solicitud")} cursor-pointer`} onClick={() => handleSelect("solicitud")}>
                             Solicitudes
                         </button>
                     </Link>
                     <Link to="/admin/centrosRechazados" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
-                        <button className={getBtnClass("centroR")} onClick={() => handleSelect("centroR")}>
+                        <button className={`${getBtnClass("centroR")} cursor-pointer`} onClick={() => handleSelect("centroR")}>
                             Centros rechazados
                         </button>
                     </Link>
                     <Link to="/admin/clientes" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
-                        <button className={getBtnClass("clientes")} onClick={() => handleSelect("clientes")}>
+                        <button className={`${getBtnClass("clientes")} cursor-pointer`} onClick={() => handleSelect("clientes")}>
                             Clientes
                         </button>
                     </Link>
                     <Link to="/admin/prestadores" className="text-lg text-gray-600 hover:text-gray-900 font-primary">
-                        <button className={getBtnClass("prestadores")} onClick={() => handleSelect("prestadores")}>
+                        <button className={`${getBtnClass("prestadores")} cursor-pointer`} onClick={() => handleSelect("prestadores")}>
                             Prestadores
                         </button>
                     </Link>
@@ -93,7 +93,7 @@ const NavbarAdmin = () => {
                                 <span className="text-sm text-gray-700 font-primary">Hola, {user.usuario.mail}</span>
                                 <button
                                     onClick={handleLogout}
-                                    className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"
+                                    className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary cursor-pointer"
                                 >
                                     Cerrar sesion
                                 </button>

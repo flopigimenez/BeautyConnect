@@ -189,7 +189,7 @@ const IniciarSesion = () => {
                         <button
                             type="submit"
                             disabled={loading || googleLoading}
-                            className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                             {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                         </button>

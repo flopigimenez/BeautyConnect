@@ -62,7 +62,7 @@ const NavbarPrestador = () => {
                 <span className="text-sm text-gray-700 font-primary">Hola, {user.usuario.mail}</span>
                 <button
                   onClick={handleLogout}
-                  className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary"
+                  className="text-sm bg-[#C19BA8] text-white px-3 py-1 rounded hover:bg-[#a27e8f] transition font-primary cursor-pointer"
                 >
                   Cerrar sesion
                 </button>
