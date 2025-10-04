@@ -48,5 +48,13 @@ export class ProfesionalService extends BackendClient<ProfesionalDTO, Profesiona
     if (!res.ok) throw new Error(`Error ${res.status} al crear profesional`);
     return res.json();
   }
+   async deleteProfesional(id: number): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/delete/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`Error al eliminar el elemento con ID ${id}`);
+    }
+  }
 
 }

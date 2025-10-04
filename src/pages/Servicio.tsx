@@ -100,7 +100,7 @@ const Servicio = () => {
             <>
               <div className="flex justify-end mb-4">
                 <button
-                  className="rounded-full border border-[#C19BA8] px-5 py-2 text-[#703F52] hover:bg-[#f4e6eb]"
+                  className="rounded-full border border-[#C19BA8] px-5 py-2 text-[#703F52] hover:bg-[#f4e6eb] cursor-pointer"
                   onClick={() => setShowInactive((prev) => !prev)}
                 >
                   {showInactive ? "Ver activos" : "Ver inactivos"}
@@ -137,14 +137,14 @@ const Servicio = () => {
                   render: (row) => (
                     <div className="flex space-x-3">
                       <button
-                        className="text-blue-600 hover:underline disabled:opacity-50"
+                        className="text-blue-600 hover:underline disabled:opacity-50 cursor-pointer"
                         onClick={() => handleOpenEdit(row)}
                         disabled={busyId === row.id}
                       >
                         Editar
                       </button>
                       <button
-                        className="text-red-600 hover:underline disabled:opacity-50"
+                        className="text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
                         onClick={() => handleToggle(row)}
                         disabled={busyId === row.id}
                       >

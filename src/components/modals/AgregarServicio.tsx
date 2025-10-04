@@ -6,6 +6,7 @@ import { TipoDeServicio } from "../../types/enums/TipoDeServicio";
 import type { ServicioDTO } from "../../types/servicio/ServicioDTO";
 import { ServicioService } from "../../services/ServicioService";
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
+import Swal from "sweetalert2";
 
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 
@@ -148,7 +149,10 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                   }
                   onClose?.();
                 } catch (e: unknown) {
-                  alert((e as Error).message ?? "Error al crear el servicio");
+                  const mensaje =(e as Error).message || "Error al crear el servicio";
+                  setError(mensaje)
+                  Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+                  
                 } finally {
                   setSubmitting(false);
                   setF(false);
@@ -246,14 +250,14 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
                     >
                       {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Servicio"}
                     </button>
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer cursor-pointer"
                     >
                       Cancelar
                     </button>

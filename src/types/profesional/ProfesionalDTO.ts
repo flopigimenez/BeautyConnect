@@ -3,4 +3,7 @@ export interface ProfesionalDTO {
     nombre: string;
     apellido: string;
     centroDeEsteticaId: number;
+    contacto: number;
+    active?: boolean;
+
 }

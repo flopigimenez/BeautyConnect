@@ -224,7 +224,7 @@ export default function Calendario() {
                       <span className="font-primary text-sm">{cell.date.date()}</span>
                       {items.length > 0 && (
                         <button
-                          className="text-[11px] font-primary text-secondary underline"
+                          className="text-[11px] font-primary text-secondary underline cursor-pointer"
                           onClick={() => setSelectedDate(key)}
                         >
                           Ver {items.length}
@@ -238,7 +238,7 @@ export default function Calendario() {
                           t.centroDeEsteticaResponseDTO?.nombre ??
                           "";
                         return (
-                          <div key={t.id} className="bg-secondary/30 text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
+                          <div key={t.id} className="bg-secondary text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
                             {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${centroNombre ? ` - ${centroNombre}` : ''}`}
                           </div>
                         );
@@ -263,7 +263,7 @@ export default function Calendario() {
                   Turnos del {dayjs(selectedDate).format("DD/MM/YYYY")}
                 </h3>
                 <button
-                  className="font-primary text-sm text-gray-600 hover:text-gray-800"
+                  className="font-primary text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
                   onClick={() => setSelectedDate(null)}
                 >
                   Cerrar
