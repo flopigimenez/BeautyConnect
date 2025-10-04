@@ -44,5 +44,15 @@ export class ServicioService extends BackendClient<ServicioDTO, ServicioResponse
     }
     return res.json();
   }
+ 
+    
+   async deleteServicio(id: number): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/${id}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error(`Error al eliminar el elemento con ID ${id}`);
+    }
+  }
   
   }

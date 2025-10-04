@@ -4,7 +4,7 @@ import NavbarPrestador from "../components/NavbarPrestador";
 import Sidebar from "../components/SideBar";
 import { CustomTable } from "../components/CustomTable";
 import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ServicioService } from "../services/ServicioService";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AgregarServicio from "../components/modals/AgregarServicio";
@@ -14,7 +14,8 @@ const servicioService = new ServicioService();
 const Servicio = () => {
   const [data, setData] = useState<ServicioResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId] = useState<number | null>(null);
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<ServicioResponseDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +32,13 @@ const Servicio = () => {
         setLoading(true);
         const uid = user.uid;
         const servicios = await servicioService.findByUid(uid);
-        setData(servicios);
+
+        const normalizados = servicios.map((servicio) => ({
+          ...servicio,
+          active: servicio.active ?? true,
+        }));
+        setData(normalizados);
+
       } catch (e: unknown) {
         setError((e as Error).message ?? "Error al cargar servicios.");
       } finally {
@@ -46,6 +53,37 @@ const Servicio = () => {
     setOpenEdit(true);
   };
 
+  const handleToggle = async (row: ServicioResponseDTO) => {
+    const isInactive = row.active === false;
+    const action = isInactive ? "Reactivar" : "Inactivar";
+    if (!confirm(`${action} este servicio?`)) return;
+    try {
+      setBusyId(row.id);
+      setError(null);
+      await servicioService.deleteServicio(row.id);
+      setData((prev) =>
+        prev.map((servicio) =>
+          servicio.id === row.id
+            ? { ...servicio, active: servicio.active === false ? true : false }
+            : servicio
+        )
+      );
+    } catch (e: unknown) {
+      const message = (e as Error).message || `Error al ${action.toLowerCase()} el servicio.`;
+      setError(message);
+      alert(message);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const displayedData = useMemo(() => {
+    const isInactive = (servicio: ServicioResponseDTO) => servicio.active === false;
+    return showInactive
+      ? data.filter(isInactive)
+      : data.filter((servicio) => !isInactive(servicio));
+  }, [data, showInactive]);
+
   return (
     <>
       <NavbarPrestador />
@@ -55,13 +93,23 @@ const Servicio = () => {
         </aside>
 
         <main className="container mx-auto px-4 py-8 min-h-screen">
-          {loading && <p>Cargando servicios…</p>}
+          {loading && <p>Cargando servicios...</p>}
           {error && <p className="text-red-600">{error}</p>}
 
           {!loading && !error && (
-            <CustomTable<ServicioResponseDTO>
-              title="Servicios"
-              columns={[
+            <>
+              <div className="flex justify-end mb-4">
+                <button
+                  className="rounded-full border border-[#C19BA8] px-5 py-2 text-[#703F52] hover:bg-[#f4e6eb]"
+                  onClick={() => setShowInactive((prev) => !prev)}
+                >
+                  {showInactive ? "Ver activos" : "Ver inactivos"}
+                </button>
+              </div>
+              <CustomTable<ServicioResponseDTO>
+                title="Servicios"
+                columns={[
+                  { header: "Titulo", accessor: "titulo" },
                 { header: "Tipo", accessor: "tipoDeServicio" },
                 {
                   header: "Precio",
@@ -76,6 +124,14 @@ const Servicio = () => {
                   ),
                 },
                 {
+                  header: "Descripcion",
+                  accessor: "descripcion"
+                },
+                {
+                  header: "Estado",
+                  render: (row) => (row.active === false ? "Inactivo" : "Activo"),
+                },
+                {
                   header: "Acciones",
                   // accessor: "acciones" as any, // si tu tabla exige accessor
                   render: (row) => (
@@ -87,13 +143,19 @@ const Servicio = () => {
                       >
                         Editar
                       </button>
-                      
+                      <button
+                        className="text-red-600 hover:underline disabled:opacity-50"
+                        onClick={() => handleToggle(row)}
+                        disabled={busyId === row.id}
+                      >
+                        {busyId === row.id ? "Procesando..." : row.active === false ? "Reactivar" : "Inactivar"}
+                      </button>
                     </div>
                   ),
                 },
               ]}
-              data={data}
-              actionButton={{
+                data={displayedData}
+                actionButton={{
                 label: "Agregar Servicio",
                 onClick: () => {
                   setSelected(null);
@@ -101,6 +163,7 @@ const Servicio = () => {
                 },
               }}
             />
+            </>
           )}
 
           {/* Modal fuera del CustomTable */}
@@ -108,10 +171,12 @@ const Servicio = () => {
             <AgregarServicio
               servicio={selected}
               onCreated={(nuevo) => {
-                setData((prev) => [nuevo, ...prev]);
+                const normalizado = { ...nuevo, active: nuevo.active ?? true };
+                setData((prev) => [normalizado, ...prev]);
               }}
               onUpdated={(actualizado) => {
-                setData((prev) => prev.map((s) => (s.id === actualizado.id ? actualizado : s)));
+                const normalizado = { ...actualizado, active: actualizado.active ?? true };
+                setData((prev) => prev.map((s) => (s.id === normalizado.id ? normalizado : s)));
               }}
               onClose={() => setOpenEdit(false)}
             />
@@ -125,3 +190,4 @@ const Servicio = () => {
 };
 
 export default Servicio;
+

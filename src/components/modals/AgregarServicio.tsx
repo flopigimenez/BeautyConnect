@@ -74,16 +74,22 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
   // Formik: solo los campos del DTO
   type FormValues = {
     tipoDeServicio: TipoDeServicio | "";
+    titulo: string;
+    descripcion: string;
     precio: number | "";
   };
 
   const initialValues: FormValues = isEdit
     ? {
         tipoDeServicio: toEnumValue(servicio!.tipoDeServicio),
+        titulo: servicio!.titulo ?? "",
+        descripcion: servicio!.descripcion ?? "",
         precio: servicio!.precio,
       }
     : {
         tipoDeServicio: "",
+        titulo: "",
+        descripcion: "",
         precio: "",
       };
 
@@ -113,10 +119,12 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
               initialValues={initialValues}
               validate={(v) => {
                 const errors: Partial<Record<keyof FormValues, string>> = {};
-                if (!v.tipoDeServicio) errors.tipoDeServicio = "Seleccioná un tipo";
+                if (!v.tipoDeServicio) errors.tipoDeServicio = "Selecciona un tipo";
+                if (!v.titulo || !v.titulo.trim()) errors.titulo = "Ingresa un titulo";
+                if (!v.descripcion || !v.descripcion.trim()) errors.descripcion = "Ingresa una descripcion";
                 const precioNum = Number(v.precio);
                 if (!v.precio || isNaN(precioNum) || precioNum <= 0) {
-                  errors.precio = "Ingresá un precio mayor a 0";
+                  errors.precio = "Ingresa un precio mayor a 0";
                 }
                 return errors;
               }}
@@ -125,6 +133,8 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                   setSubmitting(true);
                   const dto: ServicioDTO = {
                     tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
+                    titulo: values.titulo.trim(),
+                    descripcion: values.descripcion.trim(),
                     precio: Number(values.precio),
                     centroDeEsteticaId: servicio?.centroDeEstetica?.id ?? (centroId as number),
                   };
@@ -170,6 +180,44 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                       <p className="text-red-600 text-sm mt-1">
                         {errors.tipoDeServicio}
                       </p>
+                    )}
+                  </div>
+
+                  {/* Titulo */}
+                  <div>
+                    <label htmlFor="titulo" className="block mb-1 font-secondary">
+                      Titulo
+                    </label>
+                    <input
+                      type="text"
+                      id="titulo"
+                      name="titulo"
+                      onChange={handleChange}
+                      value={values.titulo}
+                      className="border p-2 rounded-full w-full"
+                      placeholder="Nombre del servicio"
+                    />
+                    {touched.titulo && errors.titulo && (
+                      <p className="text-red-600 text-sm mt-1">{errors.titulo}</p>
+                    )}
+                  </div>
+
+                  {/* Descripcion */}
+                  <div>
+                    <label htmlFor="descripcion" className="block mb-1 font-secondary">
+                      Descripcion
+                    </label>
+                    <textarea
+                      id="descripcion"
+                      name="descripcion"
+                      onChange={handleChange}
+                      value={values.descripcion}
+                      className="border p-2 rounded-lg w-full"
+                      rows={3}
+                      placeholder="Detalles del servicio"
+                    />
+                    {touched.descripcion && errors.descripcion && (
+                      <p className="text-red-600 text-sm mt-1">{errors.descripcion}</p>
                     )}
                   </div>
 
