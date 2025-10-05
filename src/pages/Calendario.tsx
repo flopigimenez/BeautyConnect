@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Footer from "../components/Footer";
 import dayjs, { Dayjs } from "dayjs";
+import "dayjs/locale/es";
 import { useAppSelector } from "../redux/store/hooks";
 import type { TurnoResponseDTO } from "../types/turno/TurnoResponseDTO";
 import { TurnoService } from "../services/TurnoService";
@@ -9,6 +10,8 @@ import SideBar from "../components/SideBar";
 import NavbarPrestador from "../components/NavbarPrestador";
 const turnoService = new TurnoService();
 const centroService = new CentroDeEsteticaService();
+
+dayjs.locale("es");
 
 type DayCell = {
   date: Dayjs;
@@ -167,7 +170,7 @@ export default function Calendario() {
           <div className="bg-white rounded-2xl shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <button
-                className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                 onClick={() => setMonth((m) => m.subtract(1, "month"))}
               >
                 Mes anterior
@@ -175,13 +178,13 @@ export default function Calendario() {
               <h2 className="font-secondary text-xl font-bold capitalize">{monthName}</h2>
               <div className="flex gap-2">
                 <button
-                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                   onClick={() => setMonth(dayjs())}
                 >
                   Hoy
                 </button>
                 <button
-                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                   onClick={() => setMonth((m) => m.add(1, "month"))}
                 >
                   Mes siguiente
@@ -314,3 +317,5 @@ export default function Calendario() {
     </div>
   );
 }
+
+
