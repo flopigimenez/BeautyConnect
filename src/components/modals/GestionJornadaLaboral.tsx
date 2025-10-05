@@ -1,9 +1,9 @@
-// src/components/modals/GestionJornadaLaboral.tsx
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import type { ProfesionalResponseDTO } from "../../types/profesional/ProfesionalResponseDTO";
 import type { JornadaLaboralResponseDTO } from "../../types/jornadaLaboral/JornadaLaboralResponseDTO";
 import type { JornadaLaboralCreateDTO } from "../../types/jornadaLaboral/JornadaLaboralCreateDTO";
 import type { JornadaLaboralUpdateDTO } from "../../types/jornadaLaboral/JornadaLaboralUpdateDTO";
+import Swal from "sweetalert2";
 import { JornadaLaboralService } from "../../services/JornadaLaboralService";
 
 type Props = {
@@ -16,17 +16,21 @@ const servicio = new JornadaLaboralService();
 const DIAS: { key: JornadaLaboralCreateDTO["dia"]; label: string }[] = [
   { key: "MONDAY", label: "Lunes" },
   { key: "TUESDAY", label: "Martes" },
-  { key: "WEDNESDAY", label: "Miércoles" },
+  { key: "WEDNESDAY", label: "Miercoles" },
   { key: "THURSDAY", label: "Jueves" },
   { key: "FRIDAY", label: "Viernes" },
-  { key: "SATURDAY", label: "Sábado" },
+  { key: "SATURDAY", label: "Sabado" },
   { key: "SUNDAY", label: "Domingo" },
 ];
 
 function toTimeInput(value?: string) {
   if (!value) return "";
-  // Acepta "HH:mm" o "HH:mm:ss" -> devolver "HH:mm"
   return value.slice(0, 5);
+}
+
+function formatRange(start?: string, end?: string) {
+  if (!start || !end) return "";
+  return `${start} - ${end}`;
 }
 
 export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
@@ -36,26 +40,23 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
     Record<
       JornadaLaboralCreateDTO["dia"],
       {
-        current?: JornadaLaboralResponseDTO; // registro existente si hay
-        horaInicio: string; // HH:mm
-        horaFin: string; // HH:mm
+        current?: JornadaLaboralResponseDTO;
+        horaInicio: string;
+        horaFin: string;
         activo: boolean;
         saving?: boolean;
       }
     >
   >({
-    MONDAY: { horaInicio: "", horaFin: "", activo: true },
-    TUESDAY: { horaInicio: "", horaFin: "", activo: true },
-    WEDNESDAY: { horaInicio: "", horaFin: "", activo: true },
-    THURSDAY: { horaInicio: "", horaFin: "", activo: true },
-    FRIDAY: { horaInicio: "", horaFin: "", activo: true },
-    SATURDAY: { horaInicio: "", horaFin: "", activo: true },
-    SUNDAY: { horaInicio: "", horaFin: "", activo: true },
+    MONDAY: { horaInicio: "", horaFin: "", activo: false },
+    TUESDAY: { horaInicio: "", horaFin: "", activo: false },
+    WEDNESDAY: { horaInicio: "", horaFin: "", activo: false },
+    THURSDAY: { horaInicio: "", horaFin: "", activo: false },
+    FRIDAY: { horaInicio: "", horaFin: "", activo: false },
+    SATURDAY: { horaInicio: "", horaFin: "", activo: false },
+    SUNDAY: { horaInicio: "", horaFin: "", activo: false },
   });
 
-  // Nota: en este modal ya no se gestiona Profesional-Servicio
-
-  // Bloquear scroll mientras el modal está abierto
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -81,8 +82,6 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           }
           return draft;
         });
-
-        // No más carga de servicios aquí
       } catch (e: unknown) {
         setError((e as Error).message ?? "Error al cargar jornadas laborales");
       } finally {
@@ -93,7 +92,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
   }, [profesional.id]);
 
   const titulo = useMemo(
-    () => `Jornada laboral · ${profesional.nombre} ${profesional.apellido}`,
+    () => `Jornada laboral - ${profesional.nombre} ${profesional.apellido}`,
     [profesional]
   );
 
@@ -114,7 +113,12 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
   const saveRow = async (dia: JornadaLaboralCreateDTO["dia"]) => {
     const row = rows[dia];
     if (!row.horaInicio || !row.horaFin) {
-      alert("Debe completar hora de inicio y fin");
+      await Swal.fire({
+        icon: "warning",
+        title: "Datos incompletos",
+        text: "Debes completar hora de inicio y fin",
+        confirmButtonColor: "#703F52",
+      });
       return;
     }
     try {
@@ -156,7 +160,12 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
         }));
       }
     } catch (e: unknown) {
-      alert((e as Error).message ?? "Error al guardar jornada");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: (e as Error).message ?? "Error al guardar jornada",
+        confirmButtonColor: "#703F52",
+      });
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }
@@ -164,7 +173,6 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
 
   const toggleActivo = async (dia: JornadaLaboralCreateDTO["dia"], value: boolean) => {
     const row = rows[dia];
-    // Si aún no existe el registro, solo actualizar estado local
     if (!row.current) {
       handleChange(dia, "activo", value);
       return;
@@ -182,7 +190,12 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
         },
       }));
     } catch (e: unknown) {
-      alert((e as Error).message ?? "Error al cambiar estado");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: (e as Error).message ?? "Error al cambiar estado",
+        confirmButtonColor: "#703F52",
+      });
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }
@@ -191,23 +204,39 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
   const borrar = async (dia: JornadaLaboralCreateDTO["dia"]) => {
     const row = rows[dia];
     if (!row.current) {
-      // limpiar campos locales
       setRows((prev) => ({
         ...prev,
-        [dia]: { horaInicio: "", horaFin: "", activo: true },
+        [dia]: { horaInicio: "", horaFin: "", activo: false },
       }));
       return;
     }
-    if (!confirm("¿Eliminar jornada de este día?")) return;
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: "Eliminar jornada",
+      text: "\u00bfQuer\u00e9s eliminar el horario de este d\u00eda?",
+      showCancelButton: true,
+      confirmButtonText: "S\u00ed, eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#703F52",
+      cancelButtonColor: "#C19BA8",
+    });
+    if (!confirmation.isConfirmed) {
+      return;
+    }
     try {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: true } }));
       await servicio.delete(row.current.id);
       setRows((prev) => ({
         ...prev,
-        [dia]: { horaInicio: "", horaFin: "", activo: true },
+        [dia]: { horaInicio: "", horaFin: "", activo: false },
       }));
     } catch (e: unknown) {
-      alert((e as Error).message ?? "Error al eliminar jornada");
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: (e as Error).message ?? "Error al eliminar jornada",
+        confirmButtonColor: "#703F52",
+      });
     } finally {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: false } }));
     }
@@ -215,91 +244,142 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50" role="dialog" aria-modal>
-      {/* Backdrop */}
       <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Contenido */}
       <div className="fixed inset-0 z-50 grid place-items-center p-4" onClick={onClose}>
-        <div className="w-[720px] max-w-[95vw] rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-          <h2 className="text-xl font-secondary text-[#703F52] mb-4">{titulo}</h2>
+        <div className="w-[780px] max-w-[95vw] rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+          <h2 className="text-xl font-secondary text-[#703F52] mb-2">{titulo}</h2>
+          <p className="text-sm text-gray-600 mb-4">Cada tarjeta resume el horario guardado y los cambios que podes aplicar para ese dia.</p>
 
-          {cargando && <p>Cargando datos...</p>}
-          {error && <p className="text-red-600">{error}</p>}
-
-          {/* Sección de servicios removida de este modal */}
+          {cargando && <p className="text-sm text-gray-600">Cargando datos...</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
 
           {!cargando && !error && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="bg-[#FFFBFA]">
-                  <tr className="border-b border-gray-200">
-                    <th className="px-4 py-2 text-left font-primary">Día</th>
-                    <th className="px-4 py-2 text-left font-primary">Inicio</th>
-                    <th className="px-4 py-2 text-left font-primary">Fin</th>
-                    <th className="px-4 py-2 text-left font-primary">Activo</th>
-                    <th className="px-4 py-2 text-left font-primary">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {DIAS.map(({ key, label }) => {
-                    const row = rows[key];
-                    const saving = row?.saving;
-                    return (
-                      <tr key={key} className="border-t border-gray-200">
-                        <td className="px-4 py-2 font-primary">{label}</td>
-                        <td className="px-4 py-2 font-primary">
-                          <input
-                            type="time"
-                            value={row?.horaInicio ?? ""}
-                            onChange={(e) => handleChange(key, "horaInicio", e.target.value)}
-                            className="border p-2 rounded-full"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="time"
-                            value={row?.horaFin ?? ""}
-                            onChange={(e) => handleChange(key, "horaFin", e.target.value)}
-                            className="border p-2 rounded-full"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4 accent-[#C19BA8]"
-                            checked={!!row?.activo}
-                            onChange={(e) => toggleActivo(key, e.target.checked)}
-                          />
-                        </td>
-                        <td className="px-4 py-2 space-x-2">
-                          <button
-                            className="rounded-full bg-[#C19BA8] px-3 py-1 text-sm text-white hover:bg-[#b78fa0] disabled:opacity-50"
-                            disabled={saving}
-                            onClick={() => saveRow(key)}
-                          >
-                            {saving ? "Guardando..." : row?.current ? "Actualizar" : "Crear"}
-                          </button>
-                          <button
-                            className="px-3 py-1 text-sm rounded-full border hover:bg-gray-100 disabled:opacity-50"
-                            disabled={saving || !row}
-                            onClick={() => borrar(key)}
-                          >
-                            Borrar
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2">
+              {DIAS.map(({ key, label }) => {
+                const row = rows[key];
+                const saving = Boolean(row?.saving);
+                const savedRange = row?.current
+                  ? formatRange(toTimeInput(row.current.horaInicio), toTimeInput(row.current.horaFin))
+                  : "Sin horario guardado";
+                const editedRange = formatRange(row?.horaInicio, row?.horaFin) || "Sin horario definido";
+                const hasPendingChanges = row?.current
+                  ? row.horaInicio !== toTimeInput(row.current.horaInicio) ||
+                    row.horaFin !== toTimeInput(row.current.horaFin) ||
+                    row.activo !== row.current.activo
+                  : Boolean(row?.horaInicio || row?.horaFin);
+                const statusColor = row?.current
+                  ? row.current.activo
+                    ? "text-emerald-600"
+                    : "text-red-500"
+                  : "text-gray-500";
+                const statusLabel = row?.current
+                  ? row.current.activo
+                    ? "Horario activo"
+                    : "Horario inactivo"
+                  : "Sin horario creado";
+
+                return (
+                  <section
+                    key={key}
+                    className="rounded-2xl border border-[#E9DDE1] bg-[#FFFBFA] p-4 shadow-sm"
+                  >
+                    <header className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-[#C19BA8]">{label}</p>
+                        <p className={`text-sm font-medium ${statusColor}`}>{statusLabel}</p>
+                        <p className="text-xs text-gray-500">Guardado: {savedRange}</p>
+                      </div>
+                      {hasPendingChanges && (
+                        <span className="rounded-full bg-[#703F52]/10 px-3 py-1 text-xs font-medium text-[#703F52]">
+                          Cambios sin guardar
+                        </span>
+                      )}
+                    </header>
+
+                    <div className="mt-4 grid gap-4 md:grid-cols-[repeat(3,minmax(0,1fr))] md:items-center">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-[#703F52]" htmlFor={`inicio-${key}`}>
+                          Inicio
+                        </label>
+                        <input
+                          id={`inicio-${key}`}
+                          type="time"
+                          value={row?.horaInicio ?? ""}
+                          onChange={(e) => handleChange(key, "horaInicio", e.target.value)}
+                          className="w-full rounded-full border border-[#E9DDE1] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-sm font-medium text-[#703F52]" htmlFor={`fin-${key}`}>
+                          Fin
+                        </label>
+                        <input
+                          id={`fin-${key}`}
+                          type="time"
+                          value={row?.horaFin ?? ""}
+                          onChange={(e) => handleChange(key, "horaFin", e.target.value)}
+                          className="w-full rounded-full border border-[#E9DDE1] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        />
+                      </div>
+                      <label className="flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm text-[#703F52]">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-[#C19BA8]"
+                          checked={!!row?.activo}
+                          onChange={(e) => toggleActivo(key, e.target.checked)}
+                        />
+                        <span>{row?.activo ? "Activo" : "Inactivo"}</span>
+                      </label>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap items-center gap-3">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={() => saveRow(key)}
+                          disabled={saving}
+                        >
+                          {saving ? "Guardando..." : row?.current ? "Actualizar horario" : "Crear horario"}
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={() => borrar(key)}
+                          disabled={saving}
+                        >
+                          {row?.current ? "Eliminar horario" : "Limpiar campos"}
+                        </button>
+                      </div>
+                      <span className="text-xs text-gray-500">Editable: {editedRange}</span>
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           )}
 
           <div className="mt-4 flex justify-end">
-            <button className="px-4 py-1 text-sm rounded-full border hover:bg-gray-100" onClick={onClose}>Cerrar</button>
+            <button
+              className="rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-[#FFFBFA]"
+              onClick={onClose}
+              type="button"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+

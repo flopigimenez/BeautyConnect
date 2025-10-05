@@ -38,8 +38,6 @@ export default function MisTurnos() {
         comentario: "",
     });
     const [enviandoResena, setEnviandoResena] = useState(false);
-    const [resenaError, setResenaError] = useState<string | null>(null);
-    const [resenaExito, setResenaExito] = useState<string | null>(null);
 
     const [resenasPorTurno, setResenasPorTurno] = useState<Record<number, number>>({});
 
@@ -89,45 +87,67 @@ export default function MisTurnos() {
     const abrirModalResena = (turno: TurnoResponseDTO) => {
         setTurnoParaResena(turno);
         setResenaForm({ puntuacion: 5, comentario: "" });
-        setResenaError(null);
-        setResenaExito(null);
         setResenaModalAbierto(true);
     };
 
     const cerrarModalResena = () => {
         setResenaModalAbierto(false);
         setTurnoParaResena(null);
-        setResenaError(null);
-        setResenaExito(null);
     };
 
     const handleSubmitResena = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (!turnoParaResena || !user || user.usuario?.rol !== "CLIENTE") {
-            setResenaError("Solo los clientes pueden dejar reseñas.");
+            await Swal.fire({
+                icon: "warning",
+                title: "Acción no permitida",
+                text: "Solo los clientes pueden dejar rese�as.",
+                confirmButtonColor: "#703F52",
+            });
             return;
         }
 
         const centroId = turnoParaResena.centroDeEstetica?.id ?? turnoParaResena.centroDeEsteticaResponseDTO?.id;
         const turnoId = turnoParaResena.id;
+
         if (!turnoId) {
-            setResenaError("No se pudo identificar el turno.");
+            await Swal.fire({
+                icon: "warning",
+                title: "Datos incompletos",
+                text: "No se pudo identificar el turno.",
+                confirmButtonColor: "#703F52",
+            });
             return;
         }
 
         if (!centroId) {
-            setResenaError("No se pudo identificar el centro de estética.");
+            await Swal.fire({
+                icon: "warning",
+                title: "Datos incompletos",
+                text: "No se pudo identificar el centro de est�tica.",
+                confirmButtonColor: "#703F52",
+            });
             return;
         }
 
         if (resenasPorTurno[turnoId] != null) {
-            setResenaError("Ya dejaste una reseña para este turno.");
+            await Swal.fire({
+                icon: "info",
+                title: "Reseña existente",
+                text: "Ya dejaste una reseña para este turno.",
+                confirmButtonColor: "#703F52",
+            });
             return;
         }
 
         if (!resenaForm.comentario.trim()) {
-            setResenaError("Por favor escribí un comentario.");
+            await Swal.fire({
+                icon: "warning",
+                title: "Datos incompletos",
+                text: "Por favor escribí un comentario.",
+                confirmButtonColor: "#703F52",
+            });
             return;
         }
 
@@ -138,21 +158,35 @@ export default function MisTurnos() {
                 comentario: resenaForm.comentario.trim(),
                 clienteId: user.id,
                 centroDeEsteticaId: centroId,
-                turnoId: turnoParaResena.id
+                turnoId: turnoParaResena.id,
             });
-            setResenaExito("Reseña enviada con éxito.");
-            setResenaError(null);
-            setResenasPorTurno(prev => ({ ...prev, [turnoId]: resenaForm.puntuacion }));
+
+            setResenasPorTurno((prev) => ({ ...prev, [turnoId]: resenaForm.puntuacion }));
             if (user?.id) {
                 dispatch(fetchTurnosCliente(user.id));
             }
+
+            await Swal.fire({
+                icon: "success",
+                title: "Reseña enviada",
+                text: "Gracias por compartir tu experiencia.",
+                confirmButtonColor: "#703F52",
+            });
+
+            cerrarModalResena();
         } catch (error) {
-            setResenaError(error instanceof Error ? error.message : "No se pudo enviar la reseña.");
-            setResenaExito(null);
+            const message = error instanceof Error ? error.message : "No se pudo enviar la reseña.";
+            await Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: message,
+                confirmButtonColor: "#703F52",
+            });
         } finally {
             setEnviandoResena(false);
         }
     };
+
 
 
     if (filtroAplicado.servicio) {
@@ -184,19 +218,48 @@ export default function MisTurnos() {
     }, [dispatch, user]);
 
     const cambiarEstado = async (id: number, estado: EstadoTurno) => {
+        const action = estado === EstadoTurno.CANCELADO ? "cancelar" : estado.toLowerCase();
+
+        const confirmation = await Swal.fire({
+            icon: "warning",
+            title: `¿Desea ${action} el turno?`,
+            text: "Esta acci�n no se puede deshacer.",
+            showCancelButton: true,
+            confirmButtonText: `Sí, ${action}`,
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#703F52",
+            cancelButtonColor: "#C19BA8",
+        });
+
+        if (!confirmation.isConfirmed) {
+            return;
+        }
+
         try {
             await turnoService.cambiarEstado(id, estado);
-            dispatch(fetchTurnosCliente(user!.id))
-            Swal.fire( "Desea cancelar el turno?", "", "warning"
-            ).then((result) => {
-                if (result.isConfirmed) {
-                    cambiarEstado(id, EstadoTurno.CANCELADO);
-                }
+            if (user?.id) {
+                dispatch(fetchTurnosCliente(user.id));
+            }
+
+            await Swal.fire({
+                icon: "success",
+                title: estado === EstadoTurno.CANCELADO ? "Turno cancelado" : "Turno actualizado",
+                text: estado === EstadoTurno.CANCELADO
+                    ? "El turno se canceló correctamente."
+                    : "El turno se actualizó correctamente.",
+                confirmButtonColor: "#703F52",
             });
         } catch (error) {
-            console.log(error);
+            const message = error instanceof Error ? error.message : "No se pudo actualizar el turno.";
+            await Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: message,
+                confirmButtonColor: "#703F52",
+            });
         }
-    }
+    };
+
 
     return (
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -412,9 +475,7 @@ export default function MisTurnos() {
                                     value={resenaForm.puntuacion}
                                     onChange={(e) => {
                                         setResenaForm(prev => ({ ...prev, puntuacion: Number(e.target.value) }));
-                                        setResenaError(null);
-                                        setResenaExito(null);
-                                    }}
+                                                                            }}
                                     className="w-full border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
                                 >
                                     {Array.from({ length: 5 }, (_, index) => index + 1).map((valor) => (
@@ -430,27 +491,23 @@ export default function MisTurnos() {
                                     value={resenaForm.comentario}
                                     onChange={(e) => {
                                         setResenaForm(prev => ({ ...prev, comentario: e.target.value }));
-                                        setResenaError(null);
-                                        setResenaExito(null);
-                                    }}
+                                                                            }}
                                     rows={4}
                                     className="w-full border border-secondary rounded-lg font-primary text-md px-4 py-2 focus:outline-none"
                                     placeholder="Contanos cómo fue tu experiencia"
                                 />
                             </div>
-                            {resenaError && <p className="text-sm text-red-600">{resenaError}</p>}
-                            {resenaExito && <p className="text-sm text-green-600">{resenaExito}</p>}
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"
                                     onClick={cerrarModalResena}
                                     className="px-4 py-2 rounded-full border border-[#C19BA8] text-[#C19BA8] hover:bg-[#C19BA8]/10"
                                 >
-                                    {resenaExito ? "Cerrar" : "Cancelar"}
+                                    Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={enviandoResena || Boolean(resenaExito)}
+                                    disabled={enviandoResena}
                                     className="bg-[#C19BA8] px-4 py-2 rounded-full text-white hover:bg-[#C4A1B5] disabled:opacity-60"
                                 >
                                     {enviandoResena ? "Enviando..." : "Enviar reseña"}

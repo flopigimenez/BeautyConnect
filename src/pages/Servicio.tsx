@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ServicioService } from "../services/ServicioService";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AgregarServicio from "../components/modals/AgregarServicio";
+import Swal from "sweetalert2";
 
 const servicioService = new ServicioService();
 
@@ -56,7 +57,20 @@ const Servicio = () => {
   const handleToggle = async (row: ServicioResponseDTO) => {
     const isInactive = row.active === false;
     const action = isInactive ? "Reactivar" : "Inactivar";
-    if (!confirm(`${action} este servicio?`)) return;
+    const actionLower = action.toLowerCase();
+    const confirmation = await Swal.fire({
+      icon: "warning",
+      title: `${action} servicio`,
+      text: `\u00bfQuer\u00e9s ${actionLower} este servicio?`,
+      showCancelButton: true,
+      confirmButtonText: `S\u00ed, ${actionLower}`,
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#703F52",
+      cancelButtonColor: "#C19BA8",
+    });
+    if (!confirmation.isConfirmed) {
+      return;
+    }
     try {
       setBusyId(row.id);
       setError(null);
@@ -69,9 +83,14 @@ const Servicio = () => {
         )
       );
     } catch (e: unknown) {
-      const message = (e as Error).message || `Error al ${action.toLowerCase()} el servicio.`;
+      const message = (e as Error).message || `Error al ${actionLower} el servicio.`;
       setError(message);
-      alert(message);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: message,
+        confirmButtonColor: "#703F52",
+      });
     } finally {
       setBusyId(null);
     }
@@ -190,4 +209,3 @@ const Servicio = () => {
 };
 
 export default Servicio;
-
