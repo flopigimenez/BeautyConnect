@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { Switch } from "@mui/material";
@@ -39,7 +39,7 @@ export default function CentrosAceptados() {
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto mx-8 my-20">
-                    <CustomTable<CentroEsteticaResponseDTO>
+                    <CustomTable<CentroDeEsteticaResponseDTO>
                         title="Centros Aceptados"
                         columns={[
                             {
@@ -95,7 +95,7 @@ export default function CentrosAceptados() {
                             {
                                 header: "Acciones",
                                 accessor: "active",
-                                render: (centro: CentroEsteticaResponseDTO) => (
+                                render: (centro: CentroDeEsteticaResponseDTO) => (
                                     <Switch
                                         checked={centro.active}
                                         onChange={async () => {

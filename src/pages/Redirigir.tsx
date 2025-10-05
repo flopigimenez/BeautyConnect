@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../redux/store/hooks";
 import { Estado } from "../types/enums/Estado";
 import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 const Redirigir = () => {
     const centro = useAppSelector((state) => state.miCentro.centro);
@@ -19,9 +20,25 @@ const Redirigir = () => {
         if (centro?.estado === Estado.PENDIENTE) {
             navigate("/PendienteAprobacion");
         } else if (centro?.estado === Estado.RECHAZADO) {
-            navigate("/prestador/configPrestador");
+            Swal.fire({
+                icon: "error",
+                title: "Lo sentimos",
+                text: "Tu solicitud ha sido rechazada. Por favor, corrija la información para reenviar la solicitud.",
+                confirmButtonColor: '#a27e8f',
+                confirmButtonText: 'Aceptar'    
+            }).then(() => {
+                navigate("/prestador/configPrestador");
+            });
         } else if (centro?.estado === Estado.ACEPTADO) {
-            navigate("/prestador/panel");
+            Swal.fire({
+                icon: "success",
+                title: "¡Felicidades!",
+                text: "Tu solicitud ha sido aceptada. Bienvenido a BeautyConnect.",
+                confirmButtonColor: '#a27e8f',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                navigate("/prestador/panel");
+            });
         } else {
             console.warn("Estado desconocido o no manejado: ", centro?.estado);
         }

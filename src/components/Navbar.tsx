@@ -10,7 +10,6 @@ import { useEffect } from "react";
 import { fetchTurnosCliente } from "../redux/store/misTurnosSlice";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase/config";
-import { Estado } from "../types/enums/Estado";
 
 const isRolValue = (value: string | null | undefined): value is Rol => {
   return value === Rol.CLIENTE || value === Rol.PRESTADOR_DE_SERVICIO || value === Rol.SUPERADMIN;
@@ -40,7 +39,7 @@ const NavbarCliente = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Aceptar',
       cancelButtonText: 'Cancelar'
-    }).then( async (result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           // Cerrar sesión
@@ -137,7 +136,7 @@ const Navbar = () => {
   if (role === Rol.SUPERADMIN) {
     return <NavbarAdmin />;
   }
-  
+
   if (role === Rol.PRESTADOR_DE_SERVICIO) {
     return <NavbarPrestador />
   }

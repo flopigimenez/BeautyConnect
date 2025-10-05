@@ -8,7 +8,7 @@ import { TipoDeServicio } from "../types/enums/TipoDeServicio";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { Estado } from "../types/enums/Estado";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { ReseniaService } from "../services/ReseniaService";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import Swal from "sweetalert2";
@@ -205,7 +205,7 @@ const Centros = () => {
     const totalPaginas = Math.ceil(centrosFiltrados.length / centrosPorPagina);
 
     const [modalCentro, setModalCentro] = useState(false);
-    const [centroSeleccionado, setCentroSeleccionado] = useState<CentroEsteticaResponseDTO>();
+    const [centroSeleccionado, setCentroSeleccionado] = useState<CentroDeEsteticaResponseDTO>();
 
 
     useEffect(() => {

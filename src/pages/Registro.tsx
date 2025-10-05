@@ -123,7 +123,7 @@ const Registro = () => {
             }
         } catch (err) {
             Swal.fire({
-                text: (err as Error).message || "Error en el registro",
+                text: "Error en el registro",
                 position: "center",
                 icon: "error",
                 confirmButtonText: 'Aceptar',
@@ -284,7 +284,7 @@ const Registro = () => {
                         </div>
                                                 {prestador == false && (
                             <div className="mb-5">
-                                <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Direccion</label>
+                            {/* <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Direccion</label> */}
                                 <AddressFieldset
                                     value={domicilioForm}
                                     onChange={setDomicilioForm}

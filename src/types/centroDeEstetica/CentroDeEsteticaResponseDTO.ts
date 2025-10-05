@@ -6,7 +6,7 @@ import type { ProfesionalResponseDTOSimple } from '../profesional/ProfesionalRes
 import type { ReseniaResponseDTOSimple } from '../resenia/ReseniaResponseDTOSimple';
 import type { PrestadorServicioResponseDTO } from '../prestadorDeServicio/PrestadorServicioResponseDTO';
 
-export interface CentroEsteticaResponseDTO {
+export interface CentroDeEsteticaResponseDTO {
     id: number;
     nombre: string;
     descripcion: string;

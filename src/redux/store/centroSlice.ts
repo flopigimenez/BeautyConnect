@@ -1,12 +1,12 @@
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../../types/enums/Estado";
 
 const centroService = new CentroDeEsteticaService();
 
 interface CentroState {
-    centros: CentroEsteticaResponseDTO[];
+    centros: CentroDeEsteticaResponseDTO[];
     loading: boolean;
     error: string | null;
 }
@@ -17,15 +17,15 @@ const initialState: CentroState = {
     error: null,
 };
 
-export const fetchCentros = createAsyncThunk<CentroEsteticaResponseDTO[]>("centros/fetchAll", async () => {
+export const fetchCentros = createAsyncThunk<CentroDeEsteticaResponseDTO[]>("centros/fetchAll", async () => {
     return await centroService.getAll();
 });
 
-export const fetchCentrosPorEstado = createAsyncThunk<CentroEsteticaResponseDTO[], Estado>("centros/fetchPorEstado", async (estado) => {
+export const fetchCentrosPorEstado = createAsyncThunk<CentroDeEsteticaResponseDTO[], Estado>("centros/fetchPorEstado", async (estado) => {
     return await centroService.listarPorEstado(estado);
 });
 
-export const fetchCentrosPorEstadoyActive = createAsyncThunk<CentroEsteticaResponseDTO[], { estado: Estado; active: boolean }>("centros/fetchPorEstadoyActive", async ({estado, active}) => {
+export const fetchCentrosPorEstadoyActive = createAsyncThunk<CentroDeEsteticaResponseDTO[], { estado: Estado; active: boolean }>("centros/fetchPorEstadoyActive", async ({estado, active}) => {
     return await centroService.listarPorEstadoyActive(estado, active);
 });
 

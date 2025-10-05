@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { useState } from "react";
+import { useAppDispatch } from "../redux/store/hooks";
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { obtenerAuthUser, setUser } from "../redux/store/authSlice";
@@ -115,7 +115,7 @@ const IniciarSesion = () => {
             });
 
             const googleRole = userData?.usuario?.rol;
-            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : "/";
+            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : googleRole === Rol.CLIENTE ? "/FinalizarRegistroGoogle": "/";
             navigate(redirectPath);
 
         } catch (error: any) {
@@ -143,20 +143,6 @@ const IniciarSesion = () => {
             setGoogleLoading(false);
         }
     };
-
-    /*const redirigir = async () => {
-        const tokenResult = await auth.currentUser?.getIdTokenResult(true);
-        const roleClaim = typeof tokenResult?.claims?.role === "string" ? tokenResult.claims.role : null;
-        const redirectPath = roleClaim === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" :
-            roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.PENDIENTE ? "/PendienteAprobacion" :
-                roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.RECHAZADO ? "/prestador/configPrestador" :
-                    roleClaim === Rol.PRESTADOR_DE_SERVICIO && centro?.estado === Estado.ACEPTADO ? "/prestador/panel" : "/";
-        
-        setTimeout(() => {
-            navigate(redirectPath);
-            redirectPath;
-        }, 1000);
-    }*/
 
     return (
         <>

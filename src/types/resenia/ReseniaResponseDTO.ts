@@ -1,4 +1,4 @@
-import type { CentroEsteticaResponseDTO } from "../centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { ClienteResponseDTO } from "../cliente/ClienteResponseDTO";
 import type { TurnoResponseDTO } from "../turno/TurnoResponseDTO";
 
@@ -7,6 +7,6 @@ export interface ReseniaResponseDTO {
    puntuacion: number;
    comentario: string;
    cliente: ClienteResponseDTO;
-   centroDeEstetica: CentroEsteticaResponseDTO;
+   centroDeEstetica: CentroDeEsteticaResponseDTO;
    turno: TurnoResponseDTO
 }

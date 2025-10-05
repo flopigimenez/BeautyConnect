@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 import Footer from "../components/Footer";
@@ -35,7 +35,7 @@ export default function CentrosRechazados() {
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto mx-8 my-20">
-                    <CustomTable<CentroEsteticaResponseDTO>
+                    <CustomTable<CentroDeEsteticaResponseDTO>
                         title="Centros Rechazados"
                         columns={[
                             {

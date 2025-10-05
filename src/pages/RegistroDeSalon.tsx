@@ -4,7 +4,7 @@ import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { useNavigate } from "react-router-dom";
-import { setCentro } from "../redux/store/miCentroSlice";
+import { setCentroSlice } from "../redux/store/miCentroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
 import Swal from "sweetalert2";
@@ -141,7 +141,7 @@ const RegistroDeSalon = () => {
 
         try {
             const centro = await centroService.post(payload);
-            dispatch(setCentro(centro));
+            dispatch(setCentroSlice(centro));
             Swal.fire("Centro registrado correctamente.");
             navigate("/PendienteAprobacion");
         } catch (error) {

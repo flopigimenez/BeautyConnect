@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Navbar from "../components/Navbar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import { Estado } from "../types/enums/Estado";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 import Footer from "../components/Footer";
+import Swal from "sweetalert2";
 
 // import { RxCross2 } from "react-icons/rx";
 
@@ -15,6 +16,9 @@ export default function SolicitudDeSalones() {
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
     const centroService = new CentroDeEsteticaService();
+    const [loadingAceptar, setLoadingAceptar] = useState(false);
+    const [loadingRechazar, setLoadingRechazar] = useState(false);
+    const [loadingId, setLoadingId] = useState<number | null>(null); 
     // const [verMas, setVerMas] = useState<boolean>(false);
 
     useEffect(() => {
@@ -34,16 +38,27 @@ export default function SolicitudDeSalones() {
         );
 
     const cambiarEstado = async (id: number, estado: Estado) => {
+        setLoadingAceptar(estado === Estado.ACEPTADO ? true : false);
+        setLoadingRechazar(estado === Estado.RECHAZADO ? true : false);
+        setLoadingId(id);
         try {
             await centroService.cambiarEstado(id, estado);
             dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
             if (estado == Estado.ACEPTADO) {
-                alert("Se aceptó el centro")
+                Swal.fire("Se aceptó el centro")
             } else {
-                alert("Se rechazó el centro")
+                Swal.fire("Se rechazó el centro")
             }
+            setLoadingAceptar(false);
+            setLoadingRechazar(false);
         } catch (error) {
-            console.log(error);
+            Swal.fire(
+                error instanceof Error ? error.message : String(error),
+                "No se pudo cambiar el estado",
+                "error"
+            );
+            setLoadingAceptar(false);
+            setLoadingRechazar(false);
         }
     }
 
@@ -52,7 +67,7 @@ export default function SolicitudDeSalones() {
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
                 <main className="flex-1 overflow-auto mx-8 my-20">
-                    <CustomTable<CentroEsteticaResponseDTO>
+                    <CustomTable<CentroDeEsteticaResponseDTO>
                         title="Solicitud de Salones"
                         columns={[
                             {
@@ -105,15 +120,17 @@ export default function SolicitudDeSalones() {
                             {
                                 header: "Acciones", render: (row) => (
                                     <div className="flex gap-2">
-                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102 cursor-pointer"
+                                        <button className="bg-green-600/50 text-primary py-1 px-2 rounded-full hover:bg-green-600/70 hover:scale-102 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={loadingAceptar || loadingRechazar}
                                             onClick={() => cambiarEstado(row.id, Estado.ACEPTADO)}
                                         >
-                                            Aprobar
+                                            {loadingAceptar  && loadingId === row.id && Estado.ACEPTADO ? "Aprobando..." : "Aprobar"}
                                         </button>
-                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                                        <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={loadingAceptar || loadingRechazar}
                                             onClick={() => cambiarEstado(row.id, Estado.RECHAZADO)}
                                         >
-                                            Rechazar
+                                            {loadingRechazar && loadingId === row.id && Estado.RECHAZADO ? "Rechazando..." : "Rechazar"}
                                         </button>
                                     </div>
                                 )

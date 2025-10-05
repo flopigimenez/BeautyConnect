@@ -1,8 +1,26 @@
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Logo from "../assets/logo.png";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { fetchCentro } from "../redux/store/miCentroSlice";
 
 const PendienteAprobacion = () => {
+  const user = useAppSelector((state) => state.user.user);
+  const centro = useAppSelector((state) => state.miCentro.centro);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (user && centro) {
+      dispatch(fetchCentro(centro.id));
+        setTimeout(() => {
+          navigate("/redirigir");
+        }, 1000);
+    }
+  }, [user, centro?.estado, navigate, dispatch]);
+
   return (
     <>
       <Navbar />

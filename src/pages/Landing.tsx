@@ -7,11 +7,16 @@ import fondo from '../assets/fondo.png';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
 import { useEffect, useState } from 'react';
-import type { CentroEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
+import type { CentroDeEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
 import { Estado } from '../types/enums/Estado';
+import { useAppDispatch, useAppSelector } from '../redux/store/hooks';
+import type { ClienteDTO } from '../types/cliente/ClienteDTO';
+import { fetchTurnosCliente } from '../redux/store/misTurnosSlice';
+import { fetchCentro } from '../redux/store/miCentroSlice';
+
 
 // const categorias = [
 //   { nombre: 'Makeup artist', imagen: carrousel_1 },
@@ -23,8 +28,11 @@ import { Estado } from '../types/enums/Estado';
 
 
 const Landing = () => {
-  const [centros, setCentros] = useState<CentroEsteticaResponseDTO[]>([]);
+  const [centros, setCentros] = useState<CentroDeEsteticaResponseDTO[]>([]);
   const centroService = new CentroDeEsteticaService();
+  const dispatch = useAppDispatch();
+  const cliente = useAppSelector((state) => state.user.user);
+  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     centroService
@@ -35,10 +43,12 @@ const Landing = () => {
           : [];
         setCentros(aceptados);
       })
-
       .catch(console.error);
-  }, []);
 
+    if (user && cliente?.id) {
+      dispatch(fetchTurnosCliente(cliente.id));
+    }
+  }, [cliente?.id, dispatch]);
 
   return (
     <>

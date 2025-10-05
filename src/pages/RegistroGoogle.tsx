@@ -1,5 +1,4 @@
 ﻿import { useEffect, useState } from "react"
-import Navbar from "../components/Navbar"
 import type { ClienteDTO } from "../types/cliente/ClienteDTO"
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO"
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks"
@@ -28,7 +27,9 @@ const RegistroGoogle = () => {
     })
 
     const getInitialAddress = (): AddressValue => {
-        const domicilio = user?.domicilio
+        const cliente = user as ClienteDTO;
+        //const domicilio = user?.domicilio
+        const domicilio = cliente?.domicilio
         if (domicilio) {
             return {
                 calle: domicilio.calle ?? "",
@@ -52,9 +53,13 @@ const RegistroGoogle = () => {
     const [domicilioForm, setDomicilioForm] = useState<AddressValue>(getInitialAddress)
 
     useEffect(() => {
-        setRegistro(getInitialRegistro())
-        setDomicilioForm(getInitialAddress())
-    }, [user])
+        setRegistro(getInitialRegistro());
+        setDomicilioForm(getInitialAddress());
+        if (registro && domicilioForm) {
+            const redirectPath = isCliente ? "/" : "/RegistroDeSalon";
+            navigate(redirectPath);
+        }
+    }, [user, isCliente, navigate])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
@@ -80,11 +85,9 @@ const RegistroGoogle = () => {
 
     return (
         <>
-            <Navbar />
             {error ? (<p className="text-red-500">{error}</p>) : (
-                <div className="bg-primary w-screen pt-25 flex flex-col items-center min-h-screen">
-
-                    <h1 className="font-secondary text-2xl font-bold mb-3">Finaliza tu registro</h1>
+                <div className="bg-primary w-screen pt-10 flex flex-col items-center min-h-screen">
+                    <h1 className="font-secondary text-2xl font-bold text-tertiary">Finaliza tu registro</h1>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre</label>
@@ -121,7 +124,7 @@ const RegistroGoogle = () => {
                         </div>
                         {isCliente && (
                             <div className="mb-5">
-                                <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label>
+                                {/* <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label> */}
                                 <AddressFieldset
                                     value={domicilioForm}
                                     onChange={setDomicilioForm}
@@ -129,7 +132,7 @@ const RegistroGoogle = () => {
                                 />
                             </div>
                         )}
-                        <div className="flex flex-col items-center mb-5">
+                        <div className="flex flex-col items-center mb-10">
                             <button
                                 type="submit"
                                 className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"

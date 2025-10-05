@@ -11,7 +11,7 @@ import Sidebar from '../components/SideBar';
 
 import type { PrestadorServicioResponseDTO } from "../types/prestadorDeServicio/PrestadorServicioResponseDTO";
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { CentroDeEsteticaDTO } from "../types/centroDeEstetica/CentroDeEsteticaDTO";
 import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import type { HorarioCentroDTO } from "../types/horarioCentro/HorarioCentroDTO";
@@ -21,7 +21,10 @@ import { PrestadorServicioService } from "../services/PrestadorServicioService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { DomicilioService } from "../services/DomicilioService";
 import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
-import { useAppSelector } from "../redux/store/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
+import { Estado } from "../types/enums/Estado";
+import { setCentroSlice } from "../redux/store/miCentroSlice";
+import { useNavigate } from "react-router-dom";
 
 const DEFAULT_ROL: Rol = "PRESTADOR" as Rol; // ajusta si tu enum lo requiere
 
@@ -149,7 +152,7 @@ const ConfigPrestador = () => {
   const [mailVista, setMailVista] = useState<string>("");
 
   const [prestador, setPrestador] = useState<PrestadorServicioResponseDTO | null>(null);
-  const [centro, setCentro] = useState<CentroEsteticaResponseDTO | null>(null);
+  const [centro, setCentro] = useState<CentroDeEsteticaResponseDTO | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [pendingUploads, setPendingUploads] = useState<{ imagen?: string | null; docValido?: string | null }>({});
@@ -158,6 +161,8 @@ const ConfigPrestador = () => {
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
   const domicilioService = useMemo(() => new DomicilioService(), []);
   const miCentroSlice = useAppSelector((state) => state.miCentro.centro);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleCloudinaryUpload = async (
     event: ChangeEvent<HTMLInputElement>,
@@ -181,7 +186,7 @@ const ConfigPrestador = () => {
         if (!prev) {
           return prev;
         }
-        return { ...prev, [fieldName]: secureUrl } as CentroEsteticaResponseDTO;
+        return { ...prev, [fieldName]: secureUrl } as CentroDeEsteticaResponseDTO;
       });
     } catch (error) {
       console.error(error);
@@ -240,6 +245,37 @@ const ConfigPrestador = () => {
     });
     return () => unsub();
   }, [prestadorService, centroService]);
+
+  const handleReenviarSolicitud = async () => {
+    try {
+      if (!centro?.id) {
+        throw new Error("No se encontró el centro para reenviar la solicitud.");
+      }
+
+      const updatedCentro = await centroService.cambiarEstado(centro.id, Estado.PENDIENTE);
+
+      setCentro(updatedCentro);
+      dispatch(setCentroSlice(updatedCentro));
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Solicitud reenviada!",
+        text: "El estado del centro ha sido actualizado a pendiente.",
+        confirmButtonColor: "#C19BA8",
+      }).then(() => {
+        navigate("/redirigir");
+      });
+      
+    } catch (error) {
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo reenviar la solicitud.",
+        confirmButtonColor: "#C19BA8",
+      });
+    }
+  };
 
   return (
     <>
@@ -402,7 +438,7 @@ const ConfigPrestador = () => {
                       horariosCentro: [],
                     };
 
-                    let saved: CentroEsteticaResponseDTO;
+                    let saved: CentroDeEsteticaResponseDTO;
                     let updatedDomicilio = centro?.domicilio ?? null;
 
                     if (centro?.id) {
@@ -607,7 +643,19 @@ const ConfigPrestador = () => {
                       >
                         {isSubmitting ? "Guardando..." : "Guardar cambios"}
                       </button>
+                      {centro?.estado === "RECHAZADO" && (
+                        <button
+                          type="button"
+                          disabled={isSubmitting || !uid}
+                          onClick={handleReenviarSolicitud}
+                          className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                        >
+                          {isSubmitting ? "Reenviando..." : "Reenviar solicitud"}
+                        </button>
+                      )}
+
                     </div>
+
                   </Form>
                 )}
               </Formik>
@@ -615,6 +663,11 @@ const ConfigPrestador = () => {
             )
             }
             <CambiarPasswordModal isOpen={showPwd} onClose={() => setShowPwd(false)} />
+            {centro?.estado === "RECHAZADO" && tab === "centro" &&
+              <span className="self-center text-sm text-red-600">
+                El centro fue rechazado. Por favor, actualiza los datos y vuelve a enviar la solicitud.
+              </span>
+            }
 
           </div>
         </main>

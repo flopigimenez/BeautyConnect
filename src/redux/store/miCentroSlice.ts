@@ -1,8 +1,11 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CentroEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { CentroDeEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
+
+const centroService = new CentroDeEsteticaService();
 
 interface CentroState {
-    centro: CentroEsteticaResponseDTO | null;
+    centro: CentroDeEsteticaResponseDTO | null;
     loading: boolean;
     error: string | null;
 }
@@ -23,16 +26,26 @@ const initialState: CentroState = {
     error: null,
 };
 
+export const fetchCentro = createAsyncThunk<CentroDeEsteticaResponseDTO, number>(
+    "centro/fetch",
+    async (id: number, { rejectWithValue }) => {
+        try {
+            const response = await centroService.getById(id);
+            if (!response) {
+                throw new Error("Centro no encontrado");
+            }
+            return response;
+        } catch (error) {
+            return rejectWithValue("Error al obtener el centro");
+        }
+    }
+);
 const centroSlice = createSlice({
     name: "centro",
     initialState,
     reducers: {
-        setCentro: (state, action: PayloadAction<CentroEsteticaResponseDTO>) => {
-           if ("centro" in action.payload) {
-                state.centro = action.payload;
-            } else {
-                state.centro = null;
-            }
+        setCentroSlice: (state, action: PayloadAction<CentroDeEsteticaResponseDTO>) => {
+            state.centro = action.payload; 
             state.error = null;
             if (action.payload) {
                 localStorage.setItem('centro', JSON.stringify(action.payload));
@@ -46,7 +59,24 @@ const centroSlice = createSlice({
             localStorage.removeItem('centro');
         },
     },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchCentro.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchCentro.fulfilled, (state, action) => {
+                state.centro = action.payload;
+                state.loading = false;
+                state.error = null;
+                localStorage.setItem('centro', JSON.stringify(action.payload));
+            })
+            .addCase(fetchCentro.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "Error al cargar el centro";
+            });
+    },
 });
 
-export const { setCentro, clearCentro } = centroSlice.actions;
+export const { setCentroSlice, clearCentro } = centroSlice.actions;
 export default centroSlice.reducer;

@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import { ReseniaService } from "../services/ReseniaService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import type { ReseniaResponseDTO } from "../types/resenia/ReseniaResponseDTO";
-import type { CentroEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 
 const STAR_SCALE = 5;
 
@@ -21,7 +21,7 @@ const renderStars = (value: number) => {
 const ReseniasCentro = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [centro, setCentro] = useState<CentroEsteticaResponseDTO | null>(null);
+  const [centro, setCentro] = useState<CentroDeEsteticaResponseDTO | null>(null);
   const [resenias, setResenias] = useState<ReseniaResponseDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
