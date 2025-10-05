@@ -1,13 +1,14 @@
 // src/components/modals/AgregarProfesional.tsx
 import { Formik } from "formik";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import type { ProfesionalDTO } from "../../types/profesional/ProfesionalDTO";
 import type { ProfesionalResponseDTO } from "../../types/profesional/ProfesionalResponseDTO";
 import { ProfesionalService } from "../../services/ProfesionalService";
 
 type Props = {
   centroId?: number; // requerido solo en alta
-  profesional?: ProfesionalResponseDTO | null; // si viene, es edición
+  profesional?: ProfesionalResponseDTO | null; // si viene, es edicion
   onCreated?: (nuevo: ProfesionalResponseDTO) => void;
   onUpdated?: (actualizado: ProfesionalResponseDTO) => void;
   onClose?: () => void;
@@ -18,7 +19,7 @@ const profesionalService = new ProfesionalService();
 export default function AgregarProfesional({ centroId, profesional, onCreated, onUpdated, onClose }: Props) {
   const [saving, setSaving] = useState(false);
 
-  // Bloquear scroll mientras el modal está abierto
+  // Bloquear scroll mientras el modal esta abierto
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -29,18 +30,28 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
 
   const isEdit = !!profesional;
 
-  const initialValues: Omit<ProfesionalDTO, "centroDeEsteticaId"> & { centroDeEsteticaId?: number } = isEdit
+  type FormValues = {
+    id: number;
+    nombre: string;
+    apellido: string;
+    contacto: string;
+    centroDeEsteticaId?: number;
+  };
+
+  const initialValues: FormValues = isEdit
     ? {
         id: profesional!.id,
         nombre: profesional!.nombre,
         apellido: profesional!.apellido,
-        centroDeEsteticaId: profesional!.centroDeEstetica?.id,
+        contacto: profesional!.contacto?.toString() ?? "",
+        centroDeEsteticaId: profesional!.centroDeEstetica?.id ?? undefined,
       }
     : {
         id: 0,
         nombre: "",
         apellido: "",
-        centroDeEsteticaId: centroId,
+        contacto: "",
+        centroDeEsteticaId: centroId ?? undefined,
       };
 
   return (
@@ -54,27 +65,36 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
           <h2 className="text-xl font-secondary text-[#703F52] mb-4">{isEdit ? "Editar Profesional" : "Agregar Profesional"}</h2>
 
           {!isEdit && centroId == null && (
-            <p className="text-red-600">No se encontró el centro de estética.</p>
+            <p className="text-red-600">No se encontro el centro de estetica.</p>
           )}
 
           {(isEdit || centroId != null) && (
-            <Formik
+            <Formik<FormValues>
               key={isEdit ? `edit-${profesional!.id}` : "create"}
               enableReinitialize
               initialValues={initialValues}
               validate={(v) => {
-                const e: Partial<Record<keyof ProfesionalDTO, string>> = {};
-                if (!v.nombre?.trim()) e.nombre = "Requerido";
-                if (!v.apellido?.trim()) e.apellido = "Requerido";
-                return e;
+                const errors: Partial<Record<keyof FormValues, string>> = {};
+                if (!v.nombre?.trim()) errors.nombre = "Requerido";
+                if (!v.apellido?.trim()) errors.apellido = "Requerido";
+                const contacto = v.contacto?.trim() ?? "";
+                if (!contacto) {
+                  errors.contacto = "Requerido";
+                } else if (!/^\d+$/.test(contacto)) {
+                  errors.contacto = "Solo numeros";
+                }
+                return errors;
               }}
               onSubmit={async (values, { setSubmitting, resetForm }) => {
                 try {
                   setSaving(true);
+                  const contactoNormalizado = values.contacto.trim();
+                  const contactoNumero = Number(contactoNormalizado);
                   const dto: ProfesionalDTO = {
                     id: isEdit ? profesional!.id : 0,
                     nombre: values.nombre.trim(),
                     apellido: values.apellido.trim(),
+                    contacto: contactoNumero,
                     centroDeEsteticaId: (isEdit ? profesional!.centroDeEstetica?.id : centroId) as number,
                   };
                   if (isEdit && profesional) {
@@ -87,7 +107,8 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                   }
                   onClose?.();
                 } catch (err: unknown) {
-                  alert((err as Error).message ?? (isEdit ? "Error al actualizar profesional" : "Error al crear profesional"));
+                  const message = (err as Error).message ?? (isEdit ? "Error al actualizar profesional" : "Error al crear profesional");
+                  Swal.fire({ icon: "error", title: "Error", text: message, confirmButtonColor: "#a27e8f" });
                 } finally {
                   setSaving(false);
                   setSubmitting(false);
@@ -118,16 +139,33 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     />
                     {touched.apellido && errors.apellido && <p className="text-red-600 text-sm">{errors.apellido}</p>}
                   </div>
+                  <div>
+                    <label className="block mb-1" htmlFor="contacto">Contacto</label>
+                    <input
+                      id="contacto"
+                      name="contacto"
+                      value={values.contacto}
+                      onChange={handleChange}
+                      className="border p-2 rounded-full w-full"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                    {touched.contacto && errors.contacto && <p className="text-red-600 text-sm">{errors.contacto}</p>}
+                  </div>
 
                   <div className="flex gap-2">
                     <button
                       type="submit"
                       disabled={saving}
-                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
                     >
                       {saving ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Profesional"}
                     </button>
-                    <button type="button" onClick={onClose} className="px-5 py-2 rounded-full border hover:bg-gray-100 cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 cursor-pointer cursor-pointer"
+                    >
                       Cancelar
                     </button>
                   </div>

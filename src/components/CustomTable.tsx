@@ -60,19 +60,19 @@ export function CustomTable<T extends object>({
           {actionButton && (
             <button
               onClick={actionButton.onClick}
-              className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+              className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
             >
               {actionButton.label}
             </button>
           )}
           {borrarFiltros && filtros && (
             <div className="flex justify-center items-center gap-2 md:pr-[15vh] mt-5">
-              <button className="cursor-pointer text-tertiary"
+              <button className="cursor-pointer text-tertiary cursor-pointer"
                 onClick={filtros.onClick}
               >
                 <IoFilterCircleOutline size={35} />
               </button>
-              <button className="cursor-pointer text-tertiary hover:underline"
+              <button className="cursor-pointer text-tertiary hover:underline cursor-pointer"
                 onClick={borrarFiltros.onClick}
               >
                 Borrar Filtros
@@ -126,7 +126,7 @@ export function CustomTable<T extends object>({
         <button
           onClick={() => setPaginaActual((prev) => Math.max(prev - 1, 1))}
           disabled={paginaActual === 1}
-          className="px-4 py-2 bg-white disabled:opacity-50"
+          className="px-4 py-2 bg-white disabled:opacity-50 cursor-pointer"
         >
           <IoIosArrowBack className="inline-block mr-2" />
         </button>
@@ -136,7 +136,7 @@ export function CustomTable<T extends object>({
         <button
           onClick={() => setPaginaActual((prev) => Math.min(prev + 1, totalPaginas))}
           disabled={paginaActual === totalPaginas}
-          className="px-4 py-2 bg-white disabled:opacity-50"
+          className="px-4 py-2 bg-white disabled:opacity-50 cursor-pointer"
         >
           <IoIosArrowForward className="inline-block ml-2" />
         </button>

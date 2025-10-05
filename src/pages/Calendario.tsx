@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Footer from "../components/Footer";
 import dayjs, { Dayjs } from "dayjs";
+import "dayjs/locale/es";
 import { useAppSelector } from "../redux/store/hooks";
 import type { TurnoResponseDTO } from "../types/turno/TurnoResponseDTO";
 import { TurnoService } from "../services/TurnoService";
@@ -9,6 +10,8 @@ import SideBar from "../components/SideBar";
 import NavbarPrestador from "../components/NavbarPrestador";
 const turnoService = new TurnoService();
 const centroService = new CentroDeEsteticaService();
+
+dayjs.locale("es");
 
 type DayCell = {
   date: Dayjs;
@@ -167,7 +170,7 @@ export default function Calendario() {
           <div className="bg-white rounded-2xl shadow p-6">
             <div className="flex items-center justify-between mb-4">
               <button
-                className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                 onClick={() => setMonth((m) => m.subtract(1, "month"))}
               >
                 Mes anterior
@@ -175,13 +178,13 @@ export default function Calendario() {
               <h2 className="font-secondary text-xl font-bold capitalize">{monthName}</h2>
               <div className="flex gap-2">
                 <button
-                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                   onClick={() => setMonth(dayjs())}
                 >
                   Hoy
                 </button>
                 <button
-                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm"
+                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                   onClick={() => setMonth((m) => m.add(1, "month"))}
                 >
                   Mes siguiente
@@ -224,7 +227,7 @@ export default function Calendario() {
                       <span className="font-primary text-sm">{cell.date.date()}</span>
                       {items.length > 0 && (
                         <button
-                          className="text-[11px] font-primary text-secondary underline"
+                          className="text-[11px] font-primary text-secondary underline cursor-pointer"
                           onClick={() => setSelectedDate(key)}
                         >
                           Ver {items.length}
@@ -238,7 +241,7 @@ export default function Calendario() {
                           t.centroDeEsteticaResponseDTO?.nombre ??
                           "";
                         return (
-                          <div key={t.id} className="bg-secondary/30 text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
+                          <div key={t.id} className="bg-secondary text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
                             {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${centroNombre ? ` - ${centroNombre}` : ''}`}
                           </div>
                         );
@@ -263,7 +266,7 @@ export default function Calendario() {
                   Turnos del {dayjs(selectedDate).format("DD/MM/YYYY")}
                 </h3>
                 <button
-                  className="font-primary text-sm text-gray-600 hover:text-gray-800"
+                  className="font-primary text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
                   onClick={() => setSelectedDate(null)}
                 >
                   Cerrar
@@ -314,3 +317,5 @@ export default function Calendario() {
     </div>
   );
 }
+
+

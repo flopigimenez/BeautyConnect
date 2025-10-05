@@ -6,4 +6,7 @@ export interface ServicioResponseDTO {
     tipoDeServicio: TipoDeServicio;
     precio: number;
     centroDeEstetica: CentroDeEsteticaResponseDTO;
+    descripcion: string;
+    titulo: string;
+    active?: boolean;
 }

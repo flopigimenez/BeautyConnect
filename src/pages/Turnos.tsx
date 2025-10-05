@@ -1,5 +1,5 @@
 // src/pages/Turnos.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchCentros } from "../redux/store/centroSlice";
@@ -12,11 +12,12 @@ import logo from "../assets/logo.png";
 
 import type { ProfesionalServicioResponseDTO } from "../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import type { ProfesionalResponseDTOSimple } from "../types/profesional/ProfesionalResponseDTOSimple";
-import type { ServicioResponseDTOSimple } from "../types/servicio/ServicioResponseDTOSimple";
+import type { ServicioResponseDTO } from "../types/servicio/ServicioResponseDTO";
 import type { TurnoDTO } from "../types/turno/TurnoDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import { ClienteService } from "../services/ClienteService";
 import { ProfesionalServicioService } from "../services/ProfesionalServicioService";
+import { ServicioService } from "../services/ServicioService";
 import { TurnosDispService } from "../services/TurnosDispService";
 import { createTurno, setTurno } from "../redux/store/turnoSlice";
 import { setUser } from "../redux/store/authSlice";
@@ -38,18 +39,26 @@ const Turnos = () => {
   const profServicioService = new ProfesionalServicioService();
   const turnosDispService = new TurnosDispService();
   const clienteService = new ClienteService();
+  const servicioService = new ServicioService();
+
+  const isEntityActive = (entity: unknown): boolean => {
+    if (!entity || typeof entity !== "object") return true;
+    const maybeActive = (entity as { active?: boolean }).active;
+    return maybeActive === undefined ? true : maybeActive === true;
+  };
 
   // Fecha (MUI)
   const [value, setValue] = useState<Dayjs | null>(null);
 
   // Selecciones del usuario
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioResponseDTOSimple | null>(null);
+  const [servicioSeleccionado, setServicioSeleccionado] = useState<ServicioResponseDTO | null>(null);
   const [profesionalSeleccionado, setProfesionalSeleccionado] = useState<ProfesionalResponseDTOSimple | null>(null);
   const [fechaSeleccionada, setFechaSeleccionada] = useState<string | null>(null); // "YYYY-MM-DD"
   const [horaSeleccionada, setHoraSeleccionada] = useState<string | null>(null);   // "HH:mm"
 
   // Datos derivados
   const [profesionalServicio, setProfesionalServicio] = useState<ProfesionalServicioResponseDTO[]>([]);
+  const [serviciosCentro, setServiciosCentro] = useState<ServicioResponseDTO[]>([]);
   const [profServicio, setProfServicio] = useState<ProfesionalServicioResponseDTO | undefined>(undefined);
   const [inicios, setInicios] = useState<string[]>([]);
   const [pasos, setPasos] = useState<number>(1);
@@ -70,7 +79,10 @@ const Turnos = () => {
       if (servicioSeleccionado) {
         try {
           const data = await profServicioService.getProfServicio(servicioSeleccionado.id);
-          setProfesionalServicio(data);
+          const activos = data.filter((item) =>
+            isEntityActive(item) && isEntityActive(item?.servicio) && isEntityActive(item?.profesional)
+          );
+          setProfesionalServicio(activos);
         } catch (err) {
           console.error("Error al obtener profesionales del servicio:", err);
           setProfesionalServicio([]);
@@ -94,8 +106,17 @@ const Turnos = () => {
           profesionalSeleccionado.id,
           servicioSeleccionado.id
         );
-        console.log("Profesional-Servicio seleccionado:", data);
-        setProfServicio(data);
+        if (
+          data &&
+          isEntityActive(data) &&
+          isEntityActive(data?.servicio) &&
+          isEntityActive(data?.profesional)
+        ) {
+          console.log("Profesional-Servicio seleccionado:", data);
+          setProfServicio(data);
+        } else {
+          setProfServicio(undefined);
+        }
       } catch {
         setProfServicio(undefined);
       }
@@ -195,6 +216,51 @@ const Turnos = () => {
 
   // ---- Helpers / derived ----
   const centroSeleccionado = centros.find((c) => c.id === Number(id));
+
+  useEffect(() => {
+    let active = true;
+
+    const loadServicios = async () => {
+      if (!centroSeleccionado?.id) {
+        if (active) {
+          setServiciosCentro([]);
+        }
+        return;
+      }
+      try {
+        const servicios = await servicioService.obtenerporcentro(centroSeleccionado.id);
+        if (!active) return;
+        setServiciosCentro(servicios.filter((srv) => srv.active !== false));
+      } catch (err) {
+        console.error("Error al obtener servicios del centro:", err);
+        if (active) {
+          setServiciosCentro([]);
+        }
+      }
+    };
+
+    loadServicios();
+
+    return () => {
+      active = false;
+    };
+  }, [centroSeleccionado?.id]);
+
+  const serviciosActivos = useMemo(() => serviciosCentro, [serviciosCentro]);
+
+  useEffect(() => {
+    if (servicioSeleccionado && !serviciosActivos.some((srv) => srv.id === servicioSeleccionado.id)) {
+      setServicioSeleccionado(null);
+    }
+  }, [servicioSeleccionado, serviciosActivos]);
+
+  useEffect(() => {
+    if (profesionalSeleccionado && !profesionalServicio.some((ps) => ps?.profesional?.id === profesionalSeleccionado.id)) {
+      setProfesionalSeleccionado(null);
+    }
+  }, [profesionalSeleccionado, profesionalServicio]);
+
+
   const puedeConfirmar = pasos === 2 && !!(fechaSeleccionada && horaSeleccionada && profServicio && clienteInfo?.id);
 
   // ---- Render ----
@@ -239,7 +305,7 @@ const Turnos = () => {
                 <select
                   className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
                   onChange={(e) => {
-                    const s = centroSeleccionado.servicios.find((srv) => srv.id === Number(e.target.value));
+                    const s = serviciosActivos.find((srv) => srv.id === Number(e.target.value));
                     setServicioSeleccionado(s ?? null);
                     setProfesionalSeleccionado(null);
                     setFechaSeleccionada(null);
@@ -251,7 +317,7 @@ const Turnos = () => {
                   <option value="" disabled>
                     Seleccionar servicio
                   </option>
-                  {centroSeleccionado.servicios.map((s) => (
+                  {serviciosActivos.map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.tipoDeServicio
                         .toLowerCase()

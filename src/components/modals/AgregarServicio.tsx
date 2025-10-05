@@ -6,6 +6,7 @@ import { TipoDeServicio } from "../../types/enums/TipoDeServicio";
 import type { ServicioDTO } from "../../types/servicio/ServicioDTO";
 import { ServicioService } from "../../services/ServicioService";
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
+import Swal from "sweetalert2";
 
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 
@@ -74,16 +75,22 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
   // Formik: solo los campos del DTO
   type FormValues = {
     tipoDeServicio: TipoDeServicio | "";
+    titulo: string;
+    descripcion: string;
     precio: number | "";
   };
 
   const initialValues: FormValues = isEdit
     ? {
         tipoDeServicio: toEnumValue(servicio!.tipoDeServicio),
+        titulo: servicio!.titulo ?? "",
+        descripcion: servicio!.descripcion ?? "",
         precio: servicio!.precio,
       }
     : {
         tipoDeServicio: "",
+        titulo: "",
+        descripcion: "",
         precio: "",
       };
 
@@ -113,10 +120,12 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
               initialValues={initialValues}
               validate={(v) => {
                 const errors: Partial<Record<keyof FormValues, string>> = {};
-                if (!v.tipoDeServicio) errors.tipoDeServicio = "Seleccioná un tipo";
+                if (!v.tipoDeServicio) errors.tipoDeServicio = "Selecciona un tipo";
+                if (!v.titulo || !v.titulo.trim()) errors.titulo = "Ingresa un titulo";
+                if (!v.descripcion || !v.descripcion.trim()) errors.descripcion = "Ingresa una descripcion";
                 const precioNum = Number(v.precio);
                 if (!v.precio || isNaN(precioNum) || precioNum <= 0) {
-                  errors.precio = "Ingresá un precio mayor a 0";
+                  errors.precio = "Ingresa un precio mayor a 0";
                 }
                 return errors;
               }}
@@ -125,6 +134,8 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                   setSubmitting(true);
                   const dto: ServicioDTO = {
                     tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
+                    titulo: values.titulo.trim(),
+                    descripcion: values.descripcion.trim(),
                     precio: Number(values.precio),
                     centroDeEsteticaId: servicio?.centroDeEstetica?.id ?? (centroId as number),
                   };
@@ -138,7 +149,10 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                   }
                   onClose?.();
                 } catch (e: unknown) {
-                  alert((e as Error).message ?? "Error al crear el servicio");
+                  const mensaje =(e as Error).message || "Error al crear el servicio";
+                  setError(mensaje)
+                  Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+                  
                 } finally {
                   setSubmitting(false);
                   setF(false);
@@ -173,6 +187,44 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     )}
                   </div>
 
+                  {/* Titulo */}
+                  <div>
+                    <label htmlFor="titulo" className="block mb-1 font-secondary">
+                      Titulo
+                    </label>
+                    <input
+                      type="text"
+                      id="titulo"
+                      name="titulo"
+                      onChange={handleChange}
+                      value={values.titulo}
+                      className="border p-2 rounded-full w-full"
+                      placeholder="Nombre del servicio"
+                    />
+                    {touched.titulo && errors.titulo && (
+                      <p className="text-red-600 text-sm mt-1">{errors.titulo}</p>
+                    )}
+                  </div>
+
+                  {/* Descripcion */}
+                  <div>
+                    <label htmlFor="descripcion" className="block mb-1 font-secondary">
+                      Descripcion
+                    </label>
+                    <textarea
+                      id="descripcion"
+                      name="descripcion"
+                      onChange={handleChange}
+                      value={values.descripcion}
+                      className="border p-2 rounded-lg w-full"
+                      rows={3}
+                      placeholder="Detalles del servicio"
+                    />
+                    {touched.descripcion && errors.descripcion && (
+                      <p className="text-red-600 text-sm mt-1">{errors.descripcion}</p>
+                    )}
+                  </div>
+
                   {/* Precio */}
                   <div>
                     <label htmlFor="precio" className="block mb-1 font-secondary">
@@ -198,14 +250,14 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
                     >
                       {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Servicio"}
                     </button>
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer cursor-pointer"
                     >
                       Cancelar
                     </button>

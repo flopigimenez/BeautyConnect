@@ -66,7 +66,7 @@ const Tab = ({ active, children, onClick }: { active: boolean; children: React.R
   <button
     type="button"
     onClick={onClick}
-    className={`px-4 py-2 rounded-full text-sm font-medium transition
+    className={`px-4 py-2 rounded-full text-sm font-medium transition cursor-pointer
       ${active ? "bg-[#703F52] text-white shadow" : "bg-[#FFFBFA] text-[#703F52] border border-[#E9DDE1] hover:bg-white"}`}
   >
     {children}
@@ -156,6 +156,7 @@ const ConfigPrestador = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [pendingUploads, setPendingUploads] = useState<{ imagen?: string | null; docValido?: string | null }>({});
+  const [togglingCentro, setTogglingCentro] = useState(false);
 
   const prestadorService = useMemo(() => new PrestadorServicioService(), []);
   const centroService = useMemo(() => new CentroDeEsteticaService(), []);
@@ -202,6 +203,53 @@ const ConfigPrestador = () => {
     } finally {
       setUploading(false);
       event.target.value = "";
+    }
+  };
+
+  const handleToggleCentroActivo = async () => {
+    if (!centro || !centro.id || togglingCentro) {
+      return;
+    }
+
+    const accion = centro.active ? "desactivar" : "activar";
+    const confirm = await Swal.fire({
+      icon: "question",
+      title: `${centro.active ? "Desactivar" : "Activar"} centro`,
+      text: `Seguro que queres ${accion} el centro?`,
+      showCancelButton: true,
+      confirmButtonText: `Si, ${accion}`,
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#703F52",
+      cancelButtonColor: "#C19BA8",
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+
+    setTogglingCentro(true);
+    try {
+      const updated = await centroService.activar_desactivar(centro.id);
+      setCentro((prev) => (prev ? { ...prev, active: updated.active } : updated));
+      Swal.fire({
+        icon: "success",
+        title: "Estado actualizado",
+        text: updated.active
+          ? "El centro se activo correctamente."
+          : "El centro se desactivo correctamente.",
+        confirmButtonColor: "#C19BA8",
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo cambiar el estado del centro.";
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: message,
+        confirmButtonColor: "#C19BA8",
+      });
+    } finally {
+      setTogglingCentro(false);
     }
   };
 
@@ -360,7 +408,7 @@ const ConfigPrestador = () => {
                       <button
                         type="button"
                         onClick={() => setShowPwd(true)}
-                        className="text-sm text-[#C19BA8] hover:underline"
+                        className="text-sm text-[#C19BA8] hover:underline cursor-pointer"
                       >
                         Cambiar contraseña
                       </button>
@@ -370,7 +418,7 @@ const ConfigPrestador = () => {
                       <button
                         type="submit"
                         disabled={isSubmitting || !uid}
-                        className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                        className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
                       >
                         {isSubmitting ? "Guardando..." : "Guardar cambios"}
                       </button>
@@ -484,6 +532,31 @@ const ConfigPrestador = () => {
               >
                 {({ isSubmitting, values, setFieldValue }) => (
                   <Form className="grid grid-cols-1 md:grid-cols-2 gap-4" encType="multipart/form-data">
+                    {centro && centro.id ? (
+                      <div className="md:col-span-2 flex flex-col gap-3 rounded-xl border border-[#E9DDE1] bg-[#FFFBFA] p-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-[#703F52]">Estado del centro</span>
+                          <span className={`text-base font-semibold ${centro?.active ? "text-emerald-600" : "text-red-500"}`}>
+                            {centro?.active ? "Activo" : "Inactivo"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleToggleCentroActivo}
+                          disabled={togglingCentro}
+                          className={`inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white transition cursor-pointer ${
+                            centro?.active ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"
+                          } ${togglingCentro ? "opacity-60 cursor-not-allowed" : ""}`}
+                        >
+                          {togglingCentro
+                            ? "Procesando..."
+                            : centro?.active
+                            ? "Desactivar centro"
+                            : "Activar centro"}
+                        </button>
+                      </div>
+                    ) : null}
+
                     <FieldBox label="Nombre del centro" name="nombre" />
                     <FieldBox label="CUIT" name="cuit" type="number" />
                     <div className="md:col-span-2">
@@ -491,7 +564,7 @@ const ConfigPrestador = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="text-sm font-medium text-[#703F52]">Documento valido</span>
-                      <div className="flex flex-col gap-2 md:flex-row md:items-center">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center">
                         <input
                           type="file"
                           accept="image/*,application/pdf"
@@ -502,30 +575,25 @@ const ConfigPrestador = () => {
                         {uploadingDoc ? (
                           <span className="text-sm text-[#703F52]">Subiendo documento...</span>
                         ) : values.docValido ? (
-                          <a
-                            href={values.docValido}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-[#703F52] underline"
+                          <button
+                            type="button"
+                            onClick={() => window.open(values.docValido, "_blank", "noopener,noreferrer")}
+                            className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] cursor-pointer"
                           >
                             Ver documento actual
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-sm text-gray-500">Sin documento cargado</span>
                         )}
                       </div>
-                      <Field
-                        name="docValido"
-                        placeholder="URL del documento"
-                        className="rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
-                      />
+                      <Field type="hidden" name="docValido" />
                       <ErrorMessage name="docValido" component="span" className="text-xs text-red-600" />
                     </div>
 
                     <div className="md:col-span-2 flex flex-col gap-2">
                       <span className="text-sm font-medium text-[#703F52]">Imagen del centro</span>
                       <div className="flex flex-col gap-4 md:flex-row">
-                        <div className="flex-1 space-y-2">
+                        <div className="flex-1 space-y-3">
                           <input
                             type="file"
                             accept="image/*"
@@ -535,12 +603,18 @@ const ConfigPrestador = () => {
                           />
                           {uploadingImage ? (
                             <span className="text-sm text-[#703F52]">Subiendo imagen...</span>
-                          ) : null}
-                          <Field
-                            name="imagen"
-                            placeholder="URL de la imagen"
-                            className="w-full rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
-                          />
+                          ) : values.imagen ? (
+                            <button
+                              type="button"
+                              onClick={() => window.open(values.imagen, "_blank", "noopener,noreferrer")}
+                              className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] cursor-pointer"
+                            >
+                              Ver imagen en nueva ventana
+                            </button>
+                          ) : (
+                            <span className="text-sm text-gray-500">Sin imagen cargada</span>
+                          )}
+                          <Field type="hidden" name="imagen" />
                           <ErrorMessage name="imagen" component="span" className="text-xs text-red-600" />
                         </div>
                         <div className="flex w-full max-w-xs items-center justify-center">
@@ -639,7 +713,7 @@ const ConfigPrestador = () => {
                       <button
                         type="submit"
                         disabled={isSubmitting || !uid}
-                        className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60"
+                        className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
                       >
                         {isSubmitting ? "Guardando..." : "Guardar cambios"}
                       </button>

@@ -5,4 +5,7 @@ export interface ProfesionalResponseDTO {
     nombre: string;
     apellido: string;
     centroDeEstetica: CentroDeEsteticaResponseDTO;
+    contacto: number;
+    active?: boolean;
+
 }

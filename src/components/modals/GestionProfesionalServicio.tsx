@@ -112,6 +112,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
               <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
                 <thead className="bg-[#FFFBFA]">
                   <tr className="border-b border-gray-200">
+                    <th className="px-4 py-2 text-left">Titulo</th>
                     <th className="px-4 py-2 text-left">Servicio</th>
                     <th className="px-4 py-2 text-left">Precio</th>
                     <th className="px-4 py-2 text-left">Duración (min)</th>
@@ -125,6 +126,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                     const saving = r.saving;
                     return (
                       <tr key={s.id} className="border-t border-gray-200">
+                        <td className="px-4 py-2">{s.titulo || "Sin titulo"}</td>
                         <td className="px-4 py-2">{String(s.tipoDeServicio)}</td>
                         <td className="px-4 py-2">${s.precio}</td>
                         <td className="px-4 py-2">
