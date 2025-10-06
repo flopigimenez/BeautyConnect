@@ -65,6 +65,7 @@ const Turnos = () => {
   const [clienteInfo, setClienteInfo] = useState<ClienteResponseDTO | null>(null);
   const [loadingClienteInfo, setLoadingClienteInfo] = useState(false);
   const [errorClienteInfo, setErrorClienteInfo] = useState<string | null>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   // ---- Hooks SIEMPRE al tope, sin returns antes ----
 
@@ -417,7 +418,7 @@ const Turnos = () => {
 
             <div className="flex justify-center items-center mt-10 gap-15">
               <button
-                className="rounded-full bg-secondary px-33 py-2 font-primary cursor-pointer"
+                className="rounded-full bg-secondary text-primary px-33 py-2 font-primary cursor-pointer"
                 onClick={() => {
                   if (pasos === 1) {
                     setServicioSeleccionado(null);
@@ -435,8 +436,8 @@ const Turnos = () => {
               </button>
 
               <button
-                className="rounded-full bg-secondary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer"
-                disabled={pasos === 2 && !puedeConfirmar}
+                className={`btn ${isConfirming ? "btn-disabled" : ""} rounded-full bg-secondary text-primary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer`}
+                disabled={pasos === 2 && !puedeConfirmar && isConfirming}
                 onClick={() => {
                   if (pasos === 1) {
                     if (servicioSeleccionado && profesionalSeleccionado) {
@@ -446,6 +447,7 @@ const Turnos = () => {
                     }
                   } else {
                     if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
+                     setIsConfirming(true);
                       const horaToSend = horaSeleccionada.length === 5
                         ? `${horaSeleccionada}:00`
                         : horaSeleccionada;
@@ -470,9 +472,10 @@ const Turnos = () => {
                       Swal.fire("Por favor, selecciona fecha y hora.");
                     }
                   }
+                  setIsConfirming(false);
                 }}
               >
-                {pasos === 1 ? "Siguiente" : "Confirmar turno"}
+                {pasos === 1 ? "Siguiente" : isConfirming ? "Confirmando..." : "Confirmar Turno"}
               </button>
             </div>
           </div>

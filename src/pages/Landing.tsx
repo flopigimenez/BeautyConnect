@@ -1,38 +1,19 @@
 import fondo from '../assets/fondo.png';
-// import carrousel_1 from '../assets/carrousel_1.png';
-// import carrousel_2 from '../assets/carrousel_2.png';
-// import carrousel_3 from '../assets/carrousel_3.png';
-// import carrousel_4 from '../assets/carrousel_4.png';
-// import carrousel_5 from '../assets/carrousel_5.png';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
-import { Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
 import { useEffect, useState } from 'react';
 import type { CentroDeEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
 import { Estado } from '../types/enums/Estado';
-import { useAppDispatch, useAppSelector } from '../redux/store/hooks';
-//import type { ClienteDTO } from '../types/cliente/ClienteDTO';
-import { fetchTurnosCliente } from '../redux/store/misTurnosSlice';
-//import { fetchCentro } from '../redux/store/miCentroSlice';
-
-
-// const categorias = [
-//   { nombre: 'Makeup artist', imagen: carrousel_1 },
-//   { nombre: 'Wellnesscenter', imagen: carrousel_2 },
-//   { nombre: 'Barbershop', imagen: carrousel_3 },
-//   { nombre: 'Masajistas', imagen: carrousel_4 },
-//   { nombre: 'Fotomodel', imagen: carrousel_5 },
-// ];
+import { useAppSelector } from '../redux/store/hooks';
 
 
 const Landing = () => {
   const [centros, setCentros] = useState<CentroDeEsteticaResponseDTO[]>([]);
   const centroService = new CentroDeEsteticaService();
-  const dispatch = useAppDispatch();
   const cliente = useAppSelector((state) => state.user.user);
-  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     centroService
@@ -44,11 +25,7 @@ const Landing = () => {
         setCentros(aceptados);
       })
       .catch(console.error);
-
-    if (user && cliente?.id) {
-      dispatch(fetchTurnosCliente(cliente.id));
-    }
-  }, [cliente?.id, dispatch]);
+  }, [cliente?.id]);
 
   return (
     <>

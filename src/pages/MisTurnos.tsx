@@ -22,12 +22,12 @@ export default function MisTurnos() {
     const [modalFiltro, setModalFiltro] = useState(false);
     const [filtroAplicado, setFiltroAplicado] = useState({
         servicio: null as TipoDeServicio | null,
-        profesional: null as string | null,
+        profesional: "" as string,
         estado: null as EstadoTurno | null,
     });
     const [filtroTemporal, setFiltroTemporal] = useState({
         servicio: null as TipoDeServicio | null,
-        profesional: null as string | null,
+        profesional: "" as string,
         estado: null as EstadoTurno | null,
     });
 
@@ -374,7 +374,10 @@ export default function MisTurnos() {
                         ]}
                         data={turnosFiltrados.slice().reverse() ?? []}
                         borrarFiltros={{
-                            onClick: () => setFiltroAplicado({ servicio: null, profesional: null, estado: null }),
+                            onClick: () => {
+                                setFiltroAplicado({ servicio: null, profesional: "", estado: null });
+                                setFiltroTemporal({ servicio: null, profesional: "", estado: null });
+                            },
                         }}
                         filtros={{
                             onClick: () => setModalFiltro(true),
@@ -421,7 +424,7 @@ export default function MisTurnos() {
                             <input
                                 type="text"
                                 value={filtroTemporal.profesional ?? ""}
-                                onChange={(e) => setFiltroTemporal(prev => ({ ...prev, profesional: e.target.value || null }))}
+                                onChange={(e) => setFiltroTemporal(prev => ({ ...prev, profesional: e.target.value || "" }))}
                                 className="w-full border border-secondary rounded-full pl-3 font-primary text-md px-4 py-1 focus:outline-none"
                                 placeholder="Nombre del profesional"
                             />
@@ -480,7 +483,7 @@ export default function MisTurnos() {
                                     value={resenaForm.puntuacion}
                                     onChange={(e) => {
                                         setResenaForm(prev => ({ ...prev, puntuacion: Number(e.target.value) }));
-                                                                            }}
+                                    }}
                                     className="w-full border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
                                 >
                                     {Array.from({ length: 5 }, (_, index) => index + 1).map((valor) => (
@@ -496,7 +499,7 @@ export default function MisTurnos() {
                                     value={resenaForm.comentario}
                                     onChange={(e) => {
                                         setResenaForm(prev => ({ ...prev, comentario: e.target.value }));
-                                                                            }}
+                                    }}
                                     rows={4}
                                     className="w-full border border-secondary rounded-lg font-primary text-md px-4 py-2 focus:outline-none"
                                     placeholder="Contanos cómo fue tu experiencia"
