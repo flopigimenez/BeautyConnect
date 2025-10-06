@@ -48,7 +48,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
     return () => unsub();
   }, []);
 
-  // Evitar scroll del body mientras el modal está abierto
+  // Evitar scroll del body mientras el modal esta abierto
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -64,7 +64,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
     if (val == null) return "";
     const raw = String(val)
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // quita acentos
+      .replace(/[\u0300-\u036f]/g, "")
       .toUpperCase()
       .replace(/\s+/g, "_");
     const allowed = Object.values(TipoDeServicio) as string[];
@@ -95,23 +95,51 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
       };
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
-      {/* Backdrop con blur y oscurecimiento */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+
       <div
-        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
+        className="relative w-full max-w-xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-[#F0E3E7] bg-gradient-to-r from-[#F9EFF3] to-white px-6 py-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#C19BA8]">
+              {isEdit ? "Edicion" : "Nuevo servicio"}
+            </p>
+            <h2 className="mt-2 text-2xl font-secondary font-semibold text-[#703F52]">
+              {isEdit ? "Editar Servicio" : "Agregar Servicio"}
+            </h2>
+            <p className="mt-2 text-sm text-[#856272]">
+              Completa la informacion para que tus clientes conozcan mejor esta propuesta.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50"
+            aria-label="Cerrar modal"
+          >
+            &times;
+          </button>
+        </div>
 
-      {/* Contenedor centrado del modal */}
-      <div className="fixed inset-0 z-50 grid place-items-center p-4" onClick={onClose}>
-        <div
-          className="w-[520px] max-w-[92vw] rounded-xl bg-white p-6 shadow-xl"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <h2 className="text-xl font-secondary text-[#703F52] mb-4">{isEdit ? "Editar Servicio" : "Agregar Servicio"}</h2>
+        <div className="px-6 pb-6 pt-5">
+          {!isEdit && loadingCentro && (
+            <div className="mb-4 rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#856272]">
+              Cargando datos del centro...
+            </div>
+          )}
 
-          {!isEdit && loadingCentro && <p>Cargando datos del centro...</p>}
-          {error && <p className="text-red-600">{error}</p>}
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
           {(isEdit || (!loadingCentro && !error && centroId != null)) && (
             <Formik<FormValues>
@@ -124,35 +152,55 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                 if (!v.titulo || !v.titulo.trim()) errors.titulo = "Ingresa un titulo";
                 if (!v.descripcion || !v.descripcion.trim()) errors.descripcion = "Ingresa una descripcion";
                 const precioNum = Number(v.precio);
-                if (!v.precio || isNaN(precioNum) || precioNum <= 0) {
+                if (!v.precio || Number.isNaN(precioNum) || precioNum <= 0) {
                   errors.precio = "Ingresa un precio mayor a 0";
                 }
                 return errors;
               }}
-              onSubmit={async (values, { setSubmitting: setF, resetForm }) => {
+              onSubmit={async (values, { resetForm, setSubmitting: setF }) => {
                 try {
                   setSubmitting(true);
-                  const dto: ServicioDTO = {
+                  setError(null);
+                  const payload: ServicioDTO = {
                     tipoDeServicio: values.tipoDeServicio as TipoDeServicio,
                     titulo: values.titulo.trim(),
                     descripcion: values.descripcion.trim(),
                     precio: Number(values.precio),
-                    centroDeEsteticaId: servicio?.centroDeEstetica?.id ?? (centroId as number),
+                    centroId: centroId!,
                   };
-                  if (isEdit && servicio) {
-                    const actualizado = await servicioService.put(servicio.id, dto);
-                    onUpdated?.(actualizado);
+
+                  const res = isEdit
+                    ? await servicioService.actualizar(servicio!.id, payload)
+                    : await servicioService.crear(payload);
+
+                  if (isEdit) {
+                    onUpdated?.(res);
+                    Swal.fire({
+                      icon: "success",
+                      title: "Servicio actualizado",
+                      text: "Tu servicio se actualizo correctamente",
+                      confirmButtonColor: "#a27e8f",
+                    });
                   } else {
-                    const creado = await servicioService.createServicio(dto);
-                    onCreated?.(creado);
+                    onCreated?.(res);
+                    Swal.fire({
+                      icon: "success",
+                      title: "Servicio creado",
+                      text: "El nuevo servicio ya esta disponible para tus clientes",
+                      confirmButtonColor: "#a27e8f",
+                    });
                     resetForm();
                   }
                   onClose?.();
                 } catch (e: unknown) {
-                  const mensaje =(e as Error).message || "Error al crear el servicio";
-                  setError(mensaje)
-                  Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
-                  
+                  const mensaje = (e as Error).message || "Error al crear el servicio";
+                  setError(mensaje);
+                  Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: mensaje,
+                    confirmButtonColor: "#a27e8f",
+                  });
                 } finally {
                   setSubmitting(false);
                   setF(false);
@@ -160,106 +208,112 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched }) => (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {/* Tipo de servicio */}
-                  <div>
-                    <label htmlFor="tipoDeServicio" className="block mb-1 font-secondary">
-                      Tipo de Servicio
-                    </label>
-                    <select
-                      id="tipoDeServicio"
-                      name="tipoDeServicio"
-                      value={values.tipoDeServicio || ""}
-                      onChange={handleChange}
-                      className="border p-2 rounded-full w-full"
-                    >
-                      <option value="" label="Seleccione tipo de servicio" className="font-secondary" />
-                      {Object.values(TipoDeServicio).map((tipo) => (
-                        <option key={tipo} value={tipo}>
-                          {tipo.replaceAll("_", " ")}
-                        </option>
-                      ))}
-                    </select>
-                    {touched.tipoDeServicio && errors.tipoDeServicio && (
-                      <p className="text-red-600 text-sm mt-1">
-                        {errors.tipoDeServicio}
-                      </p>
-                    )}
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label htmlFor="tipoDeServicio" className="mb-2 block text-sm font-medium text-[#4A1F2F]">
+                        Tipo de Servicio
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="tipoDeServicio"
+                          name="tipoDeServicio"
+                          value={values.tipoDeServicio || ""}
+                          onChange={handleChange}
+                          className="w-full appearance-none rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#4A1F2F] shadow-sm transition focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        >
+                          <option value="" label="Seleccione tipo de servicio" className="font-secondary" />
+                          {Object.values(TipoDeServicio).map((tipo) => (
+                            <option key={tipo} value={tipo}>
+                              {tipo.replaceAll("_", " ")}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#C19BA8]">
+                          v
+                        </span>
+                      </div>
+                      {touched.tipoDeServicio && errors.tipoDeServicio && (
+                        <p className="mt-2 text-sm text-red-600">{errors.tipoDeServicio}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="titulo" className="mb-2 block text-sm font-medium text-[#4A1F2F]">
+                        Titulo
+                      </label>
+                      <input
+                        type="text"
+                        id="titulo"
+                        name="titulo"
+                        onChange={handleChange}
+                        value={values.titulo}
+                        className="w-full rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#4A1F2F] shadow-sm transition placeholder:text-[#C19BA8] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        placeholder="Nombre del servicio"
+                      />
+                      {touched.titulo && errors.titulo && (
+                        <p className="mt-2 text-sm text-red-600">{errors.titulo}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="precio" className="mb-2 block text-sm font-medium text-[#4A1F2F]">
+                        Precio
+                      </label>
+                      <div className="relative">
+                        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-[#C19BA8]">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          id="precio"
+                          name="precio"
+                          onChange={handleChange}
+                          value={values.precio}
+                          className="w-full rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 pl-8 text-sm text-[#4A1F2F] shadow-sm transition placeholder:text-[#C19BA8] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                          min={0}
+                          step="0.01"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {touched.precio && errors.precio && (
+                        <p className="mt-2 text-sm text-red-600">{errors.precio}</p>
+                      )}
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label htmlFor="descripcion" className="mb-2 block text-sm font-medium text-[#4A1F2F]">
+                        Descripcion
+                      </label>
+                      <textarea
+                        id="descripcion"
+                        name="descripcion"
+                        onChange={handleChange}
+                        value={values.descripcion}
+                        className="min-h-[120px] w-full resize-none rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#4A1F2F] shadow-sm transition placeholder:text-[#C19BA8] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        rows={3}
+                        placeholder="Describe los beneficios, duracion y que incluye"
+                      />
+                      {touched.descripcion && errors.descripcion && (
+                        <p className="mt-2 text-sm text-red-600">{errors.descripcion}</p>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Titulo */}
-                  <div>
-                    <label htmlFor="titulo" className="block mb-1 font-secondary">
-                      Titulo
-                    </label>
-                    <input
-                      type="text"
-                      id="titulo"
-                      name="titulo"
-                      onChange={handleChange}
-                      value={values.titulo}
-                      className="border p-2 rounded-full w-full"
-                      placeholder="Nombre del servicio"
-                    />
-                    {touched.titulo && errors.titulo && (
-                      <p className="text-red-600 text-sm mt-1">{errors.titulo}</p>
-                    )}
-                  </div>
-
-                  {/* Descripcion */}
-                  <div>
-                    <label htmlFor="descripcion" className="block mb-1 font-secondary">
-                      Descripcion
-                    </label>
-                    <textarea
-                      id="descripcion"
-                      name="descripcion"
-                      onChange={handleChange}
-                      value={values.descripcion}
-                      className="border p-2 rounded-lg w-full"
-                      rows={3}
-                      placeholder="Detalles del servicio"
-                    />
-                    {touched.descripcion && errors.descripcion && (
-                      <p className="text-red-600 text-sm mt-1">{errors.descripcion}</p>
-                    )}
-                  </div>
-
-                  {/* Precio */}
-                  <div>
-                    <label htmlFor="precio" className="block mb-1 font-secondary">
-                      Precio
-                    </label>
-                    <input
-                      type="number"
-                      id="precio"
-                      name="precio"
-                      onChange={handleChange}
-                      value={values.precio}
-                      className="border p-2 rounded-full w-full"
-                      min={0}
-                      step="0.01"
-                      placeholder="0.00"
-                    />
-                    {touched.precio && errors.precio && (
-                      <p className="text-red-600 text-sm mt-1">{errors.precio}</p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
-                    >
-                      {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Agregar Servicio"}
-                    </button>
+                  <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2 rounded-full border hover:bg-gray-100 disabled:opacity-50 cursor-pointer cursor-pointer"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA] sm:w-auto"
                     >
                       Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#703F52] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5e3443] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                    >
+                      {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Servicio"}
                     </button>
                   </div>
                 </form>

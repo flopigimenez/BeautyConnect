@@ -13,10 +13,10 @@ const Footer = () => {
             <img src={logo} alt="BeautyConnect logo" className="w-10 h-10 object-contain" />
           </div>
           <div className="text-left text-sm leading-6">
-            <Link to="/terminos-y-condiciones" className="block hover:underline">
+            <Link to="/terminos-y-condiciones" className="block hover:underline font-secondary">
               Terminos y condiciones
             </Link>
-            <Link to="/contactanos" className="block hover:underline">
+            <Link to="/contactanos" className="block hover:underline font-secondary">
               Contactanos
             </Link>
           </div>

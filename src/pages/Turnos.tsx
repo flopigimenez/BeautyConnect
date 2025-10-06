@@ -1,4 +1,4 @@
-// src/pages/Turnos.tsx
+﻿// src/pages/Turnos.tsx
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
@@ -324,6 +324,10 @@ const Turnos = () => {
                         .split("_")
                         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(" ")}{" "}
+                        -
+                        {" "}
+                        {s.titulo
+                        }{" "}
                       - ${s.precio}
                     </option>
                   ))}

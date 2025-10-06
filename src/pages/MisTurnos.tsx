@@ -223,7 +223,7 @@ export default function MisTurnos() {
         const confirmation = await Swal.fire({
             icon: "warning",
             title: `¿Desea ${action} el turno?`,
-            text: "Esta acci�n no se puede deshacer.",
+            text: "Esta acción no se puede deshacer.",
             showCancelButton: true,
             confirmButtonText: `Sí, ${action}`,
             cancelButtonText: "Cancelar",
@@ -325,10 +325,15 @@ export default function MisTurnos() {
                                         );
                                     }
 
-                                    const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.FINALIZADO;
+                                    const habilitado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.PENDIENTE;
+                                    const cancelado = user?.usuario?.rol === "CLIENTE" && row.estado === EstadoTurno.CANCELADO;
 
-                                    if (!habilitado) {
+                                    if (habilitado) {
                                         return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
+                                    }
+                                    if(cancelado){
+                                      return <span className="text-sm text-gray-400"> -</span>;
+
                                     }
 
                                     return (

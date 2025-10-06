@@ -1,16 +1,26 @@
 // src/components/modals/GestionProfesionalServicio.tsx
 import { useEffect, useMemo, useState } from "react";
+import Swal from "sweetalert2";
 import type { ProfesionalResponseDTO } from "../../types/profesional/ProfesionalResponseDTO";
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/ProfesionalServicioDTO";
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 import { ServicioService } from "../../services/ServicioService";
+
 type Props = {
   profesional: ProfesionalResponseDTO;
   centroId?: number;
   onClose?: () => void;
 };
+
+type RelacionEntry = {
+  id?: number;
+  duracion: number;
+  configured: boolean;
+  saving?: boolean;
+};
+
 const profesionalServicioService = new ProfesionalServicioService();
 const servicioService = new ServicioService();
 
@@ -19,20 +29,15 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [servicios, setServicios] = useState<ServicioResponseDTO[]>([]);
-  const [relacion, setRelacion] = useState<Record<number, { // por servicioId
-    id?: number; // id de la relación si existe
-    duracion: number;
-    configured: boolean;
-    saving?: boolean;
-  }>>({});
-
+  const [relacion, setRelacion] = useState<Record<number, RelacionEntry>>({});
 
   const titulo = useMemo(
-    () => `Servicios · ${profesional.nombre} ${profesional.apellido}`,
+    () => `Servicios - ${profesional.nombre} ${profesional.apellido}`,
     [profesional]
   );
 
-  const BASE_URL = (import.meta).env?.VITE_API_URL ?? "http://localhost:8080";
+  const BASE_URL = (import.meta as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL ?? "http://localhost:8080";
+
   async function api<T>(path: string, init?: RequestInit): Promise<T> {
     const res = await fetch(`${BASE_URL}${path}`, {
       headers: { "Content-Type": "application/json" },
@@ -52,25 +57,32 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
         setLoading(true);
         setError(null);
         if (!centroId) {
-          throw new Error("El profesional no tiene un centro asociado.");
+          throw new Error("El profesional no tiene un centro asociado");
         }
-        const s = await servicioService.obtenerporcentro(centroId);
-        setServicios(s);
-        const relDraft: Record<number, { duracion: number; configured: boolean }> = {};
-        for (const sv of s) relDraft[sv.id] = { duracion: 30, configured: false };
-        setRelacion(relDraft);
-        // intentar cargar configuración existente por servicio
-        for (const sv of s) {
+        const listaServicios = await servicioService.obtenerporcentro(centroId);
+        setServicios(listaServicios);
+
+        const draft: Record<number, RelacionEntry> = {};
+        for (const servicio of listaServicios) {
+          draft[servicio.id] = { duracion: 30, configured: false };
+        }
+        setRelacion(draft);
+
+        for (const servicio of listaServicios) {
           try {
-            const existing = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, sv.id);
-            if (existing) {
+            const existente = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, servicio.id);
+            if (existente) {
               setRelacion((prev) => ({
                 ...prev,
-                [sv.id]: { id: existing.id, duracion: existing.duracion ?? 30, configured: true },
+                [servicio.id]: {
+                  id: existente.id,
+                  duracion: existente.duracion ?? 30,
+                  configured: true,
+                },
               }));
             }
           } catch {
-            // no existe relación
+            // la relacion no existe todavia
           }
         }
       } catch (e: unknown) {
@@ -79,153 +91,240 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
         setLoading(false);
       }
     };
+
     load();
   }, [profesional.id, centroId]);
 
   const buildRelacionEntry = (
-  entry?: { id?: number; duracion: number; configured: boolean; saving?: boolean },
-  overrides?: Partial<{ id?: number; duracion: number; configured: boolean; saving?: boolean }>
-) => ({
-  id: entry?.id,
-  duracion: entry?.duracion ?? 30,
-  configured: entry?.configured ?? false,
-  ...entry,
-  ...overrides,
-});
+    entry?: RelacionEntry,
+    overrides?: Partial<RelacionEntry>
+  ): RelacionEntry => ({
+    id: entry?.id,
+    duracion: entry?.duracion ?? 30,
+    configured: entry?.configured ?? false,
+    saving: entry?.saving ?? false,
+    ...entry,
+    ...overrides,
+  });
 
+  const renderEstadoChip = (entry: RelacionEntry | undefined) => {
+    if (!entry?.configured) {
+      return <span className="inline-flex items-center gap-1 rounded-full bg-[#F0E3E7] px-3 py-1 text-xs font-semibold text-[#703F52]">Inactivo</span>;
+    }
+    return <span className="inline-flex items-center gap-1 rounded-full bg-[#703F52]/10 px-3 py-1 text-xs font-semibold text-[#703F52]">Activo</span>;
+  };
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6 sm:px-6"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Contenido */}
-      <div className="fixed inset-0 z-50 grid place-items-center p-4" onClick={onClose}>
-        <div className="w-[720px] max-w-[95vw] rounded-xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-          <h2 className="text-xl font-secondary text-[#703F52] mb-4">{titulo}</h2>
+      <div
+        className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-[#F0E3E7] bg-gradient-to-r from-[#F9EFF3] to-white px-6 py-5">
+          <div>
+            <p className="text-xs uppercase tracking-[0.28em] text-[#C19BA8]">Gestion de servicios</p>
+            <h2 className="mt-2 text-2xl font-secondary font-semibold text-[#703F52]">{titulo}</h2>
+            <p className="mt-2 text-sm text-[#856272]">
+              Configura la duracion y disponibilidad de cada servicio ofrecido por este profesional.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50"
+            aria-label="Cerrar modal"
+          >
+            &times;
+          </button>
+        </div>
 
-          {loading && <p>Cargando servicios...</p>}
-          {error && <p className="text-red-600">{error}</p>}
+        <div className="px-6 pb-6 pt-5">
+          {loading && (
+            <div className="mb-4 rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#856272]">
+              Cargando servicios...
+            </div>
+          )}
+
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
 
           {!loading && !error && (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
-                <thead className="bg-[#FFFBFA]">
-                  <tr className="border-b border-gray-200">
-                    <th className="px-4 py-2 text-left">Titulo</th>
-                    <th className="px-4 py-2 text-left">Servicio</th>
-                    <th className="px-4 py-2 text-left">Precio</th>
-                    <th className="px-4 py-2 text-left">Duración (min)</th>
-                    <th className="px-4 py-2 text-left">Estado</th>
-                    <th className="px-4 py-2 text-left">Acciones</th>
+            <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
+              <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
+                <thead className="bg-[#FFFBFA] text-[#703F52]">
+                  <tr>
+                    <th className="px-6 py-3 text-left font-semibold">Titulo</th>
+                    <th className="px-6 py-3 text-left font-semibold">Servicio</th>
+                    <th className="px-6 py-3 text-left font-semibold">Precio</th>
+                    <th className="px-6 py-3 text-left font-semibold">Duracion (min)</th>
+                    <th className="px-6 py-3 text-left font-semibold">Estado</th>
+                    <th className="px-6 py-3 text-left font-semibold">Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {servicios.map((s) => {
-                    const r = relacion[s.id] || { duracion: 30, configured: false };
-                    const saving = r.saving;
+                <tbody className="divide-y divide-[#F0E3E7]">
+                  {servicios.map((servicio) => {
+                    const relActual = relacion[servicio.id] ?? buildRelacionEntry();
+                    const saving = relActual.saving ?? false;
+                    const precio = typeof servicio.precio === "number" ? `$${servicio.precio.toFixed(2)}` : "-";
+
                     return (
-                      <tr key={s.id} className="border-t border-gray-200">
-                        <td className="px-4 py-2">{s.titulo || "Sin titulo"}</td>
-                        <td className="px-4 py-2">{String(s.tipoDeServicio)}</td>
-                        <td className="px-4 py-2">${s.precio}</td>
-                        <td className="px-4 py-2">
-                          <input
-                            type="number"
-                            min={5}
-                            step={5}
-                            value={r.duracion}
-                            onChange={(e) => setRelacion((prev) => ({ ...prev, [s.id]: { ...prev[s.id], duracion: Number(e.target.value), configured: prev[s.id]?.configured ?? false } }))}
-                            className="w-24 border p-1 rounded-full"
-                          />
-                        </td>
-                        <td className="px-4 py-2">
-                          {r.configured ? (
-                            <span className="text-green-700">Configurado</span>
-                          ) : (
-                            <span className="text-gray-500">Sin configurar</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-2 space-x-2">
-
-                          <button
-                            className="rounded-full bg-[#C19BA8] px-3 py-1 text-sm text-white hover:bg-[#b78fa0] disabled:opacity-50"
-                            disabled={saving}
-                            onClick={async () => {
-                              try {
-                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
-                                const dto: ProfesionalServicioDTO = {
-                                  id: 0,
-                                  profesionalId: profesional.id,
-                                  servicioId: s.id,
-                                  duracion: r.duracion || 30,
-                                  disponibilidades: [],
-                                };
-                                let relacionActualizada: ProfesionalServicioResponseDTO | null = null;
-                                const relacionId = r.id;
-
-                                if (!r.configured) {
-                                  if (typeof relacionId === "number") {
-                                    relacionActualizada = await profesionalServicioService.cambiarEstado(relacionId);
-                                  } else {
-                                    try {
-                                      const existente = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, s.id);
-                                      const existenteId = existente?.id;
-                                      if (typeof existenteId === "number") {
-                                        relacionActualizada = await profesionalServicioService.cambiarEstado(existenteId);
-                                      }
-                                    } catch {
-                                      // ignoramos si no existe una relacion previa
-                                    }
-                                  }
-                                }
-
-                                if (!relacionActualizada) {
-                                  relacionActualizada = await crearRelacion(dto);
-                                }
-
+                      <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
+                        <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
+                        <td className="px-6 py-4 align-middle text-[#856272]">{servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}</td>
+                        <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="number"
+                              min={10}
+                              step={5}
+                              value={relActual.duracion}
+                              onChange={(event) => {
+                                const valor = Number(event.target.value);
                                 setRelacion((prev) => ({
                                   ...prev,
-                                  [s.id]: {
-                                    id: relacionActualizada.id,
-                                    duracion: relacionActualizada.duracion ?? dto.duracion,
-                                    configured: true,
-                                  },
+                                  [servicio.id]: buildRelacionEntry(prev[servicio.id], { duracion: valor }),
                                 }));
-                              } catch (e: unknown) {
-                                alert((e as Error).message ?? "Error al guardar relacion");
-                              } finally {
-                                setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
-                              }
-                            }}
-                          >
-                            {r.configured ? "Guardar" : "+ Crear"}
-                          </button>
-                          {r.configured && r.id && (
+                              }}
+                              className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                            />
+                            <span className="text-xs text-[#856272]">en minutos</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 align-middle">{renderEstadoChip(relActual)}</td>
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex flex-wrap items-center gap-2">
                             <button
-                              className="px-3 py-1 text-sm rounded-full border hover:bg-gray-100 disabled:opacity-50"
+                              className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
                               disabled={saving}
                               onClick={async () => {
-                                if (!confirm("¿Desvincular servicio de este profesional?")) return;
                                 try {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: true }) }));
-                                  const relacionId = r.id;
-                                  if (typeof relacionId !== "number") {
-                                    throw new Error("No se encontro la relacion a desvincular");
+                                  setRelacion((prev) => ({
+                                    ...prev,
+                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
+                                  }));
+
+                                  const dto: ProfesionalServicioDTO = {
+                                    id: relActual.id ?? 0,
+                                    profesionalId: profesional.id,
+                                    servicioId: servicio.id,
+                                    duracion: relActual.duracion || 30,
+                                    disponibilidades: [],
+                                  };
+
+                                  let resultado: ProfesionalServicioResponseDTO | null = null;
+                                  const relacionId = relActual.id;
+
+                                  if (!relActual.configured && typeof relacionId === "number") {
+                                    resultado = await profesionalServicioService.cambiarEstado(relacionId);
                                   }
-                                  await profesionalServicioService.cambiarEstado(relacionId);
-                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { duracion: 30, configured: false }) }));
+
+                                  if (!resultado) {
+                                    resultado = await crearRelacion(dto);
+                                  }
+
+                                  setRelacion((prev) => ({
+                                    ...prev,
+                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], {
+                                      id: resultado.id,
+                                      duracion: resultado.duracion ?? dto.duracion,
+                                      configured: true,
+                                    }),
+                                  }));
+
+                                  await Swal.fire({
+                                    icon: "success",
+                                    title: "Relacion guardada",
+                                    text: "Se actualizo la disponibilidad del servicio",
+                                    confirmButtonColor: "#a27e8f",
+                                    timer: 2200,
+                                    showConfirmButton: false,
+                                  });
                                 } catch (e: unknown) {
-                                  alert((e as Error).message ?? "Error al eliminar relación");
+                                  const mensaje = (e as Error).message ?? "Error al guardar la relacion";
+                                  await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
                                 } finally {
-                                  setRelacion((prev) => ({ ...prev, [s.id]: buildRelacionEntry(prev[s.id], { saving: false }) }));
+                                  setRelacion((prev) => ({
+                                    ...prev,
+                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
+                                  }));
                                 }
                               }}
                             >
-                              Desvincular
+                              {relActual.configured ? "Guardar" : "+ Crear"}
                             </button>
-                          )}
 
+                            {relActual.configured && relActual.id && (
+                              <button
+                                className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-xs font-semibold text-[#703F52] transition hover:bg-[#FFFBFA] disabled:cursor-not-allowed disabled:opacity-60"
+                                disabled={saving}
+                                onClick={async () => {
+                                  const decision = await Swal.fire({
+                                    icon: "warning",
+                                    title: "Desvincular servicio",
+                                    text: "Podras activarlo nuevamente cuando quieras",
+                                    showCancelButton: true,
+                                    confirmButtonColor: "#703F52",
+                                    cancelButtonColor: "#C19BA8",
+                                    confirmButtonText: "Desvincular",
+                                    cancelButtonText: "Cancelar",
+                                  });
+                                  if (!decision.isConfirmed) return;
+
+                                  try {
+                                    setRelacion((prev) => ({
+                                      ...prev,
+                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
+                                    }));
+
+                                    const relacionId = relActual.id;
+                                    if (typeof relacionId !== "number") {
+                                      throw new Error("No se encontro la relacion a desvincular");
+                                    }
+
+                                    await profesionalServicioService.cambiarEstado(relacionId);
+
+                                    setRelacion((prev) => ({
+                                      ...prev,
+                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], {
+                                        duracion: 30,
+                                        configured: false,
+                                        id: undefined,
+                                      }),
+                                    }));
+
+                                    await Swal.fire({
+                                      icon: "success",
+                                      title: "Servicio desvinculado",
+                                      text: "El servicio ya no esta disponible para este profesional",
+                                      confirmButtonColor: "#a27e8f",
+                                      timer: 2200,
+                                      showConfirmButton: false,
+                                    });
+                                  } catch (e: unknown) {
+                                    const mensaje = (e as Error).message ?? "Error al desvincular relacion";
+                                    await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+                                  } finally {
+                                    setRelacion((prev) => ({
+                                      ...prev,
+                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
+                                    }));
+                                  }
+                                }}
+                              >
+                                Desvincular
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -235,12 +334,16 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
             </div>
           )}
 
-          <div className="mt-4 flex justify-end">
-            <button className="px-4 py-1 text-sm rounded-full border hover:bg-gray-100" onClick={onClose}>Cerrar</button>
+          <div className="mt-6 flex justify-end">
+            <button
+              className="inline-flex items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA]"
+              onClick={onClose}
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
