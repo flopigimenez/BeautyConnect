@@ -25,7 +25,7 @@ const NavbarCliente = () => {
   ).length;
 
   useEffect(() => {
-    if (user?.id && turnos.length > 0) {
+    if (user?.id) {
       dispatch(fetchTurnosCliente(user.id));
     }
   }, [user, dispatch]);
@@ -128,7 +128,7 @@ const NavbarCliente = () => {
 
 const Navbar = () => {
   const { user, firebaseUser } = useAppSelector((state) => state.user);
-
+  
   const roleFromUser = user?.usuario?.rol ?? null;
   const firebaseRole = firebaseUser?.role ?? null;
   const role: Rol | null = roleFromUser ?? (isRolValue(firebaseRole) ? firebaseRole : null);

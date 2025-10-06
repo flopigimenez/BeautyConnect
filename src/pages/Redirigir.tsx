@@ -20,7 +20,8 @@ const Redirigir = () => {
         if (centro?.estado === Estado.PENDIENTE) {
             navigate("/PendienteAprobacion");
         } else if (centro?.estado === Estado.RECHAZADO) {
-            Swal.fire({
+            navigate("/prestador/configPrestador");
+            /*Swal.fire({
                 icon: "error",
                 title: "Lo sentimos",
                 text: "Tu solicitud ha sido rechazada. Por favor, corrija la información para reenviar la solicitud.",
@@ -28,9 +29,10 @@ const Redirigir = () => {
                 confirmButtonText: 'Aceptar'    
             }).then(() => {
                 navigate("/prestador/configPrestador");
-            });
+            });*/
         } else if (centro?.estado === Estado.ACEPTADO) {
-            Swal.fire({
+            navigate("/prestador/panel");
+            /*Swal.fire({
                 icon: "success",
                 title: "¡Felicidades!",
                 text: "Tu solicitud ha sido aceptada. Bienvenido a BeautyConnect.",
@@ -38,7 +40,7 @@ const Redirigir = () => {
                 confirmButtonText: 'Aceptar'
             }).then(() => {
                 navigate("/prestador/panel");
-            });
+            });*/
         } else {
             console.warn("Estado desconocido o no manejado: ", centro?.estado);
         }

@@ -96,6 +96,7 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     apellido: values.apellido.trim(),
                     contacto: contactoNumero,
                     centroDeEsteticaId: (isEdit ? profesional!.centroDeEstetica?.id : centroId) as number,
+                    active: true,
                   };
                   if (isEdit && profesional) {
                     const actualizado = await profesionalService.update(profesional.id, dto);
@@ -164,7 +165,7 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-5 py-2 rounded-full border hover:bg-gray-100 cursor-pointer cursor-pointer"
+                      className="px-5 py-2 rounded-full border hover:bg-gray-100 cursor-pointer"
                     >
                       Cancelar
                     </button>

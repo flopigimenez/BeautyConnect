@@ -77,7 +77,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
               current: d,
               horaInicio: toTimeInput(d.horaInicio),
               horaFin: toTimeInput(d.horaFin),
-              activo: d.activo,
+              activo: d.active,
             };
           }
           return draft;
@@ -128,7 +128,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           dia,
           horaInicio: row.horaInicio,
           horaFin: row.horaFin,
-          activo: row.activo,
+          active: row.activo,
         };
         const updated = await servicio.update(row.current.id, dto);
         setRows((prev) => ({
@@ -137,7 +137,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
             current: updated,
             horaInicio: toTimeInput(updated.horaInicio),
             horaFin: toTimeInput(updated.horaFin),
-            activo: updated.activo,
+            activo: updated.active,
           },
         }));
       } else {
@@ -146,7 +146,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           dia,
           horaInicio: row.horaInicio,
           horaFin: row.horaFin,
-          activo: row.activo,
+          active: row.activo,
         };
         const created = await servicio.create(dto);
         setRows((prev) => ({
@@ -155,7 +155,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
             current: created,
             horaInicio: toTimeInput(created.horaInicio),
             horaFin: toTimeInput(created.horaFin),
-            activo: created.activo,
+            activo: created.active,
           },
         }));
       }
@@ -179,14 +179,14 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
     }
     try {
       setRows((prev) => ({ ...prev, [dia]: { ...prev[dia], saving: true } }));
-      const updated = await servicio.toggleActivo(row.current.id, value);
+      const updated = await servicio.toggleActive(row.current.id, value);
       setRows((prev) => ({
         ...prev,
         [dia]: {
           current: updated,
           horaInicio: toTimeInput(updated.horaInicio),
           horaFin: toTimeInput(updated.horaFin),
-          activo: updated.activo,
+          activo: updated.active,
         },
       }));
     } catch (e: unknown) {
@@ -266,15 +266,15 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
                 const hasPendingChanges = row?.current
                   ? row.horaInicio !== toTimeInput(row.current.horaInicio) ||
                     row.horaFin !== toTimeInput(row.current.horaFin) ||
-                    row.activo !== row.current.activo
+                    row.activo !== row.current.active
                   : Boolean(row?.horaInicio || row?.horaFin);
                 const statusColor = row?.current
-                  ? row.current.activo
+                  ? row.current.active
                     ? "text-emerald-600"
                     : "text-red-500"
                   : "text-gray-500";
                 const statusLabel = row?.current
-                  ? row.current.activo
+                  ? row.current.active
                     ? "Horario activo"
                     : "Horario inactivo"
                   : "Sin horario creado";

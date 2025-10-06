@@ -50,8 +50,8 @@ export class JornadaLaboralService {
     return r.json();
   }
 
-  async toggleActivo(id: number, activo: boolean): Promise<JornadaLaboralResponseDTO> {
-    const r = await fetch(`${this.base}/api/jornadas/${id}/activo?activo=${activo}`, {
+  async toggleActive(id: number, active: boolean): Promise<JornadaLaboralResponseDTO> {
+    const r = await fetch(`${this.base}/api/jornadas/${id}/activo?activo=${active}`, {
       method: "PATCH",
       credentials: "include",
     });

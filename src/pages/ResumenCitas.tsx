@@ -18,9 +18,12 @@ export default function ResumenCitas() {
   const [turnosSemana, setTurnosSemana] = useState<number>();
   const [filtroAplicado, setFiltroAplicado] = useState({ estado: null as EstadoTurno | null });
 
-   let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
-  
-  
+  let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
+
+  let turnosPendientes: TurnoResponseDTO[] = misTurnos.filter(
+    turno => turno.estado === EstadoTurno.PENDIENTE
+  );
+
   if (filtroAplicado.estado) {
     turnosFiltrados = misTurnos.filter(
       turno => turno.estado === filtroAplicado.estado
@@ -80,7 +83,7 @@ export default function ResumenCitas() {
                 <label className="block text-md font-primary mb-2 font-bold pr-2">Filtrar por estado</label>
                 <select
                   value={filtroAplicado.estado ?? ""}
-                  onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno|| null }))}
+                  onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno || null }))}
                   className="w-[60%] h-[40%] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
                 >
                   <option value="">Todos</option>
@@ -104,8 +107,74 @@ export default function ResumenCitas() {
               </div>
             </div>
           </div>
+          {turnosPendientes.length > 0 && (
+            <CustomTable<TurnoResponseDTO>
+              title="Próximas citas"
+              columns={[
+                { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
+                {
+                  header: "Servicio", accessor: "profesionalServicio", render: row =>
+                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                      .split('_')
+                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ')
+                },
+                {
+                  header: "Fecha", accessor: "fecha",
+                  render: row => {
+                    const fecha = new Date(row.fecha);
+                    return fecha.toLocaleDateString("es-AR", { timeZone: "UTC" });
+                  }
+                },
+                { header: "Hora", accessor: "hora", render: row => `${row.hora}` },
+                {
+                  header: "Estado", accessor: "estado", render: row => (
+                    <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
+                      {row.estado.toLowerCase()
+                        .split('_')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}
+                    </span>
+                  )
+                },
+                {
+                  header: "Acciones",
+                  accessor: "estado",
+                  render: (row) => {
+                    const isPending = row.estado === EstadoTurno.PENDIENTE;
+
+                    return (
+                      <div className="flex gap-2">
+                        <button
+                          disabled={!isPending}
+                          className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                            ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
+                            : "bg-gray-300 cursor-not-allowed"
+                            }`}
+                          onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
+                        >
+                          Finalizar
+                        </button>
+                        <button
+                          disabled={!isPending}
+                          className={`py-1 px-2 rounded-full text-primary transition ${isPending
+                            ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
+                            : "bg-gray-300 cursor-not-allowed"
+                            }`}
+                          onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    );
+                  }
+                }
+              ]}
+              data={turnosPendientes.slice().reverse()}
+            />
+          )}
           <CustomTable<TurnoResponseDTO>
-            title="Próximas citas"
+            title="Todas las citas"
             columns={[
               { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
               {

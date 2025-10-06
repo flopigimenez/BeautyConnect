@@ -138,6 +138,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     descripcion: values.descripcion.trim(),
                     precio: Number(values.precio),
                     centroDeEsteticaId: servicio?.centroDeEstetica?.id ?? (centroId as number),
+                    active: true,
                   };
                   if (isEdit && servicio) {
                     const actualizado = await servicioService.put(servicio.id, dto);

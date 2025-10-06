@@ -6,5 +6,5 @@ export interface JornadaLaboralResponseDTO {
   dia: JornadaLaboralCreateDTO["dia"];
   horaInicio: string;
   horaFin: string;
-  activo: boolean;
+  active: boolean;
 }
