@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import { CustomTable } from "../components/CustomTable";
 import Footer from "../components/Footer";
@@ -102,7 +102,7 @@ export default function MisTurnos() {
             await Swal.fire({
                 icon: "warning",
                 title: "Acción no permitida",
-                text: "Solo los clientes pueden dejar rese�as.",
+                text: "Solo los clientes pueden dejar reseñas.",
                 confirmButtonColor: "#703F52",
             });
             return;
@@ -125,7 +125,7 @@ export default function MisTurnos() {
             await Swal.fire({
                 icon: "warning",
                 title: "Datos incompletos",
-                text: "No se pudo identificar el centro de est�tica.",
+                text: "No se pudo identificar el centro de estética.",
                 confirmButtonColor: "#703F52",
             });
             return;
