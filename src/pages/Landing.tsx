@@ -7,15 +7,15 @@ import fondo from '../assets/fondo.png';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
 import { useEffect, useState } from 'react';
 import type { CentroDeEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
 import { Estado } from '../types/enums/Estado';
 import { useAppDispatch, useAppSelector } from '../redux/store/hooks';
-import type { ClienteDTO } from '../types/cliente/ClienteDTO';
+//import type { ClienteDTO } from '../types/cliente/ClienteDTO';
 import { fetchTurnosCliente } from '../redux/store/misTurnosSlice';
-import { fetchCentro } from '../redux/store/miCentroSlice';
+//import { fetchCentro } from '../redux/store/miCentroSlice';
 
 
 // const categorias = [

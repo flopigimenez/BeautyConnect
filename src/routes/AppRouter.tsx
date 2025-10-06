@@ -1,7 +1,8 @@
-﻿import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Landing from "../pages/Landing";
 import Turnos from "../pages/Turnos";
 import Centros from "../pages/Centros";
+import MapaCentros from "../pages/MapaCentros";
 import PendienteAprobacion from "../pages/PendienteAprobacion";
 import MiPerfil from "../pages/MiPerfil";
 // import Calificaciones from "../pages/Calificaciones";
@@ -13,11 +14,13 @@ import Clientes from "../pages/Clientes";
 import ServiciosPage from "../pages/Servicio";
 import Profesionales from "../pages/Profesionales";
 import MisTurnos from "../pages/MisTurnos";
+import Contactanos from "../pages/Contactanos";
+import TerminosYCondiciones from "../pages/TerminosYCondiciones";
 import SolicitudDeSalones from "../pages/SolicitudDeSalones";
 import ConfigPrestador from "../pages/ConfigPrestador";
 import Calendario from "../pages/Calendario";
 import ResumenCitas from "../pages/ResumenCitas";
-// Componente AppRouter que define las rutas de la aplicación
+// Componente AppRouter que define las rutas de la aplicaci�n
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Rol } from "../types/enums/Rol";
 import CentrosRechazados from "../pages/CentrosRechazados";
@@ -39,12 +42,15 @@ export const AppRouter = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/turno/:id" element={<Turnos />} />
         <Route path="/Centros" element={<Centros />} />
+        <Route path="/mapa-centros" element={<MapaCentros />} />
         {/* <Route path="/calificaciones" element={<Calificaciones />} /> */}
         <Route path="/centros/:id/resenias" element={<ReseniasCentro />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/RegistroDeSalon" element={<RegistroDeSalon />} />
         <Route path="/FinalizarRegistroGoogle" element={<RegistroGoogle />} />
         <Route path="/iniciarSesion" element={<IniciarSesion />} />
+        <Route path="/contactanos" element={<Contactanos />} />
+        <Route path="/terminos-y-condiciones" element={<TerminosYCondiciones />} />
 
         {/* Rutas protegidas para clientes */}
         <Route
@@ -175,3 +181,8 @@ export const AppRouter = () => {
     </>
   );
 };
+
+
+
+
+

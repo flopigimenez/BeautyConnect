@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import '../styles.css'
 import { store } from './redux/store';
 import App from './App';
+import 'leaflet/dist/leaflet.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
