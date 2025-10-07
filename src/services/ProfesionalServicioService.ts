@@ -7,6 +7,46 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
         super("http://localhost:8080/api/prof-servicios");
     }
 
+    async getAll(): Promise<ProfesionalServicioResponseDTO[]> {
+        const res = await fetch(`${this.baseUrl}`, {
+            credentials: "include",
+        });
+        if (!res.ok) {
+            const errorText = await res.text().catch(() => "");
+            throw new Error(errorText || "No se pudieron obtener las relaciones profesional-servicio");
+        }
+        return (await res.json()) as ProfesionalServicioResponseDTO[];
+    }
+
+    async post(data: ProfesionalServicioDTO): Promise<ProfesionalServicioResponseDTO> {
+        const res = await fetch(`${this.baseUrl}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+            const errorText = await res.text().catch(() => "");
+            throw new Error(errorText || "No se pudo crear la relacion profesional-servicio");
+        }
+
+        const contentType = res.headers.get("content-type") || "";
+        if (contentType.includes("application/json")) {
+            return (await res.json()) as ProfesionalServicioResponseDTO;
+        }
+        const raw = await res.text();
+        if (raw) {
+            try {
+                return JSON.parse(raw) as ProfesionalServicioResponseDTO;
+            } catch (error) {
+                console.error("Error al parsear la respuesta de prof-servicios:", error);
+            }
+        }
+        return (data as unknown) as ProfesionalServicioResponseDTO;
+    }
+
     // async getByProfesionalServicio(profId: number, servicioId: number): Promise<ProfesionalServicioResponseDTO> {
     //     const res = await fetch(`${this.baseUrl}/disponibles/prof/${profId}/servicio/${servicioId}`);
     //     if (!res.ok) throw new Error("No se pudo obtener la disponibilidad");
@@ -30,4 +70,47 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
         if (!resp.ok) throw new Error("No se pudo cambiar el estado");
         return await resp.json();
     }
+    async delete(id: number): Promise<void> {
+        const res = await fetch(`${this.baseUrl}/${id}`, {
+            method: "DELETE",
+            credentials: "include",
+        });
+        if (!res.ok) {
+            const errorText = await res.text().catch(() => "");
+            throw new Error(errorText || `No se pudo eliminar la relacion con ID ${id}`);
+        }
+    }
+    
+      async updateProfServicio(id: number, data: ProfesionalServicioDTO): Promise<ProfesionalServicioResponseDTO> {
+        const url = `${this.baseUrl}/${id}`;
+        const res = await fetch(url, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error("No se pudo actualizar el profesional");
+        return (await res.json()) as ProfesionalServicioResponseDTO;
+      }
+      
+      async eliminar(id: number): Promise<void> {
+  const res = await fetch(`${this.baseUrl}/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  // 204 = borrado OK sin body
+  if (res.status === 204) return;
+
+  // 404 = no encontrado (si tu service lanza EntityNotFoundException)
+  if (res.status === 404) {
+    throw new Error(`ProfesionalServicio no encontrado (id=${id})`);
+  }
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => "");
+    throw new Error(errorText || "No se pudo eliminar la relación profesional-servicio");
+  }
+}
+     
 }

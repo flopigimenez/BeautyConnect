@@ -43,18 +43,18 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
         current?: JornadaLaboralResponseDTO;
         horaInicio: string;
         horaFin: string;
-        activo: boolean;
+        active: boolean;
         saving?: boolean;
       }
     >
   >({
-    MONDAY: { horaInicio: "", horaFin: "", activo: false },
-    TUESDAY: { horaInicio: "", horaFin: "", activo: false },
-    WEDNESDAY: { horaInicio: "", horaFin: "", activo: false },
-    THURSDAY: { horaInicio: "", horaFin: "", activo: false },
-    FRIDAY: { horaInicio: "", horaFin: "", activo: false },
-    SATURDAY: { horaInicio: "", horaFin: "", activo: false },
-    SUNDAY: { horaInicio: "", horaFin: "", activo: false },
+    MONDAY: { horaInicio: "", horaFin: "", active: false },
+    TUESDAY: { horaInicio: "", horaFin: "", active: false },
+    WEDNESDAY: { horaInicio: "", horaFin: "", active: false },
+    THURSDAY: { horaInicio: "", horaFin: "", active: false },
+    FRIDAY: { horaInicio: "", horaFin: "", active: false },
+    SATURDAY: { horaInicio: "", horaFin: "", active: false },
+    SUNDAY: { horaInicio: "", horaFin: "", active: false },
   });
 
   useEffect(() => {
@@ -77,7 +77,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
               current: d,
               horaInicio: toTimeInput(d.horaInicio),
               horaFin: toTimeInput(d.horaFin),
-              activo: d.active,
+              active: d.active,
             };
           }
           return draft;
@@ -98,7 +98,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
 
   const handleChange = (
     dia: JornadaLaboralCreateDTO["dia"],
-    field: "horaInicio" | "horaFin" | "activo",
+    field: "horaInicio" | "horaFin" | "active",
     value: string | boolean
   ) => {
     setRows((prev) => ({
@@ -128,7 +128,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           dia,
           horaInicio: row.horaInicio,
           horaFin: row.horaFin,
-          active: row.activo,
+          active: row.active,
         };
         const updated = await servicio.update(row.current.id, dto);
         setRows((prev) => ({
@@ -137,7 +137,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
             current: updated,
             horaInicio: toTimeInput(updated.horaInicio),
             horaFin: toTimeInput(updated.horaFin),
-            activo: updated.active,
+            active: updated.active,
           },
         }));
       } else {
@@ -146,7 +146,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           dia,
           horaInicio: row.horaInicio,
           horaFin: row.horaFin,
-          active: row.activo,
+          active: row.active,
         };
         const created = await servicio.create(dto);
         setRows((prev) => ({
@@ -155,7 +155,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
             current: created,
             horaInicio: toTimeInput(created.horaInicio),
             horaFin: toTimeInput(created.horaFin),
-            activo: created.active,
+            active: created.active,
           },
         }));
       }
@@ -171,10 +171,10 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
     }
   };
 
-  const toggleActivo = async (dia: JornadaLaboralCreateDTO["dia"], value: boolean) => {
+  const toggleActive = async (dia: JornadaLaboralCreateDTO["dia"], value: boolean) => {
     const row = rows[dia];
     if (!row.current) {
-      handleChange(dia, "activo", value);
+      handleChange(dia, "active", value);
       return;
     }
     try {
@@ -186,7 +186,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
           current: updated,
           horaInicio: toTimeInput(updated.horaInicio),
           horaFin: toTimeInput(updated.horaFin),
-          activo: updated.active,
+          active: updated.active,
         },
       }));
     } catch (e: unknown) {
@@ -206,7 +206,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
     if (!row.current) {
       setRows((prev) => ({
         ...prev,
-        [dia]: { horaInicio: "", horaFin: "", activo: false },
+        [dia]: { horaInicio: "", horaFin: "", active: false },
       }));
       return;
     }
@@ -228,7 +228,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
       await servicio.delete(row.current.id);
       setRows((prev) => ({
         ...prev,
-        [dia]: { horaInicio: "", horaFin: "", activo: false },
+        [dia]: { horaInicio: "", horaFin: "", active: false },
       }));
     } catch (e: unknown) {
       await Swal.fire({
@@ -266,7 +266,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
                 const hasPendingChanges = row?.current
                   ? row.horaInicio !== toTimeInput(row.current.horaInicio) ||
                     row.horaFin !== toTimeInput(row.current.horaFin) ||
-                    row.activo !== row.current.active
+                    row.active !== row.current.active
                   : Boolean(row?.horaInicio || row?.horaFin);
                 const statusColor = row?.current
                   ? row.current.active
@@ -326,10 +326,10 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
                         <input
                           type="checkbox"
                           className="h-4 w-4 accent-[#C19BA8]"
-                          checked={!!row?.activo}
-                          onChange={(e) => toggleActivo(key, e.target.checked)}
+                          checked={!!row?.active}
+                          onChange={(e) => toggleActive(key, e.target.checked)}
                         />
-                        <span>{row?.activo ? "Activo" : "Inactivo"}</span>
+                        <span>{row?.active ? "Activo" : "Inactivo"}</span>
                       </label>
                     </div>
 
@@ -337,7 +337,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                           onClick={() => saveRow(key)}
                           disabled={saving}
                         >
@@ -345,7 +345,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-white/60 disabled:cursor-not-allowed disabled:opacity-60"
+                          className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-white/60 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                           onClick={() => borrar(key)}
                           disabled={saving}
                         >
@@ -362,7 +362,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
 
           <div className="mt-4 flex justify-end">
             <button
-              className="rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-[#FFFBFA]"
+              className="rounded-full border border-[#E9DDE1] px-4 py-2 text-sm font-medium text-[#703F52] transition hover:bg-[#FFFBFA] cursor-pointer"
               onClick={onClose}
               type="button"
             >

@@ -4,18 +4,15 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/SideBar";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
-import { Switch } from "@mui/material";
-import { ClienteService } from "../services/ClienteService";
-import Swal from "sweetalert2";
+
 import { fetchTurnosCentro } from "../redux/store/misTurnosSlice";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
-import { fetchCliente } from "../redux/store/clienteSlice";
+
 
 export default function Clientes() {
   const misturnos = useAppSelector((state) => state.misTurnos.misTurnos);
   const centro = useAppSelector((state) => state.miCentro.centro);
   const dispatch = useAppDispatch();
-  const clienteService = new ClienteService();
   const [busqueda, setBusqueda] = useState("");
 
   const clientesFiltrados = misturnos
@@ -51,29 +48,9 @@ export default function Clientes() {
               { header: "Nombre y Apellido", accessor: "nombre", render: row => `${row.nombre} ${row.apellido}` },
               { header: "Telefono", accessor: "telefono", render: row => row.telefono || "-" },
               { header: "Mail", accessor: "usuario", render: row => `${row.usuario.mail}` },
-              { header: "Rol", accessor: "usuario", render: row => `${row.usuario.rol.charAt(0) + row.usuario.rol.slice(1).toLocaleLowerCase()}` },
-              {
-                header: "Acciones",
-                accessor: "active",
-                render: (cliente: ClienteResponseDTO) => (
-                  <Switch
-                    checked={cliente.active}
-                    onChange={async () => {
-                      try {
-                        await clienteService.cambiarEstadoActivo(cliente.id);
-                        dispatch(fetchCliente());
-                      } catch (error) {
-                        Swal.fire(
-                          error instanceof Error ? error.message : String(error),
-                          "No se pudo actualizar el estado",
-                          "error"
-                        );
-                      }
-                    }}
-                    color="secondary"
-                  />
-                ),
-              },
+             
+              
+
             ]}
             data={clientesUnicos}
             busqueda={{

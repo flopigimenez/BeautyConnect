@@ -82,7 +82,7 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50 cursor-pointer"
             aria-label="Cerrar modal"
           >
             &times;
@@ -224,14 +224,14 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     <button
                       type="button"
                       onClick={onClose}
-                      className="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA] sm:w-auto"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA] sm:w-auto cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
                       disabled={saving}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-[#703F52] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5e3443] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#703F52] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5e3443] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto cursor-pointer"
                     >
                       {saving ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Profesional"}
                     </button>

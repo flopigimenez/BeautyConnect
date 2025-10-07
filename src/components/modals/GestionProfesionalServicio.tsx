@@ -4,9 +4,9 @@ import Swal from "sweetalert2";
 import type { ProfesionalResponseDTO } from "../../types/profesional/ProfesionalResponseDTO";
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/ProfesionalServicioDTO";
-import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 import { ServicioService } from "../../services/ServicioService";
+import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
 
 type Props = {
   profesional: ProfesionalResponseDTO;
@@ -36,20 +36,15 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     [profesional]
   );
 
-  const BASE_URL = (import.meta as { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL ?? "http://localhost:8080";
+  const serviciosConfigurados = useMemo(
+    () => servicios.filter((servicio) => relacion[servicio.id]?.configured),
+    [servicios, relacion]
+  );
 
-  async function api<T>(path: string, init?: RequestInit): Promise<T> {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      ...init,
-    });
-    if (!res.ok) throw new Error((await res.text()) || `Error ${res.status}`);
-    return res.json();
-  }
-
-  const crearRelacion = (dto: ProfesionalServicioDTO) =>
-    api<ProfesionalServicioResponseDTO>(`/api/prof-servicios`, { method: "POST", body: JSON.stringify(dto) });
+  const serviciosDisponibles = useMemo(
+    () => servicios.filter((servicio) => !relacion[servicio.id]?.configured),
+    [servicios, relacion]
+  );
 
   useEffect(() => {
     const load = async () => {
@@ -62,29 +57,33 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
         const listaServicios = await servicioService.obtenerporcentro(centroId);
         setServicios(listaServicios);
 
+        let relacionesProfesional: ProfesionalServicioResponseDTO[] = [];
+        try {
+          const todasLasRelaciones = await profesionalServicioService.getAll();
+          relacionesProfesional = (todasLasRelaciones ?? []).filter(
+            (relacion) => relacion?.profesional?.id === profesional.id
+          );
+        } catch (consultaError) {
+          console.error("No se pudieron cargar las relaciones profesional-servicio:", consultaError);
+        }
+
         const draft: Record<number, RelacionEntry> = {};
         for (const servicio of listaServicios) {
-          draft[servicio.id] = { duracion: 30, configured: false };
-        }
-        setRelacion(draft);
-
-        for (const servicio of listaServicios) {
-          try {
-            const existente = await profesionalServicioService.getByProfesionalAndServicio(profesional.id, servicio.id);
-            if (existente) {
-              setRelacion((prev) => ({
-                ...prev,
-                [servicio.id]: {
-                  id: existente.id,
-                  duracion: existente.duracion ?? 30,
-                  configured: true,
-                },
-              }));
-            }
-          } catch {
-            // la relacion no existe todavia
+          const relacionExistente = relacionesProfesional.find((rel) => rel?.servicio?.id === servicio.id);
+          if (relacionExistente) {
+            const activa = relacionExistente.active;
+            draft[servicio.id] = {
+              id: relacionExistente.id,
+              duracion: relacionExistente.duracion ?? 30,
+              configured: activa === undefined ? true : activa,
+              saving: false,
+            };
+          } else {
+            draft[servicio.id] = { duracion: 30, configured: false, saving: false };
           }
         }
+
+        setRelacion(draft);
       } catch (e: unknown) {
         setError((e as Error).message ?? "Error al cargar servicios");
       } finally {
@@ -106,6 +105,176 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     ...entry,
     ...overrides,
   });
+
+  const handleDuracionChange = (servicioId: number, value: number) => {
+    setRelacion((prev) => ({
+      ...prev,
+      [servicioId]: buildRelacionEntry(prev[servicioId], { duracion: value }),
+    }));
+  };
+
+  const handleCrearRelacion = async (servicio: ServicioResponseDTO) => {
+    const relActual = buildRelacionEntry(relacion[servicio.id]);
+
+    try {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
+      }));
+
+      const payload: ProfesionalServicioDTO = {
+        id: 0,
+        duracion: relActual.duracion,
+        profesionalId: profesional.id,
+        servicioId: servicio.id,
+      };
+
+      const creada = await profesionalServicioService.post(payload);
+
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], {
+          id: creada.id,
+          duracion: creada.duracion ?? relActual.duracion,
+          configured: true,
+        }),
+      }));
+
+      await Swal.fire({
+        icon: "success",
+        title: "Servicio vinculado",
+        text: "El profesional ahora ofrece este servicio",
+        confirmButtonColor: "#a27e8f",
+        timer: 2200,
+        showConfirmButton: false,
+      });
+    } catch (e: unknown) {
+      const mensaje = (e as Error).message ?? "Error al guardar la relacion";
+      await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+    } finally {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
+      }));
+    }
+  };
+
+  const handleActualizarRelacion = async (servicio: ServicioResponseDTO) => {
+    const relActual = buildRelacionEntry(relacion[servicio.id]);
+    const relacionId = relActual.id;
+    if (typeof relacionId !== "number") {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se encontro la relacion a actualizar",
+        confirmButtonColor: "#a27e8f",
+      });
+      return;
+    }
+
+    try {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
+      }));
+
+      const payload: ProfesionalServicioDTO = {
+        id: relacionId,
+        duracion: relActual.duracion,
+        profesionalId: profesional.id,
+        servicioId: servicio.id,
+      };
+
+      const actualizada = await profesionalServicioService.updateProfServicio(relacionId, payload);
+
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], {
+          id: actualizada.id,
+          duracion: actualizada.duracion ?? relActual.duracion,
+          configured: true,
+        }),
+      }));
+
+      await Swal.fire({
+        icon: "success",
+        title: "Cambios guardados",
+        text: "La duracion del servicio fue actualizada",
+        confirmButtonColor: "#a27e8f",
+        timer: 2200,
+        showConfirmButton: false,
+      });
+    } catch (e: unknown) {
+      const mensaje = (e as Error).message ?? "Error al guardar la relacion";
+      await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+    } finally {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
+      }));
+    }
+  };
+
+  const handleDesvincularRelacion = async (servicio: ServicioResponseDTO) => {
+    const relActual = buildRelacionEntry(relacion[servicio.id]);
+    const relacionId = relActual.id;
+    if (typeof relacionId !== "number") {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se encontro la relacion a desvincular",
+        confirmButtonColor: "#a27e8f",
+      });
+      return;
+    }
+
+    const decision = await Swal.fire({
+      icon: "warning",
+      title: "Desvincular servicio",
+      text: "Podras activarlo nuevamente cuando quieras",
+      showCancelButton: true,
+      confirmButtonColor: "#703F52",
+      cancelButtonColor: "#C19BA8",
+      confirmButtonText: "Desvincular",
+      cancelButtonText: "Cancelar",
+    });
+    if (!decision.isConfirmed) return;
+
+    try {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
+      }));
+
+      await profesionalServicioService.delete(relacionId);
+
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], {
+          duracion: 30,
+          configured: false,
+          id: undefined,
+        }),
+      }));
+
+      await Swal.fire({
+        icon: "success",
+        title: "Servicio desvinculado",
+        text: "El servicio ya no esta disponible para este profesional",
+        confirmButtonColor: "#a27e8f",
+        timer: 2200,
+        showConfirmButton: false,
+      });
+    } catch (e: unknown) {
+      const mensaje = (e as Error).message ?? "Error al desvincular relacion";
+      await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
+    } finally {
+      setRelacion((prev) => ({
+        ...prev,
+        [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
+      }));
+    }
+  };
 
   const renderEstadoChip = (entry: RelacionEntry | undefined) => {
     if (!entry?.configured) {
@@ -158,182 +327,148 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
           )}
 
           {!loading && !error && (
-            <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
-              <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
-                <thead className="bg-[#FFFBFA] text-[#703F52]">
-                  <tr>
-                    <th className="px-6 py-3 text-left font-semibold">Titulo</th>
-                    <th className="px-6 py-3 text-left font-semibold">Servicio</th>
-                    <th className="px-6 py-3 text-left font-semibold">Precio</th>
-                    <th className="px-6 py-3 text-left font-semibold">Duracion (min)</th>
-                    <th className="px-6 py-3 text-left font-semibold">Estado</th>
-                    <th className="px-6 py-3 text-left font-semibold">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#F0E3E7]">
-                  {servicios.map((servicio) => {
-                    const relActual = relacion[servicio.id] ?? buildRelacionEntry();
-                    const saving = relActual.saving ?? false;
-                    const precio = typeof servicio.precio === "number" ? `$${servicio.precio.toFixed(2)}` : "-";
+            <div className="space-y-8">
+              <section>
+                <h3 className="mb-4 text-base font-semibold text-[#703F52]">Servicios vinculados</h3>
+                {serviciosConfigurados.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-6 text-center text-sm text-[#856272]">
+                    Este profesional todavia no tiene servicios activos. Vincula nuevos servicios desde la seccion siguiente.
+                  </div>
+                ) : (
+                  <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
+                    <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
+                      <thead className="bg-[#FFFBFA] text-[#703F52]">
+                        <tr>
+                          <th className="px-6 py-3 text-left font-semibold">Titulo</th>
+                          <th className="px-6 py-3 text-left font-semibold">Servicio</th>
+                          <th className="px-6 py-3 text-left font-semibold">Precio</th>
+                          <th className="px-6 py-3 text-left font-semibold">Duracion (min)</th>
+                          <th className="px-6 py-3 text-left font-semibold">Estado</th>
+                          <th className="px-6 py-3 text-left font-semibold">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#F0E3E7]">
+                        {serviciosConfigurados.map((servicio) => {
+                          const relActual = buildRelacionEntry(relacion[servicio.id]);
+                          const saving = relActual.saving ?? false;
+                          const precio = typeof servicio.precio === "number" ? `$${servicio.precio.toFixed(2)}` : "-";
 
-                    return (
-                      <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
-                        <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
-                        <td className="px-6 py-4 align-middle text-[#856272]">{servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}</td>
-                        <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
-                        <td className="px-6 py-4 align-middle">
-                          <div className="flex items-center gap-3">
-                            <input
-                              type="number"
-                              min={10}
-                              step={5}
-                              value={relActual.duracion}
-                              onChange={(event) => {
-                                const valor = Number(event.target.value);
-                                setRelacion((prev) => ({
-                                  ...prev,
-                                  [servicio.id]: buildRelacionEntry(prev[servicio.id], { duracion: valor }),
-                                }));
-                              }}
-                              className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
-                            />
-                            <span className="text-xs text-[#856272]">en minutos</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 align-middle">{renderEstadoChip(relActual)}</td>
-                        <td className="px-6 py-4 align-middle">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <button
-                              className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
-                              disabled={saving}
-                              onClick={async () => {
-                                try {
-                                  setRelacion((prev) => ({
-                                    ...prev,
-                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
-                                  }));
+                          return (
+                            <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
+                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
+                              <td className="px-6 py-4 align-middle text-[#856272]">
+                                {servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}
+                              </td>
+                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
+                              <td className="px-6 py-4 align-middle">
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="number"
+                                    min={10}
+                                    step={5}
+                                    value={relActual.duracion}
+                                    onChange={(event) => handleDuracionChange(servicio.id, Number(event.target.value))}
+                                    className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                                    disabled={saving}
+                                  />
+                                  <span className="text-xs text-[#856272]">en minutos</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 align-middle">{renderEstadoChip(relActual)}</td>
+                              <td className="px-6 py-4 align-middle">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <button
+                                    className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
+                                    disabled={saving}
+                                    onClick={() => void handleActualizarRelacion(servicio)}
+                                  >
+                                    Guardar cambios
+                                  </button>
 
-                                  const dto: ProfesionalServicioDTO = {
-                                    id: relActual.id ?? 0,
-                                    profesionalId: profesional.id,
-                                    servicioId: servicio.id,
-                                    duracion: relActual.duracion || 30,
-                                    disponibilidades: [],
-                                  };
+                                  <button
+                                    className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-xs font-semibold text-[#703F52] transition hover:bg-[#FFFBFA] disabled:cursor-not-allowed disabled:opacity-60"
+                                    disabled={saving}
+                                    onClick={() => void handleDesvincularRelacion(servicio)}
+                                  >
+                                    Desvincular
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
 
-                                  let resultado: ProfesionalServicioResponseDTO | null = null;
-                                  const relacionId = relActual.id;
+              <section>
+                <h3 className="mb-4 text-base font-semibold text-[#703F52]">Agregar nuevos servicios</h3>
+                {serviciosDisponibles.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-6 text-center text-sm text-[#856272]">
+                    Todos los servicios del centro ya estan asignados a este profesional.
+                  </div>
+                ) : (
+                  <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
+                    <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
+                      <thead className="bg-[#FFFBFA] text-[#703F52]">
+                        <tr>
+                          <th className="px-6 py-3 text-left font-semibold">Titulo</th>
+                          <th className="px-6 py-3 text-left font-semibold">Servicio</th>
+                          <th className="px-6 py-3 text-left font-semibold">Precio</th>
+                          <th className="px-6 py-3 text-left font-semibold">Duracion (min)</th>
+                          <th className="px-6 py-3 text-left font-semibold">Estado</th>
+                          <th className="px-6 py-3 text-left font-semibold">Acciones</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#F0E3E7]">
+                        {serviciosDisponibles.map((servicio) => {
+                          const relActual = buildRelacionEntry(relacion[servicio.id]);
+                          const saving = relActual.saving ?? false;
+                          const precio = typeof servicio.precio === "number" ? `$${servicio.precio.toFixed(2)}` : "-";
 
-                                  if (!relActual.configured && typeof relacionId === "number") {
-                                    resultado = await profesionalServicioService.cambiarEstado(relacionId);
-                                  }
-
-                                  if (!resultado) {
-                                    resultado = await crearRelacion(dto);
-                                  }
-
-                                  setRelacion((prev) => ({
-                                    ...prev,
-                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], {
-                                      id: resultado.id,
-                                      duracion: resultado.duracion ?? dto.duracion,
-                                      configured: true,
-                                    }),
-                                  }));
-
-                                  await Swal.fire({
-                                    icon: "success",
-                                    title: "Relacion guardada",
-                                    text: "Se actualizo la disponibilidad del servicio",
-                                    confirmButtonColor: "#a27e8f",
-                                    timer: 2200,
-                                    showConfirmButton: false,
-                                  });
-                                } catch (e: unknown) {
-                                  const mensaje = (e as Error).message ?? "Error al guardar la relacion";
-                                  await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
-                                } finally {
-                                  setRelacion((prev) => ({
-                                    ...prev,
-                                    [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
-                                  }));
-                                }
-                              }}
-                            >
-                              {relActual.configured ? "Guardar" : "+ Crear"}
-                            </button>
-
-                            {relActual.configured && relActual.id && (
-                              <button
-                                className="inline-flex items-center justify-center rounded-full border border-[#E9DDE1] px-4 py-2 text-xs font-semibold text-[#703F52] transition hover:bg-[#FFFBFA] disabled:cursor-not-allowed disabled:opacity-60"
-                                disabled={saving}
-                                onClick={async () => {
-                                  const decision = await Swal.fire({
-                                    icon: "warning",
-                                    title: "Desvincular servicio",
-                                    text: "Podras activarlo nuevamente cuando quieras",
-                                    showCancelButton: true,
-                                    confirmButtonColor: "#703F52",
-                                    cancelButtonColor: "#C19BA8",
-                                    confirmButtonText: "Desvincular",
-                                    cancelButtonText: "Cancelar",
-                                  });
-                                  if (!decision.isConfirmed) return;
-
-                                  try {
-                                    setRelacion((prev) => ({
-                                      ...prev,
-                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
-                                    }));
-
-                                    const relacionId = relActual.id;
-                                    if (typeof relacionId !== "number") {
-                                      throw new Error("No se encontro la relacion a desvincular");
-                                    }
-
-                                    await profesionalServicioService.cambiarEstado(relacionId);
-
-                                    setRelacion((prev) => ({
-                                      ...prev,
-                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], {
-                                        duracion: 30,
-                                        configured: false,
-                                        id: undefined,
-                                      }),
-                                    }));
-
-                                    await Swal.fire({
-                                      icon: "success",
-                                      title: "Servicio desvinculado",
-                                      text: "El servicio ya no esta disponible para este profesional",
-                                      confirmButtonColor: "#a27e8f",
-                                      timer: 2200,
-                                      showConfirmButton: false,
-                                    });
-                                  } catch (e: unknown) {
-                                    const mensaje = (e as Error).message ?? "Error al desvincular relacion";
-                                    await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
-                                  } finally {
-                                    setRelacion((prev) => ({
-                                      ...prev,
-                                      [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: false }),
-                                    }));
-                                  }
-                                }}
-                              >
-                                Desvincular
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          return (
+                            <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
+                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
+                              <td className="px-6 py-4 align-middle text-[#856272]">
+                                {servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}
+                              </td>
+                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
+                              <td className="px-6 py-4 align-middle">
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="number"
+                                    min={10}
+                                    step={5}
+                                    value={relActual.duracion}
+                                    onChange={(event) => handleDuracionChange(servicio.id, Number(event.target.value))}
+                                    className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                                    disabled={saving}
+                                  />
+                                  <span className="text-xs text-[#856272]">en minutos</span>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 align-middle">{renderEstadoChip(relActual)}</td>
+                              <td className="px-6 py-4 align-middle">
+                                <button
+                                  className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
+                                  disabled={saving}
+                                  onClick={() => void handleCrearRelacion(servicio)}
+                                >
+                                  Vincular servicio
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
             </div>
           )}
-
           <div className="mt-6 flex justify-end">
             <button
               className="inline-flex items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA]"

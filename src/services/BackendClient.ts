@@ -82,7 +82,7 @@ export abstract class BackendClient<RequestType, ResponseType> extends AbstractB
     async patch(id: number | string, data: RequestType): Promise<ResponseType> {
     const response =
       await fetch(`${this.baseUrl}/update/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
