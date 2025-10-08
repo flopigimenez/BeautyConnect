@@ -280,31 +280,32 @@ const Turnos = () => {
           <img src={logo} alt="" />
         </div>
       ) : (
-        <div className="w-full flex-1 pt-25 pb-10 flex justify-center items-center flex-col bg-[#FFFBFA]">
-          {loading && <p>Cargando...</p>}
-          {error && <p className="text-red-500">{error}</p>}
-          {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
-          {!loadingClienteInfo && errorClienteInfo && (
-            <p className="font-primary text-sm text-red-500 mt-2">{errorClienteInfo}</p>
-          )}
+        <div className="w-full flex-1 bg-[#FFFBFA]">
+          <div className="mx-auto flex h-full w-full max-w-[60rem] flex-col items-center px-4 pb-12 pt-16 sm:px-8 sm:pt-20 lg:items-start lg:px-0 lg:pt-24">
+            {loading && <p>Cargando...</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
+            {!loadingClienteInfo && errorClienteInfo && (
+              <p className="font-primary text-sm text-red-500 mt-2">{errorClienteInfo}</p>
+            )}
 
-          <h1 className="font-secondary text-2xl font-bold">
-            Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos
-          </h1>
+            <h1 className="font-secondary text-2xl font-bold text-center lg:text-left">
+              Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos
+            </h1>
 
-          <div className="mt-10 ">
-            <p className="font-primary text-left">{pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}</p>
-            <div className="w-[50rem] h-1.5 rounded-full overflow-hidden flex mt-5">
-              <div className="w-1/2 bg-secondary"></div>
-              <div className={`w-1/2 ${pasos === 1 ? "bg-gray-300" : "bg-secondary"}`}></div>
-            </div>
+            <div className="mt-10 w-full max-w-[50rem] self-stretch space-y-10">
+              <p className="font-primary text-center sm:text-left">{pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}</p>
+              <div className="mt-5 flex h-1.5 w-full overflow-hidden rounded-full">
+                <div className="w-1/2 bg-secondary"></div>
+                <div className={`w-1/2 ${pasos === 1 ? "bg-gray-300" : "bg-secondary"}`}></div>
+              </div>
 
             {/* Paso 1: servicio & profesional */}
             {pasos === 1 && (
               <>
                 <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el servicio</h2>
                 <select
-                  className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
                   onChange={(e) => {
                     const s = serviciosActivos.find((srv) => srv.id === Number(e.target.value));
                     setServicioSeleccionado(s ?? null);
@@ -336,7 +337,7 @@ const Turnos = () => {
 
                 <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
                 <select
-                  className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
                   onChange={(e) => {
                     const p = profesionalServicio.find((ps) => ps?.profesional?.id === Number(e.target.value));
                     setProfesionalSeleccionado(p?.profesional ?? null);
@@ -382,13 +383,14 @@ const Turnos = () => {
                       return false;
                     }}
                     format="DD/MM/YYYY"
-                    className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                    className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                    slotProps={{ textField: { fullWidth: true } }}
                   />
                 </LocalizationProvider>
 
                 <h2 className="mt-13 font-secondary text-l font-bold">Selecciona la hora</h2>
                 <select
-                  className="w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
                   onChange={(e) => setHoraSeleccionada(e.target.value)}
                   value={horaSeleccionada ?? ""}
                   disabled={!fechaSeleccionada || inicios.length === 0}
@@ -416,69 +418,69 @@ const Turnos = () => {
               </>
             )}
 
-            <div className="flex justify-center items-center mt-10 gap-15">
-              <button
-                className="rounded-full bg-secondary text-primary px-33 py-2 font-primary cursor-pointer"
-                onClick={() => {
-                  if (pasos === 1) {
-                    setServicioSeleccionado(null);
-                    setProfesionalSeleccionado(null);
-                    setFechaSeleccionada(null);
-                    setHoraSeleccionada(null);
-                    setInicios([]);
-                    navigate("/centros");
-                  } else {
-                    setPasos(1);
-                  }
-                }}
-              >
-                Volver
-              </button>
-
-              <button
-                className={`btn ${isConfirming ? "btn-disabled" : ""} rounded-full bg-secondary text-primary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer`}
-                disabled={pasos === 2 && !puedeConfirmar && isConfirming}
-                onClick={() => {
-                  if (pasos === 1) {
-                    if (servicioSeleccionado && profesionalSeleccionado) {
-                      setPasos(2);
+              <div className="mt-10 flex w-full max-w-[50rem] flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-10">
+                <button
+                  className="w-full sm:w-auto rounded-full bg-secondary text-primary px-33 py-2 font-primary cursor-pointer"
+                  onClick={() => {
+                    if (pasos === 1) {
+                      setServicioSeleccionado(null);
+                      setProfesionalSeleccionado(null);
+                      setFechaSeleccionada(null);
+                      setHoraSeleccionada(null);
+                      setInicios([]);
+                      navigate("/centros");
                     } else {
-                      alert("Por favor, selecciona un servicio y un profesional.");
+                      setPasos(1);
                     }
-                  } else {
-                    if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
-                     setIsConfirming(true);
-                      const horaToSend = horaSeleccionada.length === 5
-                        ? `${horaSeleccionada}:00`
-                        : horaSeleccionada;
+                  }}
+                >
+                  Volver
+                </button>
 
-                      const nuevoTurno: TurnoDTO = {
-                        fecha: fechaSeleccionada,
-                        hora: horaToSend,
-                        clienteId: clienteInfo.id,
-                        profesionalServicioId: profServicio.id,
-                        centroId: centroSeleccionado.id,
-                      };
-                      
-                      dispatch(createTurno(nuevoTurno))
-                        .unwrap()
-                        .then(() => {
-                          dispatch(setTurno(nuevoTurno));
-                          Swal.fire("Turno creado exitosamente!");
-                          navigate("/");
-                        })
-                        .catch((err) => Swal.fire(`Error al crear turno: ${String(err)}`));
+                <button
+                  className={`btn ${isConfirming ? "btn-disabled" : ""} w-full sm:w-auto rounded-full bg-secondary text-primary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer`}
+                  disabled={pasos === 2 && !puedeConfirmar && isConfirming}
+                  onClick={() => {
+                    if (pasos === 1) {
+                      if (servicioSeleccionado && profesionalSeleccionado) {
+                        setPasos(2);
+                      } else {
+                        alert("Por favor, selecciona un servicio y un profesional.");
+                      }
                     } else {
-                      Swal.fire("Por favor, selecciona fecha y hora.");
+                      if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
+                        setIsConfirming(true);
+                        const horaToSend =
+                          horaSeleccionada.length === 5 ? `${horaSeleccionada}:00` : horaSeleccionada;
+
+                        const nuevoTurno: TurnoDTO = {
+                          fecha: fechaSeleccionada,
+                          hora: horaToSend,
+                          clienteId: clienteInfo.id,
+                          profesionalServicioId: profServicio.id,
+                          centroId: centroSeleccionado.id,
+                        };
+
+                        dispatch(createTurno(nuevoTurno))
+                          .unwrap()
+                          .then(() => {
+                            dispatch(setTurno(nuevoTurno));
+                            Swal.fire("Turno creado exitosamente!");
+                            navigate("/");
+                          })
+                          .catch((err) => Swal.fire(`Error al crear turno: ${String(err)}`));
+                      } else {
+                        Swal.fire("Por favor, selecciona fecha y hora.");
+                      }
                     }
-                  }
-                  setIsConfirming(false);
-                }}
-              >
-                {pasos === 1 ? "Siguiente" : isConfirming ? "Confirmando..." : "Confirmar Turno"}
-              </button>
+                    setIsConfirming(false);
+                  }}
+                >
+                  {pasos === 1 ? "Siguiente" : isConfirming ? "Confirmando..." : "Confirmar Turno"}
+                </button>
             </div>
           </div>
+        </div>
         </div>
       )}
       <Footer />
