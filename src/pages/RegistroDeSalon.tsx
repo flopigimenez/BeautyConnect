@@ -8,6 +8,8 @@ import { setCentroSlice } from "../redux/store/miCentroSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import AddressFieldset, { type AddressValue } from "../components/AddressFieldset";
 import Swal from "sweetalert2";
+import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import L from 'leaflet';
 
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -20,9 +22,29 @@ const createEmptyHorario = (): HorarioCentroDTO => ({
     horaTFinalizacion: "",
 });
 
+export const markerIcon = new L.Icon({
+    iconUrl:"data:image/svg+xml;base64," +
+    btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="20" viewBox="0 0 25 41" fill="none">
+        <path fill="#C4A1B5" stroke="black" stroke-width="1" d="M12.5 0C5.6 0 0 5.6 0 12.5C0 22.5 12.5 41 12.5 41C12.5 41 25 22.5 25 12.5C25 5.6 19.4 0 12.5 0ZM12.5 17.5C9.46 17.5 7 15.04 7 12C7 8.96 9.46 6.5 12.5 6.5C15.54 6.5 18 8.96 18 12C18 15.04 15.54 17.5 12.5 17.5Z"/>
+      </svg>
+    `),
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+});
+
 const RegistroDeSalon = () => {
     const user = useAppSelector((state) => state.user.user);
     const [horariosCentro, setHorariosCentro] = useState<HorarioCentroDTO>(createEmptyHorario());
+     const [direccionNueva, setDireccionNueva] = useState<DomicilioDTO>({
+        calle: "",
+        numero: 0,
+        localidad: '',
+        codigoPostal: 0,
+        provincia: "",
+        latitud: -32.8908,
+        longitud: -68.8272,
+    });
     const [registroDeSalon, setRegistroDeSalon] = useState<CentroDeEsteticaDTO>({
         nombre: "",
         descripcion: "",
@@ -31,11 +53,13 @@ const RegistroDeSalon = () => {
         cuit: 0,
         prestadorDeServicioId: user?.id ?? 0,
         domicilio: {
-            calle: "",
-            numero: 0,
-            localidad: "",
-            codigoPostal: 0,
-            provincia: "",
+            calle: direccionNueva.calle,
+            numero: direccionNueva.numero,
+            localidad: direccionNueva.localidad,
+            codigoPostal: direccionNueva.codigoPostal,
+            provincia: direccionNueva.provincia,
+            latitud: direccionNueva.latitud,
+            longitud: direccionNueva.longitud,
         },
         horariosCentro: [] as HorarioCentroDTO[],
     });
@@ -45,12 +69,14 @@ const RegistroDeSalon = () => {
         codigoPostal: undefined,
         provincia: "",
         localidad: "",
+        latitud: undefined,
+        longitud: undefined,
     });
     const centroService = new CentroDeEsteticaService();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
-    const handleAddressChange = (next: AddressValue) => {
+    /*const handleAddressChange = (next: AddressValue) => {
         setDomicilioForm(next);
         setRegistroDeSalon((prev) => ({
             ...prev,
@@ -60,9 +86,11 @@ const RegistroDeSalon = () => {
                 localidad: next.localidad,
                 codigoPostal: next.codigoPostal ?? 0,
                 provincia: next.provincia,
+                latitud: 0,
+                longitud: 0,
             },
         }));
-    };
+    };*/
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, fileType: string) => {
         const file = e.target.files?.[0];
@@ -114,6 +142,8 @@ const RegistroDeSalon = () => {
             localidad: domicilioForm.localidad,
             codigoPostal: domicilioForm.codigoPostal ?? 0,
             provincia: domicilioForm.provincia,
+            latitud: 0,
+            longitud: 0,
         };
 
         if (!registroDeSalon.nombre || !registroDeSalon.descripcion) {
@@ -160,6 +190,54 @@ const RegistroDeSalon = () => {
         SUNDAY: "Domingo",
     };
 
+    function LocationSelector({ onChange }: { onChange: (coords: { lat: number, lng: number }) => void }) {
+        useMapEvents({
+            click(e) {
+                onChange(e.latlng);
+            },
+        });
+        return null;
+    }
+
+    async function reverseGeocode(lat: number, lon: number) {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`
+        );
+        if (!response.ok) return null;
+        const data = await response.json();
+        if (
+            data.address &&
+            (data.address.state === "Mendoza" || data.display_name?.toLowerCase().includes("mendoza"))
+        ) {
+            return data;
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'La ubicación seleccionada no corresponde a Mendoza, por favor elige otra ubicación',
+            });
+            return null;
+        }
+    }
+
+    async function geocodeDireccion({ calle, numero, localidad, codigoPostal }: DomicilioDTO) {
+        const direccion = `${calle} ${numero}, ${localidad}, ${codigoPostal}, Mendoza, Argentina`;
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`
+        );
+        const data = await response.json();
+        const mendozaResult = data.find((d: any) =>
+            (d.display_name && d.display_name.toLowerCase().includes("mendoza")) &&
+            (d.display_name && d.display_name.toLowerCase().includes("argentina"))
+        );
+        if (mendozaResult) {
+            return {
+                lat: parseFloat(mendozaResult.lat),
+                lng: parseFloat(mendozaResult.lon),
+            };
+        }
+        return null;
+    }
     return (
         <>
             <div className="bg-primary w-screen pt-8 flex flex-col items-center">
@@ -198,11 +276,91 @@ const RegistroDeSalon = () => {
                         />
                     </div>
                     <div className="mb-5">
-                        <AddressFieldset
+                        {/* <AddressFieldset
                             value={domicilioForm}
                             onChange={handleAddressChange}
                             className="bg-gray-50 rounded-2xl p-4"
-                        />
+                        /> */}
+                        <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="direccion">Dirección de tu salón</label>
+                        <div className='flex flex-col items-center w-[100%]'> 
+                            {/* Mapa para elegir ubicación */}
+                            <MapContainer
+                                center={[direccionNueva.latitud, direccionNueva.longitud]}
+                                zoom={13}
+                                style={{ height: "200px", width: "100%", marginBottom: "1rem", borderRadius: "10px" }}
+                            >
+                                <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                               
+                                <LocationSelector
+                                    onChange={async ({ lat, lng }) => {
+                                        setDireccionNueva((prev) => ({ ...prev, latitud: lat, longitud: lng }));
+                                        const data = await reverseGeocode(lat, lng);
+                                        if (data && data.address) {
+                                            setDireccionNueva((prev) => ({
+                                                ...prev,
+                                                calle: data.address.road || prev.calle,
+                                                numero: data.address.house_number ? parseInt(data.address.house_number, 10) : prev.numero,
+                                                localidad: data.address.city || data.address.town || data.address.village || prev.localidad,
+                                                codigoPostal: data.address.postcode ? parseInt(data.address.postcode, 10) : prev.codigoPostal,
+                                            }));
+                                        }
+                                    }}
+                                />
+                                <Marker
+                                    position={[direccionNueva.latitud, direccionNueva.longitud]}
+                                    icon={markerIcon}
+                                />
+                            </MapContainer>
+                                <input
+                                    type="text"
+                                    className="bg-white border-none rounded-[50px] p-2 mb-4 w-[90%]"
+                                    placeholder="Calle"
+                                    value={direccionNueva.calle}
+                                    onChange={(e) => setDireccionNueva({ ...direccionNueva, calle: e.target.value })}
+                                />
+                                <input
+                                    type="number"
+                                    className="bg-white border-none rounded-[50px] p-2 mb-4 w-[90%]"
+                                    placeholder="Número"
+                                    value={direccionNueva.numero === 0 ? "" : direccionNueva.numero}
+                                    onChange={(e) => setDireccionNueva({ ...direccionNueva, numero: e.target.value === "" ? 0 : parseInt(e.target.value, 10) })}
+                                />
+                                <input
+                                    type="text"
+                                    className="bg-white border-none rounded-[50px] p-2 mb-4 w-[90%]"
+                                    placeholder="Localidad"
+                                    value={direccionNueva.localidad}
+                                    onChange={(e) => setDireccionNueva({ ...direccionNueva, localidad: e.target.value })}
+                                />
+                                <input
+                                    type="number"
+                                    className="bg-white border-none rounded-[50px] p-2 mb-4 w-[90%]"
+                                    placeholder="Código Postal"
+                                    value={direccionNueva.codigoPostal === 0 ? "" : direccionNueva.codigoPostal}
+                                    onChange={(e) => setDireccionNueva({ ...direccionNueva, codigoPostal: e.target.value === "" ? 0 : parseInt(e.target.value, 10) })}
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                className="bg-secondary px-3 py-1 rounded-full mb-4 text-white ml-10"
+                                onClick={async () => {
+                                    const coords = await geocodeDireccion(direccionNueva);
+                                    if (coords) {
+                                        setDireccionNueva(prev => ({
+                                            ...prev,
+                                            latitud: coords.lat,
+                                            longitud: coords.lng,
+                                        }));
+                                    } else {
+                                        Swal.fire("No se encontró la dirección", "Verifica los datos ingresados.", "warning");
+                                    }
+                                }}
+                            >
+                                Buscar en el mapa
+                            </button>
                     </div>
                     <div className="mb-5">
                         <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="file">Ingresa un documento que acredite la validez tu salón:</label>

@@ -13,6 +13,7 @@ import { ReseniaService } from "../services/ReseniaService";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import Swal from "sweetalert2";
 import Footer from "../components/Footer";
+import { FaArrowLeft } from "react-icons/fa6";
 
 
 const RATING_SCALE = 5;
@@ -216,7 +217,14 @@ const Centros = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-full pt-25 min-h-screen flex flex-col">
+            <div className="bg-primary w-full pt-20 min-h-screen flex flex-col">
+                <button
+                    type="button"
+                    onClick={() => navigate('/mapa-centros')}
+                    className="flex items-center pl-5 w-50 pb-5 text-sm font-semibold text-secondary hover:text-[#a27e8f] hover:underline transition cursor-pointer"
+                >
+                    <FaArrowLeft /> <p className="pl-2">Ver centros en el mapa</p>
+                </button>
                 <h1 className="font-secondary text-2xl font-bold text-center mb-5">Centros de Belleza</h1>
                 <div className="flex-wrap justify-center items-center px-[5vh] md:flex md:justify-around md:px-[10vh]">
                     <div className="relative md:w-[55%] mt-5">
@@ -292,50 +300,77 @@ const Centros = () => {
                     </div>
 
                     {modalCentro && centroSeleccionado && (
-                        <div className="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-50">
-                            <div className="bg-white px-4 py-3 rounded-lg shadow-lg w-[90%] max-w-md">
+                        <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] p-4 animate-fadeIn">
+                            <div className="relative bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
+
+                                <button
+                                    onClick={() => setModalCentro(false)}
+                                    className="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-800 transition-colors rounded-full p-1 shadow-sm z-10 cursor-pointer"
+                                >
+                                    <RxCross2 size={22} />
+                                </button>
+
                                 <div className="relative">
-                                    <button
-                                        onClick={() => setModalCentro(false)}
-                                        className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer" 
-                                    >
-                                        <RxCross2 size={24} />
-                                    </button>
+                                    <img
+                                        src={centroSeleccionado.imagen}
+                                        alt={centroSeleccionado.nombre}
+                                        className="w-full h-48 object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                                </div>
 
-                                    <h3 className="text-lg font-bold mb-3 font-primary text-center">{centroSeleccionado.nombre}</h3>
-                                    <img src={centroSeleccionado.imagen} alt={centroSeleccionado.nombre} className="w-full h-50 object-cover rounded-md mb-4" />
-                                    <div className="">
-                                        <p className="text-gray-600 font-primary"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
-                                        {centroSeleccionado.domicilio && (
-                                            <p className="text-gray-600 font-primary">
-                                                <b>Domicilio:</b> {centroSeleccionado.domicilio.calle} {centroSeleccionado.domicilio.numero}, {centroSeleccionado.domicilio.localidad} - CP: {centroSeleccionado.domicilio.codigoPostal}
-                                            </p>
-                                        )}
-                                        <div>
-                                            <p className="text-gray-600 font-primary"><b>Servicios:</b> {centroSeleccionado.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()).join(", ")}</p>
-                                        </div>
+                                <div className="p-5 space-y-3 font-primary text-gray-700">
+                                    <h3 className="text-2xl font-bold text-center text-secondary">
+                                        {centroSeleccionado.nombre}
+                                    </h3>
+                                    <p><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
 
+                                    {centroSeleccionado.domicilio && (
+                                        <p>
+                                            <b>Domicilio:</b> {centroSeleccionado.domicilio.calle}{" "}
+                                            {centroSeleccionado.domicilio.numero},{" "}
+                                            {centroSeleccionado.domicilio.localidad} –{" "}
+                                            CP {centroSeleccionado.domicilio.codigoPostal}
+                                        </p>
+                                    )}
 
-                                    </div>
-                                    <div className="flex justify-around mt-3 mb-2">
-                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
-                                            onClick={() => navigate(`/centros/${centroSeleccionado.id}/resenias`)}
+                                    {centroSeleccionado.servicios?.length > 0 && (
+                                        <p>
+                                            <b>Servicios:</b>{" "}
+                                            {centroSeleccionado.servicios
+                                                .map((s) => s.tipoDeServicio.toLowerCase())
+                                                .join(", ")}
+                                        </p>
+                                    )}
+
+                                    <div className="flex justify-around mt-5">
+                                        <button
+                                            className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
+                                            onClick={() =>
+                                                navigate(`/centros/${centroSeleccionado.id}/resenias`)
+                                            }
                                         >
                                             Ver reseñas
                                         </button>
-                                        <button className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f]"
-                                            onClick={() => user ? navigate(`/turno/${centroSeleccionado.id}`) : (navigate('/IniciarSesion'),
-                                                Swal.fire({
-                                                    icon: 'info',
-                                                    title: 'Debes iniciar sesión para pedir un turno',
-                                                    showConfirmButton: true,
-                                                    confirmButtonColor: '#a27e8f',
-                                                }))}
+                                        <button
+                                            className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
+                                            onClick={() => {
+                                                if (user) {
+                                                    navigate(`/turno/${centroSeleccionado.id}`);
+                                                } else {
+                                                    navigate("/IniciarSesion");
+                                                    Swal.fire({
+                                                        icon: "info",
+                                                        title: "Debes iniciar sesión para pedir un turno",
+                                                        showConfirmButton: true,
+                                                        confirmButtonColor: "#a27e8f",
+                                                    });
+                                                }
+                                            }}
                                         >
                                             Pedir turno
                                         </button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>

@@ -28,13 +28,13 @@ const Footer = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <a href="#" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
+          <a href="https://www.instagram.com/" target="_blank" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
             <FaInstagram size={18} />
           </a>
-          <a href="#" aria-label="X (Twitter)" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
+          <a href="https://x.com/?lang=es" target="_blank" aria-label="X (Twitter)" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
             <FaXTwitter size={18} />
           </a>
-          <a href="#" aria-label="Facebook" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
+          <a href="https://www.facebook.com/?locale=es_LA" target="_blank" aria-label="Facebook" className="grid h-9 w-9 place-items-center rounded border border-white/30 text-white transition hover:border-white hover:text-white">
             <FaFacebookF size={18} />
           </a>
         </div>

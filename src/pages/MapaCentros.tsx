@@ -149,15 +149,15 @@ const MapaCentros = () => {
         if (filtered.length === 0) {
           setGeocodingError("No pudimos geolocalizar los centros");
         }
-      } catch (err : unknown) {
+      } catch (err: unknown) {
         if (isMounted) {
-          if(err instanceof Error){
-          setGeocodingError("Ocurrio un problema al localizar los centros");
-        } else{
-           setGeocodingError("ocurrio un problema desconocido al localizar los centros")
-          
+          if (err instanceof Error) {
+            setGeocodingError("Ocurrio un problema al localizar los centros");
+          } else {
+            setGeocodingError("ocurrio un problema desconocido al localizar los centros")
+
+          }
         }
-      }
 
       } finally {
         if (isMounted) {
@@ -272,50 +272,70 @@ const MapaCentros = () => {
         </div>
       </div>
       {modalCentro && centroSeleccionado && (
-        <div className="fixed inset-0 bg-black/35 backdrop-blur-sm flex items-center justify-center z-[2000] p-4">
-          <div className="relative z-[2001] bg-white px-4 py-3 rounded-lg shadow-lg w-[90%] max-w-md">
-            <div className="relative">
-              <button
-                onClick={() => setModalCentro(false)}
-                className="absolute right-2 text-gray-500 hover:text-gray-700 cursor-pointer"
-              >
-                <RxCross2 size={24} />
-              </button>
+        <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] p-4 animate-fadeIn">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
 
-              <h3 className="text-lg font-bold mb-3 font-primary text-center">{centroSeleccionado.nombre}</h3>
-              <img src={centroSeleccionado.imagen} alt={centroSeleccionado.nombre} className="w-full h-50 object-cover rounded-md mb-4" />
-              <div className="space-y-2">
-                <p className="text-gray-600 font-primary"><b>Descripcion:</b> {centroSeleccionado.descripcion}</p>
-                {centroSeleccionado.domicilio && (
-                  <p className="text-gray-600 font-primary">
-                    <b>Domicilio:</b> {centroSeleccionado.domicilio.calle} {centroSeleccionado.domicilio.numero}, {centroSeleccionado.domicilio.localidad} - CP: {centroSeleccionado.domicilio.codigoPostal}
-                  </p>
-                )}
-                {centroSeleccionado.servicios?.length ? (
-                  <p className="text-gray-600 font-primary">
-                    <b>Servicios:</b> {centroSeleccionado.servicios.map((servicio) => servicio.tipoDeServicio.toLowerCase()).join(", ")}
-                  </p>
-                ) : null}
-              </div>
-              <div className="flex justify-around mt-3 mb-2">
+            <button
+              onClick={() => setModalCentro(false)}
+              className="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-800 transition-colors rounded-full p-1 shadow-sm z-10 cursor-pointer"
+            >
+              <RxCross2 size={22} />
+            </button>
+
+            <div className="relative">
+              <img
+                src={centroSeleccionado.imagen}
+                alt={centroSeleccionado.nombre}
+                className="w-full h-48 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+            </div>
+
+            <div className="p-5 space-y-3 font-primary text-gray-700">
+              <h3 className="text-2xl font-bold text-center text-secondary">
+                {centroSeleccionado.nombre}
+              </h3>
+              <p><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
+
+              {centroSeleccionado.domicilio && (
+                <p>
+                  <b>Domicilio:</b> {centroSeleccionado.domicilio.calle}{" "}
+                  {centroSeleccionado.domicilio.numero},{" "}
+                  {centroSeleccionado.domicilio.localidad} –{" "}
+                  CP {centroSeleccionado.domicilio.codigoPostal}
+                </p>
+              )}
+
+              {centroSeleccionado.servicios?.length > 0 && (
+                <p>
+                  <b>Servicios:</b>{" "}
+                  {centroSeleccionado.servicios
+                    .map((s) => s.tipoDeServicio.toLowerCase())
+                    .join(", ")}
+                </p>
+              )}
+
+              <div className="flex justify-around mt-5">
                 <button
-                  className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f] cursor-pointer"
-                  onClick={() => navigate(`/centros/${centroSeleccionado.id}/resenias`)}
+                  className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
+                  onClick={() =>
+                    navigate(`/centros/${centroSeleccionado.id}/resenias`)
+                  }
                 >
                   Ver reseñas
                 </button>
                 <button
-                  className="bg-secondary text-white rounded-full cursor-pointer py-1 px-3 hover:bg-[#a27e8f] cursor-pointer"
+                  className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
                   onClick={() => {
                     if (user) {
                       navigate(`/turno/${centroSeleccionado.id}`);
                     } else {
-                      navigate('/IniciarSesion');
+                      navigate("/IniciarSesion");
                       Swal.fire({
-                        icon: 'info',
-                        title: 'Debes iniciar sesion para pedir un turno',
+                        icon: "info",
+                        title: "Debes iniciar sesión para pedir un turno",
                         showConfirmButton: true,
-                        confirmButtonColor: '#a27e8f',
+                        confirmButtonColor: "#a27e8f",
                       });
                     }
                   }}

@@ -60,8 +60,8 @@ const Contactanos = () => {
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
                   <span className="block font-medium text-primary/80">Correo</span>
-                  <a href="mailto:hola@beautyconnect.com" className="text-primary hover:underline">
-                    hola@beautyconnect.com
+                  <a href="mailto:beautyconnect16@gmail.com" className="text-primary hover:underline">
+                    beautyconnect16@gmail.com
                   </a>
                 </li>
                 <li>

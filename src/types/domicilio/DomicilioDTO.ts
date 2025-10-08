@@ -4,4 +4,6 @@ export interface DomicilioDTO {
     codigoPostal: number;
     localidad: string;
     provincia: string;
+    latitud: number;
+    longitud: number;
 }

@@ -8,6 +8,8 @@ export type AddressValue = {
   codigoPostal: number | undefined;
   provincia: string;
   localidad: string;
+  latitud: number | undefined;
+  longitud: number | undefined;
 };
 
 export default function AddressFieldset(props: {
