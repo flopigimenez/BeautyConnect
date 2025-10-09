@@ -1,6 +1,6 @@
 ﻿import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
@@ -47,6 +47,24 @@ const prestadorSchema = Yup.object({
   active: Yup.boolean().required(),
 });
 
+const DIA_OPTIONS = [
+  { value: "MONDAY", label: "Lunes" },
+  { value: "TUESDAY", label: "Martes" },
+  { value: "WEDNESDAY", label: "Miércoles" },
+  { value: "THURSDAY", label: "Jueves" },
+  { value: "FRIDAY", label: "Viernes" },
+  { value: "SATURDAY", label: "Sábado" },
+  { value: "SUNDAY", label: "Domingo" },
+];
+
+const horarioSchema = Yup.object({
+  dia: Yup.string().oneOf(DIA_OPTIONS.map(d => d.value)).required("Requerido"),
+  horaMInicio: Yup.string().required("Requerido"),
+  horaMFinalizacion: Yup.string().required("Requerido"),
+  horaTInicio: Yup.string().required("Requerido"),
+  horaTFinalizacion: Yup.string().required("Requerido"),
+});
+
 const centroSchema = Yup.object({
   nombre: Yup.string().required("Requerido"),
   descripcion: Yup.string().required("Requerido"),
@@ -62,27 +80,26 @@ const centroSchema = Yup.object({
     latitud: Yup.number().typeError("Numérico").required("Requerido"),
     longitud: Yup.number().typeError("Numérico").required("Requerido"),
   }).required(),
-  horariosCentro: Yup.array().of(
-    Yup.object({
-      dia: Yup.string().required("Requerido"),
-      horaMInicio: Yup.string().required("Requerido"),
-      horaMFinalizacion: Yup.string().required("Requerido"),
-      horaTInicio: Yup.string().required("Requerido"),
-      horaTFinalizacion: Yup.string().required("Requerido"),
-    })
-  ).default([]),
+  horariosCentro: Yup.array().of(horarioSchema)
+    .min(1, "Agregá al menos un horario")
+    .required("Requerido"),
+}).test("rangos-horarios", "Los horarios deben tener inicio < fin", (values) => {
+  if (!values || !values.horariosCentro) return true;
+  const toMin = (hhmm: string) => {
+    const [h, m] = hhmm.split(":").map(Number);
+    return h * 60 + m;
+  };
+  for (const h of values.horariosCentro) {
+    if (!h) continue;
+    const mIni = toMin(h.horaMInicio);
+    const mFin = toMin(h.horaMFinalizacion);
+    const tIni = toMin(h.horaTInicio);
+    const tFin = toMin(h.horaTFinalizacion);
+    if (!(mIni < mFin && tIni < tFin)) return false;
+  }
+  return true;
 });
- const markerIcon =  new L.Icon({
-  iconUrl:
-    "data:image/svg+xml;base64," +
-    btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="20" viewBox="0 0 25 41" fill="none">
-        <path fill="#C4A1B5" stroke="black" stroke-width="1" d="M12.5 0C5.6 0 0 5.6 0 12.5C0 22.5 12.5 41 12.5 41C12.5 41 25 22.5 25 12.5C25 5.6 19.4 0 12.5 0ZM12.5 17.5C9.46 17.5 7 15.04 7 12C7 8.96 9.46 6.5 12.5 6.5C15.54 6.5 18 8.96 18 12C18 15.04 15.54 17.5 12.5 17.5Z"/>
-      </svg>
-    `),
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+
 const Tab = ({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) => (
   <button
     type="button"
@@ -110,18 +127,6 @@ const FieldBox = ({ label, name, type = "text", placeholder, disabled = false }:
   </label>
 );
 
-const DIA_OPTIONS = [
-  { value: "MONDAY", label: "Lunes" },
-  { value: "TUESDAY", label: "Martes" },
-  { value: "WEDNESDAY", label: "Miércoles" },
-  { value: "THURSDAY", label: "Jueves" },
-  { value: "FRIDAY", label: "Viernes" },
-  { value: "SATURDAY", label: "Sábado" },
-  { value: "SUNDAY", label: "Domingo" },
-];
-
-const formatHorarioValue = (value?: string | null) => value?.trim() || "-";
-
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
@@ -144,8 +149,6 @@ const uploadFileToCloudinary = async (file: File, resourceType: CloudinaryResour
   if (!data || typeof data.secure_url !== "string") throw new Error("Cloudinary no devolvio una URL valida.");
   return data.secure_url as string;
 };
-
-type HorarioCentroFormValue = HorarioCentroDTO & { id?: number | null };
 
 // --- Nominatim helpers ---
 async function reverseGeocode(lat: number, lon: number) {
@@ -181,6 +184,8 @@ function LocationSelector({ onPick }: { onPick: (lat: number, lon: number) => vo
   });
   return null;
 }
+
+type HorarioCentroFormValue = HorarioCentroDTO & { id?: number | null };
 
 const ConfigPrestador = () => {
   const [showPwd, setShowPwd] = useState(false);
@@ -423,13 +428,13 @@ const ConfigPrestador = () => {
                     latitud: typeof centro?.domicilio?.latitud === "number" ? centro!.domicilio!.latitud : DEFAULT_CENTER[0],
                     longitud: typeof centro?.domicilio?.longitud === "number" ? centro!.domicilio!.longitud : DEFAULT_CENTER[1],
                   },
-                  horariosCentro: centro?.horariosCentro?.map((horario: any) => ({
-                    id: typeof horario.id === "number" ? horario.id : undefined,
-                    dia: horario.dia,
-                    horaMInicio: horario.horaMInicio,
-                    horaMFinalizacion: horario.horaMFinalizacion,
-                    horaTInicio: horario.horaTInicio,
-                    horaTFinalizacion: horario.horaTFinalizacion,
+                  horariosCentro: centro?.horariosCentro?.map((h: any) => ({
+                    id: typeof h.id === "number" ? h.id : undefined,
+                    dia: h.dia,
+                    horaMInicio: h.horaMInicio,
+                    horaMFinalizacion: h.horaMFinalizacion,
+                    horaTInicio: h.horaTInicio,
+                    horaTFinalizacion: h.horaTFinalizacion,
                   })) ?? [],
                 }}
                 validationSchema={centroSchema}
@@ -438,7 +443,6 @@ const ConfigPrestador = () => {
                     const prestadorId = prestador?.id ?? centro?.prestadorDeServicio?.id;
                     if (!prestadorId) throw new Error("No se encontro el prestador asociado al centro.");
 
-                    // lat/lng vienen del mapa o del botón "Buscar en el mapa"
                     const domicilioPayload: DomicilioDTO = {
                       calle: values.domicilio.calle,
                       numero: Number(values.domicilio.numero),
@@ -452,6 +456,15 @@ const ConfigPrestador = () => {
                     const imagenUrl = (pendingUploads.imagen ?? values.imagen)?.trim() || centro?.imagen || "";
                     const docUrl = (pendingUploads.docValido ?? values.docValido)?.trim() || centro?.docValido || "";
 
+                    // Enviamos horarios editados
+                    const horariosPayload: HorarioCentroDTO[] = values.horariosCentro.map(h => ({
+                      dia: h.dia,
+                      horaMInicio: h.horaMInicio,
+                      horaMFinalizacion: h.horaMFinalizacion,
+                      horaTInicio: h.horaTInicio,
+                      horaTFinalizacion: h.horaTFinalizacion,
+                    }));
+
                     const payload: CentroDeEsteticaDTO = {
                       nombre: values.nombre,
                       descripcion: values.descripcion,
@@ -460,7 +473,7 @@ const ConfigPrestador = () => {
                       imagen: imagenUrl,
                       prestadorDeServicioId: prestadorId,
                       domicilio: domicilioPayload,
-                      horariosCentro: [], // edición de horarios en otra vista
+                      horariosCentro: horariosPayload,
                     };
 
                     let saved: CentroDeEsteticaResponseDTO;
@@ -611,7 +624,7 @@ const ConfigPrestador = () => {
                         </div>
                       </div>
 
-                      {/* --- UBICACIÓN EN MAPA (lat/lng por mapa o geocode) --- */}
+                      {/* --- UBICACIÓN EN MAPA --- */}
                       <div className="md:col-span-2 mt-2">
                         <h3 className="text-lg font-semibold text-[#703F52] mb-2">Ubicación en mapa</h3>
 
@@ -662,7 +675,7 @@ const ConfigPrestador = () => {
                               }
                             }}
                           />
-                          <Marker position={centerMap}  icon={markerIcon}/>
+                          <Marker position={centerMap} />
                         </MapContainer>
 
                         {/* Campos ocultos para validación/envío */}
@@ -674,49 +687,122 @@ const ConfigPrestador = () => {
                         </p>
                       </div>
 
-                      {/* --- HORARIOS (solo lectura aquí) --- */}
-                      <div className="md:col-span-2 mt-4">
-                        <h3 className="text-lg font-semibold text-[#703F52] mb-2">Horarios de atención</h3>
-                        {values.horariosCentro && values.horariosCentro.length > 0 ? (
-                          <div className="space-y-4">
-                            {values.horariosCentro.map((horario: HorarioCentroFormValue, index) => {
-                              const diaLabel = DIA_OPTIONS.find((o) => o.value === horario.dia)?.label ?? horario.dia ?? "-";
-                              return (
-                                <div key={horario.id ?? index} className="rounded-lg border border-[#E9DDE1] bg-[#FFFBFA] p-4">
-                                  <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
-                                    <span className="text-sm font-medium text-[#703F52]">Día</span>
-                                    <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">
-                                      {diaLabel}
-                                    </span>
+                      {/* --- HORARIOS (editable + agregar/eliminar) --- */}
+                      <div className="md:col-span-2 mt-6">
+                        <h3 className="text-lg font-semibold text-[#703F52] mb-3">Horarios de atención</h3>
+
+                        <FieldArray name="horariosCentro">
+                          {({ remove, push }) => (
+                            <div className="space-y-3">
+                              {/* Lista editable */}
+                              {values.horariosCentro.length > 0 ? (
+                                values.horariosCentro.map((h: HorarioCentroFormValue, idx: number) => (
+                                  <div key={h.id ?? idx} className="rounded-xl border border-[#E9DDE1] bg-[#FFFBFA] p-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+                                      <label className="flex flex-col">
+                                        <span className="text-sm font-medium text-[#703F52]">Día</span>
+                                        <Field as="select" name={`horariosCentro.${idx}.dia`} className="rounded-lg border border-[#E9DDE1] px-3 py-2">
+                                          <option value="">Seleccioná…</option>
+                                          {DIA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                                        </Field>
+                                        <ErrorMessage name={`horariosCentro.${idx}.dia`} component="span" className="text-xs text-red-600" />
+                                      </label>
+                                      <label className="flex flex-col">
+                                        <span className="text-sm font-medium text-[#703F52]">Mañana (inicio)</span>
+                                        <Field type="time" name={`horariosCentro.${idx}.horaMInicio`} className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                        <ErrorMessage name={`horariosCentro.${idx}.horaMInicio`} component="span" className="text-xs text-red-600" />
+                                      </label>
+                                      <label className="flex flex-col">
+                                        <span className="text-sm font-medium text-[#703F52]">Mañana (fin)</span>
+                                        <Field type="time" name={`horariosCentro.${idx}.horaMFinalizacion`} className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                        <ErrorMessage name={`horariosCentro.${idx}.horaMFinalizacion`} component="span" className="text-xs text-red-600" />
+                                      </label>
+                                      <label className="flex flex-col">
+                                        <span className="text-sm font-medium text-[#703F52]">Tarde (inicio)</span>
+                                        <Field type="time" name={`horariosCentro.${idx}.horaTInicio`} className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                        <ErrorMessage name={`horariosCentro.${idx}.horaTInicio`} component="span" className="text-xs text-red-600" />
+                                      </label>
+                                      <label className="flex flex-col">
+                                        <span className="text-sm font-medium text-[#703F52]">Tarde (fin)</span>
+                                        <Field type="time" name={`horariosCentro.${idx}.horaTFinalizacion`} className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                        <ErrorMessage name={`horariosCentro.${idx}.horaTFinalizacion`} component="span" className="text-xs text-red-600" />
+                                      </label>
+                                      <div className="flex md:justify-end">
+                                        <button
+                                          type="button"
+                                          onClick={() => remove(idx)}
+                                          className="self-end rounded-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 text-sm font-semibold cursor-pointer"
+                                        >
+                                          Eliminar
+                                        </button>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-                                    <div className="flex flex-col gap-1">
-                                      <span className="text-sm font-medium text-[#703F52]">Hora mañana (inicio)</span>
-                                      <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">{formatHorarioValue(horario.horaMInicio)}</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                      <span className="text-sm font-medium text-[#703F52]">Hora mañana (fin)</span>
-                                      <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">{formatHorarioValue(horario.horaMFinalizacion)}</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                      <span className="text-sm font-medium text-[#703F52]">Hora tarde (inicio)</span>
-                                      <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">{formatHorarioValue(horario.horaTInicio)}</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                      <span className="text-sm font-medium text-[#703F52]">Hora tarde (fin)</span>
-                                      <span className="rounded-lg border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#703F52]">{formatHorarioValue(horario.horaTFinalizacion)}</span>
-                                    </div>
-                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-sm text-gray-500">No hay horarios cargados.</p>
+                              )}
+
+                              {/* Agregar nuevo */}
+                              <div className="rounded-xl border border-dashed border-[#E9DDE1] p-4 bg-white">
+                                <h4 className="text-sm font-semibold text-[#703F52] mb-3">Agregar horario</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+                                  <Field as="select" name="__tmp.dia" className="rounded-lg border border-[#E9DDE1] px-3 py-2">
+                                    <option value="">Seleccioná…</option>
+                                    {DIA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+                                  </Field>
+                                  <Field type="time" name="__tmp.horaMInicio" className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                  <Field type="time" name="__tmp.horaMFinalizacion" className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                  <Field type="time" name="__tmp.horaTInicio" className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                  <Field type="time" name="__tmp.horaTFinalizacion" className="rounded-lg border border-[#E9DDE1] px-3 py-2" />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      // Tomamos los valores temporales desde Formik (usamos getFieldProps via document? mejor con setFieldValue/getters)
+                                      // Como no tenemos getFieldProps acá, usamos una estrategia: leemos del DOM (simple y efectivo)
+                                      const getVal = (name: string) => (document.querySelector<HTMLInputElement>(`[name="${name}"]`)?.value ?? "").trim();
+                                      const dia = getVal("__tmp.dia");
+                                      const horaMInicio = getVal("__tmp.horaMInicio");
+                                      const horaMFinalizacion = getVal("__tmp.horaMFinalizacion");
+                                      const horaTInicio = getVal("__tmp.horaTInicio");
+                                      const horaTFinalizacion = getVal("__tmp.horaTFinalizacion");
+
+                                      if (!dia || !horaMInicio || !horaMFinalizacion || !horaTInicio || !horaTFinalizacion) {
+                                        Swal.fire({ icon: "warning", title: "Completá los campos", text: "Todos los campos del horario son obligatorios.", confirmButtonColor: "#C19BA8" });
+                                        return;
+                                      }
+                                      const toMin = (hhmm: string) => {
+                                        const [h, m] = hhmm.split(":").map(Number);
+                                        return h * 60 + m;
+                                      };
+                                      if (!(toMin(horaMInicio) < toMin(horaMFinalizacion) && toMin(horaTInicio) < toMin(horaTFinalizacion))) {
+                                        Swal.fire({ icon: "warning", title: "Revisá los rangos", text: "El inicio debe ser menor al fin en mañana y tarde.", confirmButtonColor: "#C19BA8" });
+                                        return;
+                                      }
+
+                                      push({ dia, horaMInicio, horaMFinalizacion, horaTInicio, horaTFinalizacion });
+
+                                      // limpiar inputs temporales
+                                      (document.querySelector(`[name="__tmp.dia"]`) as HTMLSelectElement | null)?.value && ((document.querySelector(`[name="__tmp.dia"]`) as HTMLSelectElement).value = "");
+                                      ["__tmp.horaMInicio","__tmp.horaMFinalizacion","__tmp.horaTInicio","__tmp.horaTFinalizacion"].forEach(n => {
+                                        const el = document.querySelector<HTMLInputElement>(`[name="${n}"]`);
+                                        if (el) el.value = "";
+                                      });
+                                    }}
+                                    className="rounded-full bg-[#703F52] hover:bg-[#5e3443] text-white px-4 py-2 text-sm font-semibold cursor-pointer"
+                                  >
+                                    Agregar
+                                  </button>
                                 </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <p className="text-sm text-gray-500">Este centro aún no tiene horarios de atención cargados.</p>
-                        )}
+                              </div>
+
+                              <ErrorMessage name="horariosCentro" component="div" className="text-xs text-red-600" />
+                            </div>
+                          )}
+                        </FieldArray>
                       </div>
 
-                      <div className="md:col-span-2 flex justify-end gap-2 mt-4">
+                      <div className="md:col-span-2 flex justify-end gap-2 mt-6">
                         <button
                           type="submit"
                           disabled={isSubmitting || !uid}
