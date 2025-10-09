@@ -1,4 +1,3 @@
-import type { DomicilioResponseDTO } from "../domicilio/DomicilioResponseDTO";
 import type { UsuarioResponseDTO } from "../usuario/UsuarioResponseDTO";
 
 export interface ClienteResponseDTO {
@@ -8,5 +7,4 @@ export interface ClienteResponseDTO {
     telefono: string;
     active: boolean;
     usuario: UsuarioResponseDTO;
-    domicilio: DomicilioResponseDTO;
 }

@@ -4,15 +4,12 @@ import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { FaUserCircle } from "react-icons/fa";
 import { ClienteService } from "../services/ClienteService";
-import AddressFieldset from "../components/AddressFieldset";
-import type { AddressValue } from "../components/AddressFieldset";
 import type { ClienteDTO } from "../types/cliente/ClienteDTO";
 import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import type { Rol } from "../types/enums/Rol";
 const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import Swal from "sweetalert2";
-import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 
 export default function MiPerfil() {
   const [showModal, setShowModal] = useState(false);
@@ -27,7 +24,6 @@ export default function MiPerfil() {
   const [telefono, setTelefono] = useState("");
   const [mailVista, setMailVista] = useState(""); // solo visual
   const [uid, setUid] = useState("");
-  const [domicilioForm, setDomicilioForm] = useState<AddressValue>({ calle: "", numero: undefined, codigoPostal: undefined, provincia: "", localidad: "" });
 
   useEffect(() => {
     const auth = getAuth();
@@ -51,20 +47,13 @@ export default function MiPerfil() {
           setApellido(found.apellido ?? "");
           setTelefono(found.telefono ?? "");
           setMailVista(found.usuario?.mail ?? user.email ?? "");
-          setDomicilioForm({
-            calle: found.domicilio?.calle ?? "",
-            numero: found.domicilio?.numero ?? undefined,
-            codigoPostal: found.domicilio?.codigoPostal ?? undefined,
-            localidad: found.domicilio?.localidad ?? "",
-            provincia: (found.domicilio as DomicilioDTO)?.provincia ?? "",
-          });
+         
         } else {
           setCliente(null);
           setNombre("");
           setApellido("");
           setTelefono("");
           setMailVista(user.email ?? "");
-          setDomicilioForm({ calle: "", numero: undefined, codigoPostal: undefined, localidad: "", provincia: "" });
         }
       } catch (e: unknown) {
         if (typeof e === "object" && e !== null && "message" in e && typeof (e as { message: string }).message === "string") {
@@ -96,13 +85,7 @@ export default function MiPerfil() {
         uid: user.uid,
         rol: cliente?.usuario?.rol ?? DEFAULT_ROL,
       },
-      domicilio: {
-        calle: domicilioForm.calle,
-        numero: domicilioForm.numero ?? 0,
-        localidad: domicilioForm.localidad,
-        codigoPostal: domicilioForm.codigoPostal ?? 0,
-        provincia: domicilioForm.provincia,
-      },
+
     };
 
     try {
@@ -122,13 +105,6 @@ export default function MiPerfil() {
       setApellido(updated.apellido ?? "");
       setTelefono(updated.telefono ?? "");
       setMailVista(updated.usuario?.mail ?? mailVista);
-      setDomicilioForm({
-        calle: updated.domicilio?.calle ?? "",
-        numero: updated.domicilio?.numero ?? undefined,
-        codigoPostal: updated.domicilio?.codigoPostal ?? undefined,
-        localidad: updated.domicilio?.localidad ?? "",
-        provincia: (updated.domicilio as DomicilioDTO)?.provincia ?? "",
-      });
       Swal.fire({
         icon: "success",
         title: "Éxito!",
@@ -222,16 +198,8 @@ export default function MiPerfil() {
                   </div>
                 </section>
 
-                <section>
-                  <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">Domicilio</h2>
-                  <AddressFieldset
-                    value={domicilioForm}
-                    onChange={setDomicilioForm}
-                    className="bg-gray-50 rounded-2xl p-4"
-                  />
-                </section>
 
-                {/* Configuraci�n de cuenta */}
+                {/* Configuración de cuenta */}
                 <section>
                   <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">
                     Configuración de la cuenta
