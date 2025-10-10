@@ -281,7 +281,7 @@ const Turnos = () => {
         </div>
       ) : (
         <div className="w-full flex-1 bg-[#FFFBFA]">
-          <div className="mx-auto flex h-full w-full max-w-[60rem] flex-col items-center px-4 pb-12 pt-16 sm:px-8 sm:pt-20 lg:items-start lg:px-0 lg:pt-24">
+          <div className="flex justify-center flex-col items-center px-4 pb-12 pt-20 sm:px-8 sm:pt-20 lg:px-0 lg:pt-24"> {/*lg:items-start lg:mx-[25%] h-full w-full max-w-[60rem]*/}
             {loading && <p>Cargando...</p>}
             {error && <p className="text-red-500">{error}</p>}
             {loadingClienteInfo && <p className="font-primary text-sm mt-2">Cargando datos del cliente...</p>}
@@ -293,7 +293,7 @@ const Turnos = () => {
               Reserva tu turno en {centroSeleccionado.nombre} en 2 simples pasos
             </h1>
 
-            <div className="mt-10 w-full max-w-[50rem] self-stretch space-y-10">
+            <div className="mt-10"> {/*w-full max-w-[50rem] self-stretch space-y-10*/}
               <p className="font-primary text-center sm:text-left">{pasos === 1 ? "Paso 1 de 2" : "Paso 2 de 2"}</p>
               <div className="mt-5 flex h-1.5 w-full overflow-hidden rounded-full">
                 <div className="w-1/2 bg-secondary"></div>
@@ -335,7 +335,7 @@ const Turnos = () => {
                   ))}
                 </select>
               {servicioSeleccionado && (
-                <div className="mt-4 w-[50rem] rounded-2xl  border border-gray-300 shadow flex flex-col gap-2 p-6">
+                <div className="mt-4 w-[100%] rounded-2xl  border border-gray-300 shadow flex flex-col gap-2 p-6">
                   <h3 className="font-secondary text-xl font-bold text-tertiary mb-2">
                     {servicioSeleccionado.titulo}
                   </h3>
