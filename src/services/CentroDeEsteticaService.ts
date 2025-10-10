@@ -6,7 +6,7 @@ import type { ProfesionalDTO } from "../types/profesional/ProfesionalDTO";
 
 export class CentroDeEsteticaService extends BackendClient<CentroDeEsteticaDTO, CentroDeEsteticaResponseDTO> {
   constructor() {
-    super("http://localhost:8080/api/centrodeestetica");
+    super(`${import.meta.env.VITE_HOST_BACK}/api/centrodeestetica`);
   }
 
   async cambiarEstado(id: number, estado: Estado): Promise<CentroDeEsteticaResponseDTO> {

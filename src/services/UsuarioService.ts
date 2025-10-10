@@ -3,7 +3,7 @@ import type { UsuarioResponseDTO } from "../types/usuario/UsuarioResponseDTO";
 import { BackendClient } from "./BackendClient";
 export class UsuarioService extends BackendClient<UsuarioDTO, UsuarioResponseDTO> {
     constructor() {
-        super("http://localhost:8080/api/usuario");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/usuario`);
     }
 
     async verificarPorUid(uid: string): Promise<boolean> {

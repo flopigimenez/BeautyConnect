@@ -5,7 +5,7 @@ import { BackendClient } from "./BackendClient";
 export class ClienteService extends BackendClient<ClienteDTO, ClienteResponseDTO> {
 
     constructor() {
-        super("http://localhost:8080/api/cliente");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/cliente`);
     }
 
     async cambiarEstadoActivo(id: number): Promise<ClienteResponseDTO> {

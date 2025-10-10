@@ -4,7 +4,7 @@ import { BackendClient } from "./BackendClient";
 
 export class ReseniaService extends BackendClient<ReseniaDTO, ReseniaResponseDTO>{
     constructor(){
-        super("http://localhost:8080/api/resenia");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/resenia`);
     }
     async getReseniasByCentroId(centroId: number): Promise<ReseniaResponseDTO[]> {
         const response = await fetch(`${this.baseUrl}/centro/${centroId}`, {

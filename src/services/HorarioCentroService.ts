@@ -4,7 +4,7 @@ import { BackendClient } from "./BackendClient";
 
 export class HorarioCentroService extends BackendClient<HorarioCentroDTO, HorarioCentroResponseDTO> {
   constructor() {
-    super("http://localhost:8080/api/horariocentro");
+    super(`${import.meta.env.VITE_HOST_BACK}/api/horariocentro`);
   }
 
   async updateHorarioCentro(id: number, data: HorarioCentroDTO): Promise<HorarioCentroResponseDTO> {

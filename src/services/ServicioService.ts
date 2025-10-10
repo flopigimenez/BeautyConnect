@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 
 export class ServicioService extends BackendClient<ServicioDTO, ServicioResponseDTO>{
     constructor(){
-        super("http://localhost:8080/api/servicio");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/servicio`);
     }
     async findByUid(uid: string): Promise<ServicioResponseDTO[]> {
     const res = await fetch(`${this.baseUrl}/por-uid/${uid}`, {

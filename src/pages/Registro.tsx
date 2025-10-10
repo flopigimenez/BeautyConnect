@@ -73,7 +73,7 @@ const Registro = () => {
             const user = result.user;
             const idToken = await user.getIdToken();
 
-            const resp = await fetch("http://localhost:8080/api/usuario/register", {
+            const resp = await fetch(`${import.meta.env.VITE_HOST_BACK}/api/usuario/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -144,7 +144,7 @@ const Registro = () => {
             const user = result.user;
             const idToken = await user.getIdToken();
 
-            const resp = await fetch("http://localhost:8080/api/usuario/google", {
+            const resp = await fetch(`${import.meta.env.VITE_HOST_BACK}/api/usuario/google`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

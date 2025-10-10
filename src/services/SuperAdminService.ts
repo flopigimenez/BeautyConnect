@@ -3,7 +3,7 @@ import type { SuperAdminResponseDTO } from "../types/superAdmin/SuperAdminRespon
 import { BackendClient } from "./BackendClient";
 export class SuperAdminService extends BackendClient<SuperAdminDTO, SuperAdminResponseDTO> {
     constructor() {
-        super("http://localhost:8080/api/superadmin");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/superadmin`);
     }
 
     async getByUid(uid: string): Promise<SuperAdminResponseDTO | null> {

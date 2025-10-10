@@ -3,7 +3,7 @@ import type { JornadaLaboralResponseDTO } from "../types/jornadaLaboral/JornadaL
 import type { JornadaLaboralUpdateDTO } from "../types/jornadaLaboral/JornadaLaboralUpdateDTO";
 
 export class JornadaLaboralService {
-  base = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+  base = import.meta.env.VITE_HOST_BACK;
 
   async create(dto: JornadaLaboralCreateDTO): Promise<JornadaLaboralResponseDTO> {
     const r = await fetch(`${this.base}/api/jornadas`, {

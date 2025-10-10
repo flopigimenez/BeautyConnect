@@ -5,8 +5,7 @@ import { BackendClient } from "./BackendClient";
 
 export class TurnoService extends BackendClient<TurnoDTO, TurnoResponseDTO> {
   constructor() {
-    const base = "http://localhost:8080";
-    super(`${base}/api/turnos`);
+    super(`${import.meta.env.VITE_HOST_BACK}/api/turnos`);
   }
 
   async getByClienteId(clienteId: number): Promise<TurnoResponseDTO[]> {

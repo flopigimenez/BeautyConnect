@@ -4,7 +4,7 @@ import { BackendClient } from "./BackendClient";
 
 export class ProfesionalServicioService extends BackendClient<ProfesionalServicioDTO, ProfesionalServicioResponseDTO>{
     constructor(){
-        super("http://localhost:8080/api/prof-servicios");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/prof-servicios`);
     }
 
     async getAll(): Promise<ProfesionalServicioResponseDTO[]> {

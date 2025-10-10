@@ -3,7 +3,7 @@ import type { DomicilioDTO } from "../types/domicilio/DomicilioDTO";
 import { BackendClient } from "./BackendClient";
 export class DomicilioService extends BackendClient<DomicilioDTO, DomicilioResponseDTO>{
     constructor(){
-        super("http://localhost:8080/api/domicilio");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/domicilio`);
     }
 
     async updateDomicilio(id: number, data: DomicilioDTO): Promise<DomicilioResponseDTO> {

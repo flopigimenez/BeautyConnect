@@ -4,7 +4,7 @@ import type { ProfesionalResponseDTO } from "../types/profesional/ProfesionalRes
 import { getAuth } from "firebase/auth";
 export class ProfesionalService extends BackendClient<ProfesionalDTO, ProfesionalResponseDTO>   {
     constructor(){
-        super("http://localhost:8080/api/profesional");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/profesional`);
 
 }
     async post(data: ProfesionalDTO): Promise<ProfesionalResponseDTO> {

@@ -102,7 +102,7 @@ const IniciarSesion = () => {
                 mail: user.email || undefined,
             };
 
-            const resp = await fetch("http://localhost:8080/api/usuario/google", {
+            const resp = await fetch(`${import.meta.env.VITE_HOST_BACK}/api/usuario/google`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

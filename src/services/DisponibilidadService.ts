@@ -4,6 +4,6 @@ import { BackendClient } from "./BackendClient";
 
 export class DisponibilidadService extends BackendClient<DisponibilidadDTO, DisponibilidadResponseDTO>{
     constructor(){
-        super("http://localhost:8080/api/disponibilidad");
+        super(`${import.meta.env.VITE_HOST_BACK}/api/disponibilidad`);
     }
 }
