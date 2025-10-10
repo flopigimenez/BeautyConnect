@@ -246,7 +246,7 @@ const ConfigPrestador = () => {
 
   const handleToggleCentroActivo = async () => {
     if (!centro || !centro.id || togglingCentro) return;
-    
+
     const accion = centro.active ? "desactivar" : "activar";
     const confirm = await Swal.fire({
       icon: "question",
@@ -271,8 +271,7 @@ const ConfigPrestador = () => {
         confirmButtonColor: "#C19BA8",
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo cambiar el estado del centro.";
-      Swal.fire({ icon: "error", title: "Error", text: message, confirmButtonColor: "#C19BA8" });
+      Swal.fire({ icon: "error", title: "Error", text: "No se pudo cambiar el estado del centro. Antes de activar el centro debe tener al menos un profesional vinculado con un servicio", confirmButtonColor: "#C19BA8" });
     } finally {
       setTogglingCentro(false);
     }
