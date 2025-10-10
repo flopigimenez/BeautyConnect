@@ -265,7 +265,7 @@ export default function MisTurnos() {
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-auto px-15 py-16">
+                <main className="flex-1 overflow-auto lg:px-15 py-16">
                     <CustomTable<TurnoResponseDTO>
                         title="Mis Turnos"
                         columns={[

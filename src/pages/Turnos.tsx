@@ -33,7 +33,6 @@ const Turnos = () => {
   // Estado global
   const { centros, loading, error } = useAppSelector((state) => state.centros);
   const cliente = useAppSelector((state) => state.user.user);
-  console.log("Cliente en Turnos:", cliente);
 
   // Servicios 
   const profServicioService = new ProfesionalServicioService();
@@ -457,7 +456,7 @@ const Turnos = () => {
                 </button>
 
                 <button
-                  className={`btn ${isConfirming ? "btn-disabled" : ""} w-full sm:w-auto rounded-full bg-secondary text-primary px-33 py-2 font-primary disabled:opacity-50 cursor-pointer`}
+                  className={`btn ${isConfirming ? "btn-disabled" : ""} w-full sm:w-auto rounded-full bg-secondary text-primary px-25 md:px-33 py-2 font-primary disabled:opacity-50 cursor-pointer`}
                   disabled={pasos === 2 && !puedeConfirmar && isConfirming}
                   onClick={() => {
                     if (pasos === 1) {
