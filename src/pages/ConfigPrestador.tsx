@@ -56,7 +56,17 @@ const DIA_OPTIONS = [
   { value: "SATURDAY", label: "Sábado" },
   { value: "SUNDAY", label: "Domingo" },
 ];
-
+const markerIcon = new L.Icon({
+  iconUrl:
+    "data:image/svg+xml;base64," +
+    btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="20" viewBox="0 0 25 41" fill="none">
+        <path fill="#C4A1B5" stroke="black" stroke-width="1" d="M12.5 0C5.6 0 0 5.6 0 12.5C0 22.5 12.5 41 12.5 41C12.5 41 25 22.5 25 12.5C25 5.6 19.4 0 12.5 0ZM12.5 17.5C9.46 17.5 7 15.04 7 12C7 8.96 9.46 6.5 12.5 6.5C15.54 6.5 18 8.96 18 12C18 15.04 15.54 17.5 12.5 17.5Z"/>
+      </svg>
+    `),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
 const horarioSchema = Yup.object({
   dia: Yup.string().oneOf(DIA_OPTIONS.map(d => d.value)).required("Requerido"),
   horaMInicio: Yup.string().required("Requerido"),
@@ -475,6 +485,7 @@ const ConfigPrestador = () => {
                       domicilio: domicilioPayload,
                       horariosCentro: horariosPayload,
                     };
+console.log("Payload enviado al backend:", payload);
 
                     let saved: CentroDeEsteticaResponseDTO;
                     let updatedDomicilio = centro?.domicilio ?? null;
@@ -675,7 +686,7 @@ const ConfigPrestador = () => {
                               }
                             }}
                           />
-                          <Marker position={centerMap} />
+                          <Marker position={centerMap} icon={markerIcon}/>
                         </MapContainer>
 
                         {/* Campos ocultos para validación/envío */}
