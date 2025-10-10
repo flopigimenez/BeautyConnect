@@ -222,7 +222,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
       await Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se encontro la relacion a desvincular",
+        text: "No se encontró la relación a desvincular",
         confirmButtonColor: "#a27e8f",
       });
       return;
@@ -231,7 +231,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
     const decision = await Swal.fire({
       icon: "warning",
       title: "Desvincular servicio",
-      text: "Podras activarlo nuevamente cuando quieras",
+      text: "Podrás activarlo nuevamente cuando quieras",
       showCancelButton: true,
       confirmButtonColor: "#703F52",
       cancelButtonColor: "#C19BA8",
@@ -251,22 +251,20 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
       setRelacion((prev) => ({
         ...prev,
         [servicio.id]: buildRelacionEntry(prev[servicio.id], {
-          duracion: 30,
           configured: false,
-          id: undefined,
         }),
       }));
 
       await Swal.fire({
         icon: "success",
         title: "Servicio desvinculado",
-        text: "El servicio ya no esta disponible para este profesional",
+        text: "El servicio ya no está disponible para este profesional",
         confirmButtonColor: "#a27e8f",
         timer: 2200,
         showConfirmButton: false,
       });
     } catch (e: unknown) {
-      const mensaje = (e as Error).message ?? "Error al desvincular relacion";
+      const mensaje = (e as Error).message ?? "Error al desvincular relación";
       await Swal.fire({ icon: "error", title: "Error", text: mensaje, confirmButtonColor: "#a27e8f" });
     } finally {
       setRelacion((prev) => ({

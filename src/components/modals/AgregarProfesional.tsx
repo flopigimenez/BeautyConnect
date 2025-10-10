@@ -131,6 +131,7 @@ export default function AgregarProfesional({ centroId, profesional, onCreated, o
                     apellido: values.apellido.trim(),
                     contacto: contactoNumero,
                     centroDeEsteticaId: (isEdit ? profesional!.centroDeEstetica?.id : centroId) as number,
+                    active: profesional?.active ?? true,
                   };
                   if (isEdit && profesional) {
                     const actualizado = await profesionalService.update(profesional.id, dto);

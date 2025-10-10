@@ -19,6 +19,22 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
     }
 
     async post(data: ProfesionalServicioDTO): Promise<ProfesionalServicioResponseDTO> {
+        // Verificar si ya existe una relación entre el profesional y el servicio
+        const existingRelations = await this.getProfServicio(data.servicioId);
+        const existingRelation = existingRelations.find(
+            (rel) => rel.profesional?.id === data.profesionalId
+        );
+
+        if (existingRelation) {
+            if (!existingRelation.active) {
+                // Reactivar la relación si está desactivada
+                return await this.cambiarEstado(existingRelation.id);
+            } else {
+                throw new Error("La relación entre el profesional y el servicio ya existe y está activa.");
+            }
+        }
+
+        // Crear una nueva relación si no existe
         const res = await fetch(`${this.baseUrl}`, {
             method: "POST",
             headers: {
@@ -29,7 +45,7 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
         });
         if (!res.ok) {
             const errorText = await res.text().catch(() => "");
-            throw new Error(errorText || "No se pudo crear la relacion profesional-servicio");
+            throw new Error(errorText || "No se pudo crear la relación profesional-servicio");
         }
 
         const contentType = res.headers.get("content-type") || "";
@@ -71,13 +87,13 @@ export class ProfesionalServicioService extends BackendClient<ProfesionalServici
         return await resp.json();
     }
     async delete(id: number): Promise<void> {
-        const res = await fetch(`${this.baseUrl}/${id}`, {
-            method: "DELETE",
+        const res = await fetch(`${this.baseUrl}/cambiarEstado/${id}`, {
+            method: "PATCH",
             credentials: "include",
         });
         if (!res.ok) {
             const errorText = await res.text().catch(() => "");
-            throw new Error(errorText || `No se pudo eliminar la relacion con ID ${id}`);
+            throw new Error(errorText || `No se pudo desactivar la relación con ID ${id}`);
         }
     }
     
