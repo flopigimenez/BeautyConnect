@@ -81,8 +81,9 @@ async function geocodeDireccion({ calle, numero, localidad, codigoPostal }: Domi
   if (!response.ok) return null;
   const data = await response.json();
   const mendozaResult = data.find(
-    (d: any) =>
-      d.display_name?.toLowerCase().includes("mendoza") && d.display_name?.toLowerCase().includes("argentina")
+    (d: unknown) =>
+      (d as { display_name?: string }).display_name?.toLowerCase().includes("mendoza") &&
+      (d as { display_name?: string }).display_name?.toLowerCase().includes("argentina")
   );
   if (mendozaResult) {
     return {

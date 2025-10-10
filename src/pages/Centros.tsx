@@ -31,6 +31,16 @@ type FiltroCentroState = {
     provincia: string | null;
     localidad: string | null;
 };
+const diasEnEspanol: Record<string, string> = {
+  MONDAY: "Lunes",
+  TUESDAY: "Martes",
+  WEDNESDAY: "Miércoles",
+  THURSDAY: "Jueves",
+  FRIDAY: "Viernes",
+  SATURDAY: "Sábado",
+  SUNDAY: "Domingo",
+};
+
 
 const construirEtiquetaEstrellas = (promedio: number) => {
     const estrellasLlenas = Math.round(promedio);
@@ -342,6 +352,18 @@ const Centros = () => {
                                                 .join(", ")}
                                         </p>
                                     )}
+                                    {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
+                <div>
+                  <b>Horarios de atención:</b>
+                  <ul className="list-disc list-inside mt-1">
+                    {centroSeleccionado.horariosCentro.map((horario, index) => (
+                      <li key={index}>
+                        {diasEnEspanol[horario.dia]}: {horario.horaMInicio} - {horario.horaMFinalizacion} / {horario.horaTInicio} - {horario.horaTFinalizacion}
+                      </li>
+                    ))}   
+                  </ul>
+                </div>
+              )}
 
                                     <div className="flex justify-around mt-5">
                                         <button
