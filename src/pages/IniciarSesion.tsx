@@ -161,7 +161,7 @@ const IniciarSesion = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-[screen] flex flex-col items-center justify-center min-h-screen">
+            <div className="bg-primary w-[screen] flex flex-col items-center justify-center min-h-[85vh] mt-10">
                 <h1 className="font-secondary text-2xl font-bold mb-3 text-tertiary">Iniciar sesión</h1>
                 <form className="mt-5 w-[20rem] md:w-[45rem]" onSubmit={handleLogin}>
                     <div className="mb-5">
@@ -218,7 +218,7 @@ const IniciarSesion = () => {
                     </div>
                 </form>
 
-                <p className="mb-10">¿Aún no estás registrado? <Link to="/registro" className="font-bold">Registrate</Link></p>
+                <p>¿Aún no estás registrado? <Link to="/registro" className="font-bold">Registrate</Link></p>
             </div>
             <Footer/>
         </>
