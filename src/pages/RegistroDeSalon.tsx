@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { FaRegTrashAlt } from "react-icons/fa";
 
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -217,7 +218,7 @@ const RegistroDeSalon = () => {
     <>
       <div className="bg-primary w-screen pt-8 flex flex-col items-center">
         <h1 className="font-secondary text-2xl font-bold">Registra tu salón</h1>
-        <form className="mt-5 w-[45rem]" onSubmit={handleRegistrarSalon}>
+        <form className="mt-5 w-[20rem] md:w-[45rem]" onSubmit={handleRegistrarSalon}>
           <div className="mb-5">
             <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="nombre">
               Nombre del salón
@@ -465,10 +466,10 @@ const RegistroDeSalon = () => {
                     </li>
                     <button
                       type="button"
-                      className="cursor-pointer text-tertiary"
+                      className="cursor-pointer text-tertiary md:pr-10"
                       onClick={() => handleEliminarHorario(i)}
                     >
-                      Eliminar
+                      <FaRegTrashAlt />
                     </button>
                   </div>
                 ))}
