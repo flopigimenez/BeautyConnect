@@ -333,6 +333,25 @@ const Turnos = () => {
                     </option>
                   ))}
                 </select>
+              {servicioSeleccionado && (
+                <div className="mt-4 w-[50rem] rounded-2xl  border border-gray-300 shadow flex flex-col gap-2 p-6">
+                  <h3 className="font-secondary text-xl font-bold text-tertiary mb-2">
+                    {servicioSeleccionado.titulo}
+                  </h3>
+                  <p className="font-primary text-base text-gray-700">
+                    <span className="font-semibold text-secondary">Descripción: </span>
+                    {servicioSeleccionado.descripcion}
+                  </p>
+                  <p className="font-primary text-base text-gray-700">
+                    <span className="font-semibold text-secondary">Tipo: </span>
+                    {servicioSeleccionado.tipoDeServicio}
+                  </p>
+                  <p className="font-primary text-base text-gray-700">
+                    <span className="font-semibold text-secondary">Precio: </span>
+                    ${servicioSeleccionado.precio}
+                  </p>
+                </div>
+              )}
 
                 <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
                 <select
