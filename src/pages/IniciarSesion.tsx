@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { Rol } from "../types/enums/Rol";
+import Footer from "../components/Footer";
 
 interface AuthRequest {
     idToken: string;
@@ -219,6 +220,7 @@ const IniciarSesion = () => {
 
                 <p className="mb-10">¿Aún no estás registrado? <Link to="/registro" className="font-bold">Registrate</Link></p>
             </div>
+            <Footer/>
         </>
     );
 };
