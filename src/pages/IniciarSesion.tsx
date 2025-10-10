@@ -5,7 +5,7 @@ import { auth } from "../firebase/config";
 import { obtenerAuthUser, setUser } from "../redux/store/authSlice";
 import Navbar from "../components/Navbar";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { Rol } from "../types/enums/Rol";
 
@@ -217,7 +217,7 @@ const IniciarSesion = () => {
                     </div>
                 </form>
 
-                <p className="mb-10">¿Aún no estás registrado? <a href="/Registro" className="font-bold">Registrate</a></p>
+                <p className="mb-10">¿Aún no estás registrado? <Link to="/registro" className="font-bold">Registrate</Link></p>
             </div>
         </>
     );
