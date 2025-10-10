@@ -160,9 +160,9 @@ const IniciarSesion = () => {
     return (
         <>
             <Navbar />
-            <div className="bg-primary w-screen flex flex-col items-center justify-center min-h-screen">
+            <div className="bg-primary w-[screen] flex flex-col items-center justify-center min-h-screen">
                 <h1 className="font-secondary text-2xl font-bold mb-3 text-tertiary">Iniciar sesión</h1>
-                <form className="mt-5 w-[45rem]" onSubmit={handleLogin}>
+                <form className="mt-5 w-[20rem] md:w-[45rem]" onSubmit={handleLogin}>
                     <div className="mb-5">
                         <input
                             type="email"

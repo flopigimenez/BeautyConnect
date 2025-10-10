@@ -76,7 +76,7 @@ const RegistroGoogle = () => {
             {error ? (<p className="text-red-500">{error}</p>) : (
                 <div className="bg-primary w-screen pt-20 flex flex-col items-center min-h-[85vh]">
                     <h1 className="font-secondary text-2xl font-bold text-tertiary">Finaliza tu registro</h1>
-                    <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
+                    <form className="mt-5 w-[20rem] md:w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <label className="block text-gray-700 font-primary mb-2" htmlFor="nombre">Nombre</label>
                             <input
