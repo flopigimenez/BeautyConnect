@@ -150,14 +150,19 @@ const uploadFileToCloudinary = async (file: File, resourceType: CloudinaryResour
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
   const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, { method: "POST", body: formData });
-  let data: any = null;
-  try { data = await response.json(); } catch { data = null; }
+  type CloudinaryUploadResponse = {
+    secure_url?: string;
+    error?: { message?: string };
+  };
+
+  let data: CloudinaryUploadResponse | null = null;
+  try { data = await response.json() as CloudinaryUploadResponse; } catch { data = null; }
   if (!response.ok) {
     const message = (data && typeof data?.error?.message === "string" ? data.error.message : undefined) ?? "No se pudo subir el archivo a Cloudinary.";
     throw new Error(message);
   }
   if (!data || typeof data.secure_url !== "string") throw new Error("Cloudinary no devolvio una URL valida.");
-  return data.secure_url as string;
+  return data.secure_url;
 };
 
 // --- Nominatim helpers ---
@@ -271,6 +276,7 @@ const ConfigPrestador = () => {
         confirmButtonColor: "#C19BA8",
       });
     } catch (error) {
+      console.error(error);
       Swal.fire({ icon: "error", title: "Error", text: "No se pudo cambiar el estado del centro. Antes de activar el centro debe tener al menos un profesional vinculado con un servicio", confirmButtonColor: "#C19BA8" });
     } finally {
       setTogglingCentro(false);
@@ -437,7 +443,7 @@ const ConfigPrestador = () => {
                     latitud: typeof centro?.domicilio?.latitud === "number" ? centro!.domicilio!.latitud : DEFAULT_CENTER[0],
                     longitud: typeof centro?.domicilio?.longitud === "number" ? centro!.domicilio!.longitud : DEFAULT_CENTER[1],
                   },
-                  horariosCentro: centro?.horariosCentro?.map((h: any) => ({
+                  horariosCentro: centro?.horariosCentro?.map((h: HorarioCentroDTO) => ({
                     id: typeof h.id === "number" ? h.id : undefined,
                     dia: h.dia,
                     horaMInicio: h.horaMInicio,
@@ -487,16 +493,14 @@ const ConfigPrestador = () => {
                     console.log("Payload enviado al backend:", payload);
 
                     let saved: CentroDeEsteticaResponseDTO;
-                    let updatedDomicilio = centro?.domicilio ?? null;
 
                     if (centro?.id) {
                       if (centro?.domicilio?.id) {
-                        updatedDomicilio = await domicilioService.updateDomicilio(centro.domicilio.id, domicilioPayload);
+                        await domicilioService.updateDomicilio(centro.domicilio.id, domicilioPayload);
                       }
                       saved = await centroService.update(centro.id, payload);
                     } else {
                       saved = await centroService.create(payload);
-                      updatedDomicilio = saved.domicilio ?? updatedDomicilio;
                     }
 
                     const refrescado = await centroService.getById(saved.id);

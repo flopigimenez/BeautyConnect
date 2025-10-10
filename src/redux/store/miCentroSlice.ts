@@ -36,6 +36,7 @@ export const fetchCentro = createAsyncThunk<CentroDeEsteticaResponseDTO, number>
             }
             return response;
         } catch (error) {
+            console.error("Error fetching centro:", error);
             return rejectWithValue("Error al obtener el centro");
         }
     }

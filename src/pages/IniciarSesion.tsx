@@ -14,6 +14,17 @@ interface AuthRequest {
     mail?: string;
 }
 
+type FirebaseAuthError = {
+    code?: string;
+    message?: string;
+};
+
+const isFirebaseAuthError = (value: unknown): value is FirebaseAuthError => {
+    if (typeof value !== "object" || value === null) return false;
+    const record = value as Record<string, unknown>;
+    return (typeof record.code === "string" || typeof record.message === "string");
+};
+
 const IniciarSesion = () => {
     const dispatch = useAppDispatch();
     const [email, setEmail] = useState("");
@@ -61,6 +72,7 @@ const IniciarSesion = () => {
             navigate(redirectPath);
 
         } catch (error) {
+            console.error("Error en login:", error);
             Swal.fire({
                 text: 'Error al iniciar sesion',
                 icon: 'error',
@@ -118,16 +130,17 @@ const IniciarSesion = () => {
             const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : "/";
             navigate(redirectPath);
 
-        } catch (error: any) {
-            console.error("Error en login con Google:", error);
+        } catch (unknownError) {
+            console.error("Error en login con Google:", unknownError);
 
             let errorMessage = "Error al iniciar sesion con Google";
 
-            if (error.code === 'auth/popup-closed-by-user') {
+            const error = isFirebaseAuthError(unknownError) ? unknownError : null;
+            if (error?.code === 'auth/popup-closed-by-user') {
                 errorMessage = "El popup de Google fue cerrado";
-            } else if (error.code === 'auth/popup-blocked') {
+            } else if (error?.code === 'auth/popup-blocked') {
                 errorMessage = "El popup de Google fue bloqueado. Por favor, permite los popups para este sitio";
-            } else if (error.message) {
+            } else if (error?.message) {
                 errorMessage = error.message;
             }
 

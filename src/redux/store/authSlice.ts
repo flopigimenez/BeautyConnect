@@ -8,7 +8,7 @@ import type { PrestadorServicioResponseDTO } from "../../types/prestadorDeServic
 import type { RootState } from "../store";
 import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService";
 import { setCentroSlice } from "./miCentroSlice";
-import type { CentroDeEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+//import type { CentroDeEsteticaResponseDTO } from "../../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
 import type { SuperAdminResponseDTO } from "../../types/superAdmin/SuperAdminResponseDTO";
 import { SuperAdminService } from "../../services/SuperAdminService";
 
@@ -67,17 +67,20 @@ export const obtenerAuthUser = createAsyncThunk<
     if (role === "CLIENTE") {
         const c = await clienteService.getByUid(uid);
         if (c?.id) return c;
-    } else
-        if (role === "PRESTADOR_DE_SERVICIO") {
-            const p = await prestadorService.getByUid(uid);
-            const c = await centroService.getByPrestadorId(p?.id!);
-            dispatch(setCentroSlice(c as CentroDeEsteticaResponseDTO));
-            if (p?.id) return p;
-        } if (role === "SUPERADMIN") {
-            const a = await superAdminService.getByUid(uid);
-            if (a?.id) return a;
+    } else if (role === "PRESTADOR_DE_SERVICIO") {
+        const prestador = await prestadorService.getByUid(uid);
+        if (prestador?.id) {
+            const centro = await centroService.getByPrestadorId(prestador.id);
+            if (centro) {
+                dispatch(setCentroSlice(centro));
+            }
+            return prestador;
         }
-        
+    } else if (role === "SUPERADMIN") {
+        const a = await superAdminService.getByUid(uid);
+        if (a?.id) return a;
+    }
+
 
     setUser(storedUser!);
 
