@@ -32,15 +32,16 @@ const diasEnEspanol: Record<string, string> = {
 };
 
 
-const centroMarkerIcon = L.icon({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
+const centroMarkerIcon = new L.Icon({
+  iconUrl:
+    "data:image/svg+xml;base64," +
+    btoa(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="20" viewBox="0 0 25 41" fill="none">
+        <path fill="#C4A1B5" stroke="black" stroke-width="1" d="M12.5 0C5.6 0 0 5.6 0 12.5C0 22.5 12.5 41 12.5 41C12.5 41 25 22.5 25 12.5C25 5.6 19.4 0 12.5 0ZM12.5 17.5C9.46 17.5 7 15.04 7 12C7 8.96 9.46 6.5 12.5 6.5C15.54 6.5 18 8.96 18 12C18 15.04 15.54 17.5 12.5 17.5Z"/>
+      </svg>
+    `),
   iconSize: [25, 41],
   iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  tooltipAnchor: [16, -28],
-  shadowSize: [41, 41],
 });
 
 const DEFAULT_CENTER: LatLngTuple = [-34.6037, -58.3816];

@@ -10,6 +10,8 @@ import type { Rol } from "../types/enums/Rol";
 const DEFAULT_ROL: Rol = "CLIENTE" as Rol;
 import CambiarPasswordModal from "../components/modals/CambiarPasswordModal";
 import Swal from "sweetalert2";
+import { useAppDispatch } from "../redux/store/hooks";
+import { setUser } from "../redux/store/authSlice";
 
 export default function MiPerfil() {
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +19,7 @@ export default function MiPerfil() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cliente, setCliente] = useState<ClienteResponseDTO | null>(null);
+  const dispatch = useAppDispatch();
 
   // form state
   const [nombre, setNombre] = useState("");
@@ -99,7 +102,8 @@ export default function MiPerfil() {
       } else {
         updated = await svc.create(payload);
       }
-
+      
+      dispatch(setUser(updated));
       setCliente(updated);
       setNombre(updated.nombre ?? "");
       setApellido(updated.apellido ?? "");

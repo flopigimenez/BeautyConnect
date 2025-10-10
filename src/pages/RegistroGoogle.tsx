@@ -1,12 +1,10 @@
 ﻿import { useEffect, useState } from "react"
-import type { ClienteDTO } from "../types/cliente/ClienteDTO"
 import type { PrestadorServicioDTO } from "../types/prestadorDeServicio/PestadorServicioDTO"
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks"
 import { Rol } from "../types/enums/Rol"
 import { updateUserCliente, updateUserPrestador } from "../redux/store/authSlice"
 import { useNavigate } from "react-router-dom"
 import Footer from "../components/Footer"
-import AddressFieldset, { type AddressValue } from "../components/AddressFieldset"
 
 const RegistroGoogle = () => {
     const navigate = useNavigate()

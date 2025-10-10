@@ -32,13 +32,13 @@ type FiltroCentroState = {
     localidad: string | null;
 };
 const diasEnEspanol: Record<string, string> = {
-  MONDAY: "Lunes",
-  TUESDAY: "Martes",
-  WEDNESDAY: "Miércoles",
-  THURSDAY: "Jueves",
-  FRIDAY: "Viernes",
-  SATURDAY: "Sábado",
-  SUNDAY: "Domingo",
+    MONDAY: "Lunes",
+    TUESDAY: "Martes",
+    WEDNESDAY: "Miércoles",
+    THURSDAY: "Jueves",
+    FRIDAY: "Viernes",
+    SATURDAY: "Sábado",
+    SUNDAY: "Domingo",
 };
 
 
@@ -353,17 +353,17 @@ const Centros = () => {
                                         </p>
                                     )}
                                     {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
-                <div>
-                  <b>Horarios de atención:</b>
-                  <ul className="list-disc list-inside mt-1">
-                    {centroSeleccionado.horariosCentro.map((horario, index) => (
-                      <li key={index}>
-                        {diasEnEspanol[horario.dia]}: {horario.horaMInicio} - {horario.horaMFinalizacion} / {horario.horaTInicio} - {horario.horaTFinalizacion}
-                      </li>
-                    ))}   
-                  </ul>
-                </div>
-              )}
+                                        <div>
+                                            <b>Horarios de atención:</b>
+                                            <ul className="list-disc list-inside mt-1">
+                                                {centroSeleccionado.horariosCentro.map((horario, index) => (
+                                                    <li key={index}>
+                                                        {diasEnEspanol[horario.dia]}: {horario.horaMInicio} - {horario.horaMFinalizacion} / {horario.horaTInicio} - {horario.horaTFinalizacion}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
 
                                     <div className="flex justify-around mt-5">
                                         <button
@@ -377,7 +377,16 @@ const Centros = () => {
                                         <button
                                             className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
                                             onClick={() => {
-                                                if (user) {
+                                                console.log("user: ", user)
+                                                if (!user?.nombre || !user?.apellido || !user?.telefono) {
+                                                    navigate("/MiPerfil")
+                                                    Swal.fire({
+                                                        icon: "info",
+                                                        title: "Debes completar los datos para pedir un turno",
+                                                        showConfirmButton: true,
+                                                        confirmButtonColor: "#a27e8f",
+                                                    });
+                                                } else if (user) {
                                                     navigate(`/turno/${centroSeleccionado.id}`);
                                                 } else {
                                                     navigate("/IniciarSesion");

@@ -115,7 +115,7 @@ const IniciarSesion = () => {
             });
 
             const googleRole = userData?.usuario?.rol;
-            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : googleRole === Rol.CLIENTE ? "/FinalizarRegistroGoogle": "/";
+            const redirectPath = googleRole === Rol.SUPERADMIN ? "/admin/solicitudDeSalones" : googleRole === Rol.PRESTADOR_DE_SERVICIO ? "/redirigir" : "/";
             navigate(redirectPath);
 
         } catch (error: any) {

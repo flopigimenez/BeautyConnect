@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "../redux/store/hooks";
 import { Estado } from "../types/enums/Estado";
 import { useEffect } from "react";
-import Swal from "sweetalert2";
 
 const Redirigir = () => {
     const centro = useAppSelector((state) => state.miCentro.centro);
