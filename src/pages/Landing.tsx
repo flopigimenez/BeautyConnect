@@ -107,10 +107,7 @@ const Landing = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
           {centros.slice(0, 3).map((centro) => (
-            <div
-              key={centro.id}
-              className="group relative overflow-hidden rounded-xl shadow-md"
-            >
+            <div key={centro.id} className="group relative overflow-hidden rounded-xl shadow-md">
               {/* Imagen base */}
               <img
                 src={centro.imagen}
@@ -118,48 +115,30 @@ const Landing = () => {
                 className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
 
-              {/* Card blanca  */}
+              {/* Card blanca */}
               <div
                 className="
-            pointer-events-none
-            absolute inset-0
-            flex items-end
-            p-0
+            absolute bottom-0 w-full
+            bg-white/95 backdrop-blur
+            transform translate-y-4 opacity-0
+            transition-all duration-300 ease-out
+            group-hover:translate-y-0 group-hover:opacity-100
+            p-4
           "
               >
-                <div
-                  className="
-              w-full
-              bg-white/95 backdrop-blur
-              translate-y-4 opacity-0
-              transition-all duration-300 ease-out
-              group-hover:opacity-100 group-hover:translate-y-0
-              group-focus-within:opacity-100 group-focus-within:translate-y-0
-              pointer-events-auto
-              p-4
-            "
-                >
-                  <h3 className="text-lg font-semibold text-[#703F52]">
-                    {centro.nombre}
-                  </h3>
-                  <p className="mt-1 text-sm text-[#703F52]/80 line-clamp-3">
-                    {centro.descripcion}
-                  </p>
+                <h3 className="text-lg font-semibold text-[#703F52]">{centro.nombre}</h3>
+                <p className="mt-1 text-sm text-[#703F52]/80 line-clamp-3">{centro.descripcion}</p>
 
-                  <button className="mt-3">
-                    <Link
-                      to={`/centros/${centro.id}`}
-                      className="inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] cursor-pointer shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
-                    >
-                      Ver más
-                    </Link>
-                  </button>
-                </div>
+                <Link
+                  to={`/centros`}
+                  className="mt-3 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] cursor-pointer shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                >
+                  Ver más
+                </Link>
               </div>
 
-
-              {/* Overlay  */}
-              <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
+              {/* Overlay */}
+              <div className="bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
             </div>
           ))}
         </div>
