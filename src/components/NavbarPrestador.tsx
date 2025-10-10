@@ -5,10 +5,12 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { clearUser } from "../redux/store/authSlice";
 import { clearCentro } from "../redux/store/miCentroSlice";
 import Swal from "sweetalert2";
+import { Estado } from "../types/enums/Estado";
 
 const NavbarPrestador = () => {
   const user = useAppSelector((state) => state.user.user);
   const dispatch = useAppDispatch();
+  const centro = useAppSelector((state) => state.miCentro.centro)
 
   const handleLogout = async () => {
     Swal.fire({
@@ -47,7 +49,7 @@ const NavbarPrestador = () => {
   }
 
   return (
-    <nav className="bg-primary shadow-md fixed top-0 w-full z-50">
+    <nav className="bg-primary shadow-md fixed top-0 w-full z-9999">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -55,6 +57,22 @@ const NavbarPrestador = () => {
               BeautyConnect
             </Link>
           </div>
+
+          {centro && centro.estado === Estado.ACEPTADO && (
+            <div>
+              <Link to="/prestador/panel" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
+                Panel
+              </Link>
+            </div>
+          )}
+
+          {centro && centro.estado === Estado.RECHAZADO && (
+            <div>
+              <Link to="/prestador/configPrestador" className="text-sm text-gray-600 hover:text-gray-900 font-primary">
+                Configuración
+              </Link>
+            </div>
+          )}
 
           <div className="ml-10 flex items-center space-x-4">
             {user ? (

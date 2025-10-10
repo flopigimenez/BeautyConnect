@@ -246,7 +246,7 @@ const ConfigPrestador = () => {
 
   const handleToggleCentroActivo = async () => {
     if (!centro || !centro.id || togglingCentro) return;
-
+    
     const accion = centro.active ? "desactivar" : "activar";
     const confirm = await Swal.fire({
       icon: "question",
@@ -485,7 +485,7 @@ const ConfigPrestador = () => {
                       domicilio: domicilioPayload,
                       horariosCentro: horariosPayload,
                     };
-console.log("Payload enviado al backend:", payload);
+                    console.log("Payload enviado al backend:", payload);
 
                     let saved: CentroDeEsteticaResponseDTO;
                     let updatedDomicilio = centro?.domicilio ?? null;
@@ -536,9 +536,8 @@ console.log("Payload enviado al backend:", payload);
                             type="button"
                             onClick={handleToggleCentroActivo}
                             disabled={togglingCentro}
-                            className={`inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white transition cursor-pointer ${
-                              centro?.active ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"
-                            } ${togglingCentro ? "opacity-60 cursor-not-allowed" : ""}`}
+                            className={`inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white transition cursor-pointer ${centro?.active ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"
+                              } ${togglingCentro ? "opacity-60 cursor-not-allowed" : ""}`}
                           >
                             {togglingCentro ? "Procesando..." : centro?.active ? "Desactivar centro" : "Activar centro"}
                           </button>
@@ -562,20 +561,20 @@ console.log("Payload enviado al backend:", payload);
                             disabled={uploadingDoc}
                             className="w-full rounded-lg border border-[#E9DDE1] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
                           />
-                          {uploadingDoc ? (
-                            <span className="text-sm text-[#703F52]">Subiendo documento...</span>
-                          ) : values.docValido ? (
-                            <button
-                              type="button"
-                              onClick={() => window.open(values.docValido, "_blank", "noopener,noreferrer")}
-                              className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] cursor-pointer"
-                            >
-                              Ver documento actual
-                            </button>
-                          ) : (
-                            <span className="text-sm text-gray-500">Sin documento cargado</span>
-                          )}
                         </div>
+                        {uploadingDoc ? (
+                          <span className="text-sm text-[#703F52]">Subiendo documento...</span>
+                        ) : values.docValido ? (
+                          <button
+                            type="button"
+                            onClick={() => window.open(values.docValido, "_blank", "noopener,noreferrer")}
+                            className="w-55 inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#5e3443] cursor-pointer"
+                          >
+                            Ver documento actual
+                          </button>
+                        ) : (
+                          <span className="text-sm text-gray-500">Sin documento cargado</span>
+                        )}
                         <Field type="hidden" name="docValido" />
                         <ErrorMessage name="docValido" component="span" className="text-xs text-red-600" />
                       </div>
@@ -686,7 +685,7 @@ console.log("Payload enviado al backend:", payload);
                               }
                             }}
                           />
-                          <Marker position={centerMap} icon={markerIcon}/>
+                          <Marker position={centerMap} icon={markerIcon} />
                         </MapContainer>
 
                         {/* Campos ocultos para validación/envío */}
@@ -792,13 +791,6 @@ console.log("Payload enviado al backend:", payload);
                                       }
 
                                       push({ dia, horaMInicio, horaMFinalizacion, horaTInicio, horaTFinalizacion });
-
-                                      // limpiar inputs temporales
-                                      (document.querySelector(`[name="__tmp.dia"]`) as HTMLSelectElement | null)?.value && ((document.querySelector(`[name="__tmp.dia"]`) as HTMLSelectElement).value = "");
-                                      ["__tmp.horaMInicio","__tmp.horaMFinalizacion","__tmp.horaTInicio","__tmp.horaTFinalizacion"].forEach(n => {
-                                        const el = document.querySelector<HTMLInputElement>(`[name="${n}"]`);
-                                        if (el) el.value = "";
-                                      });
                                     }}
                                     className="rounded-full bg-[#703F52] hover:bg-[#5e3443] text-white px-4 py-2 text-sm font-semibold cursor-pointer"
                                   >

@@ -10,7 +10,7 @@ import AddressFieldset, { type AddressValue } from "../components/AddressFieldse
 
 const RegistroGoogle = () => {
     const navigate = useNavigate()
-    const { user, error } = useAppSelector((state) => state.user)
+    const { user, error } = useAppSelector((state) => state.user);
     const dispatch = useAppDispatch()
 
     const isCliente = user?.usuario.rol === Rol.CLIENTE
@@ -26,7 +26,7 @@ const RegistroGoogle = () => {
         },
     })
 
-    const getInitialAddress = (): AddressValue => {
+    /*const getInitialAddress = (): AddressValue => {
         const cliente = user as ClienteDTO;
         //const domicilio = user?.domicilio
         const domicilio = cliente?.domicilio
@@ -47,35 +47,25 @@ const RegistroGoogle = () => {
             codigoPostal: undefined,
             provincia: "",
         }
-    }
+    }*/
 
     const [registro, setRegistro] = useState<PrestadorServicioDTO>(getInitialRegistro)
-    const [domicilioForm, setDomicilioForm] = useState<AddressValue>(getInitialAddress)
+    // const [domicilioForm, setDomicilioForm] = useState<AddressValue>(getInitialAddress)
 
     useEffect(() => {
         setRegistro(getInitialRegistro());
-        setDomicilioForm(getInitialAddress());
-        if (registro && domicilioForm) {
+        // setDomicilioForm(getInitialAddress());
+        /*if (registro) {
             const redirectPath = isCliente ? "/" : "/RegistroDeSalon";
             navigate(redirectPath);
-        }
+        }*/
     }, [user, isCliente, navigate])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
 
         if (isCliente) {
-            const payload: ClienteDTO = {
-                ...registro,
-                domicilio: {
-                    calle: domicilioForm.calle,
-                    numero: domicilioForm.numero ?? 0,
-                    localidad: domicilioForm.localidad,
-                    codigoPostal: domicilioForm.codigoPostal ?? 0,
-                    provincia: domicilioForm.provincia,
-                },
-            }
-            dispatch(updateUserCliente(payload))
+            dispatch(updateUserCliente(registro))
             navigate("/")
         } else {
             dispatch(updateUserPrestador(registro))
@@ -86,7 +76,7 @@ const RegistroGoogle = () => {
     return (
         <>
             {error ? (<p className="text-red-500">{error}</p>) : (
-                <div className="bg-primary w-screen pt-10 flex flex-col items-center min-h-screen">
+                <div className="bg-primary w-screen pt-20 flex flex-col items-center min-h-[85vh]">
                     <h1 className="font-secondary text-2xl font-bold text-tertiary">Finaliza tu registro</h1>
                     <form className="mt-5 w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
@@ -122,17 +112,16 @@ const RegistroGoogle = () => {
                                 onChange={(e) => setRegistro(prev => ({ ...prev, telefono: e.target.value }))}
                             />
                         </div>
-                        {isCliente && (
+                        {/* {isCliente && (
                             <div className="mb-5">
-                                {/* <label className="block text-gray-700 font-primary mb-2" htmlFor="direccion">Direccion</label> */}
                                 <AddressFieldset
                                     value={domicilioForm}
                                     onChange={setDomicilioForm}
                                     className="bg-white rounded-2xl p-4 border border-gray-200"
                                 />
                             </div>
-                        )}
-                        <div className="flex flex-col items-center mb-10">
+                        )} */}
+                        <div className="flex flex-col items-center m-10">
                             <button
                                 type="submit"
                                 className="w-[90%] bg-secondary text-white font-bold py-2 rounded-full hover:bg-[#a27e8f] transition font-secondary"

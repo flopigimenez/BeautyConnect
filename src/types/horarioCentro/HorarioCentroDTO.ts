@@ -1,4 +1,5 @@
 export interface HorarioCentroDTO {
+    id?: number;
     dia: string;
     // diaHasta: string;
     horaMInicio: string; // Formato "HH:mm"

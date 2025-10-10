@@ -58,7 +58,7 @@ const TerminosYCondiciones = () => {
           <article>
             <h2 className="text-xl font-semibold text-tertiary">6. Contacto</h2>
             <p className="mt-3">
-              Si tenes consultas sobre estos terminos, escribinos a <a href="mailto:legal@beautyconnect.com" className="font-medium text-tertiary underline">legal@beautyconnect.com</a>.
+              Si tenes consultas sobre estos terminos, escribinos a <a href="mailto:beautyconnect16@gmail.com" className="font-medium text-tertiary underline">beautyconnect16@gmail.com</a>.
             </p>
           </article>
         </section>

@@ -37,8 +37,8 @@ const Registro = () => {
             !registro.telefono ||
             !usuario.mail ||
             !contrasenia ||
-            !confirmPassword 
-           
+            !confirmPassword
+
         ) {
             Swal.fire({
                 text: 'Por favor, completa todos los campos requeridos',
@@ -84,7 +84,7 @@ const Registro = () => {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
                         telefono: registro.telefono,
-                       
+
                     },
                     prestadorDTO: prestador ? {
                         nombre: registro.nombre,
@@ -155,7 +155,6 @@ const Registro = () => {
                         nombre: registro.nombre,
                         apellido: registro.apellido,
                         telefono: registro.telefono,
-                        
                     },
                     prestadorDTO: prestador ? {
                         nombre: registro.nombre,
@@ -267,7 +266,7 @@ const Registro = () => {
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                             />
                         </div>
-                          
+
                         <div className="flex flex-col items-center mb-5">
                             <div className="mb-8 grid grid-cols-2 gap-30">
                                 <button type="button"
