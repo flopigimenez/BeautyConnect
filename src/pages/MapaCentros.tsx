@@ -205,7 +205,7 @@ const MapaCentros = () => {
     <div className="min-h-screen flex flex-col bg-[#FAF9F8]">
       <Navbar />
       <div className="flex flex-1 flex-col lg:flex-row gap-6 px-4 lg:px-12 pt-6 pb-10 mt-24 w-full max-w-7xl mx-auto">
-        <div className="relative z-0 flex-1 h-[500px] lg:h-[calc(100vh-260px)] bg-white rounded-3xl shadow-lg overflow-hidden">
+        <div className="relative z-0 flex md:flex-1 h-[500px] lg:h-[calc(100vh-260px)] bg-white rounded-3xl shadow-lg overflow-hidden">
           <MapContainer key={`${mapCenter[0]}-${mapCenter[1]}`} center={mapCenter} zoom={12} className="h-full w-full z-0" zoomControl>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -283,7 +283,7 @@ const MapaCentros = () => {
         </div>
       </div>
       {modalCentro && centroSeleccionado && (
-        <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] animate-fadeIn">
           <div className="relative bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
 
             <button
@@ -302,14 +302,14 @@ const MapaCentros = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
             </div>
 
-            <div className="p-5 space-y-3 font-primary text-gray-700">
-              <h3 className="text-2xl font-bold text-center text-secondary">
+            <div className="py-3 px-5 space-y-3 font-primary text-gray-700">
+              <h3 className="text-xl md:text-2xl font-bold text-center text-secondary">
                 {centroSeleccionado.nombre}
               </h3>
-              <p><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
+              <p className="text-sm md:text-base"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
 
               {centroSeleccionado.domicilio && (
-                <p>
+                <p className="text-sm md:text-base">
                   <b>Domicilio:</b> {centroSeleccionado.domicilio.calle}{" "}
                   {centroSeleccionado.domicilio.numero},{" "}
                   {centroSeleccionado.domicilio.localidad} –{" "}
@@ -318,7 +318,7 @@ const MapaCentros = () => {
               )}
 
               {centroSeleccionado.servicios?.length > 0 && (
-                <p>
+                <p className="text-sm md:text-base">
                   <b>Servicios:</b>{" "}
                   {centroSeleccionado.servicios
                     .map((s) => s.tipoDeServicio.toLowerCase())
@@ -327,20 +327,22 @@ const MapaCentros = () => {
               )}
               {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
                 <div>
-                  <b>Horarios de atención:</b>
-                  <ul className="list-disc list-inside mt-1">
+                  <b className="text-sm md:text-base">Horarios de atención:</b>
+                  <ul className="list-disc list-inside mt-1 text-sm md:text-base">
                     {centroSeleccionado.horariosCentro.map((horario, index) => (
-                      <li key={index}>
-                        {diasEnEspanol[horario.dia]}: {horario.horaMInicio} - {horario.horaMFinalizacion} / {horario.horaTInicio} - {horario.horaTFinalizacion}
+                      <li key={index} className="text-sm md:text-base">
+                        {diasEnEspanol[horario.dia]}:{" "}
+                        {horario.horaMInicio?.slice(0, 5)} - {horario.horaMFinalizacion?.slice(0, 5)} /{" "}
+                        {horario.horaTInicio?.slice(0, 5)} - {horario.horaTFinalizacion?.slice(0, 5)}
                       </li>
-                    ))}   
+                    ))}
                   </ul>
                 </div>
               )}
 
               <div className="flex justify-around mt-5">
                 <button
-                  className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
+                  className="text-sm md:text-base bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
                   onClick={() =>
                     navigate(`/centros/${centroSeleccionado.id}/resenias`)
                   }
@@ -348,7 +350,7 @@ const MapaCentros = () => {
                   Ver reseñas
                 </button>
                 <button
-                  className="bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
+                  className="text-sm md:text-base bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
                   onClick={() => {
                     if (user) {
                       navigate(`/turno/${centroSeleccionado.id}`);
