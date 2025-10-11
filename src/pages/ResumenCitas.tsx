@@ -71,8 +71,8 @@ export default function ResumenCitas() {
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
         </aside>
-        <main className="flex-1 overflow-auto px-6 py-20">
-          <div>
+        <main className="flex-1 overflow-auto px-6 pt-20 pb-10">
+          <div className="pb-10">
             <div className="flex justify-between">
               <div>
                 <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
