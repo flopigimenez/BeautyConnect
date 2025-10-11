@@ -14,6 +14,7 @@ import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import Swal from "sweetalert2";
 import Footer from "../components/Footer";
 import { FaArrowLeft } from "react-icons/fa6";
+import { buildServiciosLabel } from "../utils/servicios";
 
 
 const RATING_SCALE = 5;
@@ -217,6 +218,7 @@ const Centros = () => {
 
     const [modalCentro, setModalCentro] = useState(false);
     const [centroSeleccionado, setCentroSeleccionado] = useState<CentroDeEsteticaResponseDTO>();
+    const serviciosSeleccionadosLabel = buildServiciosLabel(centroSeleccionado?.servicios);
 
 
     useEffect(() => {
@@ -344,12 +346,10 @@ const Centros = () => {
                                         </p>
                                     )}
 
-                                    {centroSeleccionado.servicios?.length > 0 && (
+                                    {serviciosSeleccionadosLabel && (
                                         <p className="text-sm md:text-base">
                                             <b>Servicios:</b>{" "}
-                                            {centroSeleccionado.servicios
-                                                .map((s) => s.tipoDeServicio.toLowerCase())
-                                                .join(", ")}
+                                            {serviciosSeleccionadosLabel}
                                         </p>
                                     )}
                                     {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
@@ -485,12 +485,12 @@ const Centros = () => {
                                         </select>
                                     </div>
                                     <div className="flex flex-col justify-end">
-                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Resenas</label>
+                                        <label className="block text-md font-primary mb-2 font-bold pl-3">Reseñas</label>
                                         <button
                                             onClick={() => { setPaginaActual(1); setFiltroTemporal(prev => ({ ...prev, resena: prev.resena === "true" ? null : "true" })); }}
                                             className={`border border-secondary text-sm font-primary px-4 py-1 rounded-full cursor-pointer hover:bg-secondary transition ${filtroTemporal.resena === "true" ? "bg-secondary text-white" : ""}`}
                                         >
-                                            Ordenar por resenas
+                                            Ordenar por reseñas
                                         </button>
                                     </div>
                                 </div>

@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
 import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import { buildServiciosLabel } from "../utils/servicios";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl,
@@ -107,6 +108,7 @@ const MapaCentros = () => {
   const [centrosConCoordenadas, setCentrosConCoordenadas] = useState<CentroWithCoords[]>([]);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
   const [geocoding, setGeocoding] = useState(false);
+  const serviciosSeleccionadosLabel = buildServiciosLabel(centroSeleccionado?.servicios);
 
   useEffect(() => {
     dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
@@ -317,12 +319,10 @@ const MapaCentros = () => {
                 </p>
               )}
 
-              {centroSeleccionado.servicios?.length > 0 && (
+              {serviciosSeleccionadosLabel && (
                 <p className="text-sm md:text-base">
                   <b>Servicios:</b>{" "}
-                  {centroSeleccionado.servicios
-                    .map((s) => s.tipoDeServicio.toLowerCase())
-                    .join(", ")}
+                  {serviciosSeleccionadosLabel}
                 </p>
               )}
               {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
