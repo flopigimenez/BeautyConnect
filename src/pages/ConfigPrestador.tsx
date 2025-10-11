@@ -538,9 +538,9 @@ const ConfigPrestador = () => {
                           <button
                             type="button"
                             onClick={handleToggleCentroActivo}
-                            disabled={togglingCentro}
+                            disabled={togglingCentro || centro.estado === Estado.RECHAZADO}
                             className={`inline-flex items-center justify-center rounded-full px-5 py-2 text-sm font-semibold text-white transition cursor-pointer ${centro?.active ? "bg-red-500 hover:bg-red-600" : "bg-emerald-500 hover:bg-emerald-600"
-                              } ${togglingCentro ? "opacity-60 cursor-not-allowed" : ""}`}
+                              } ${togglingCentro ? "disabled:opacity-60 disable:cursor-not-allowed" : ""} ${centro.estado === Estado.RECHAZADO ? "disabled:bg-gray-300 disabled:cursor-not-allowed" : ""}`}
                           >
                             {togglingCentro ? "Procesando..." : centro?.active ? "Desactivar centro" : "Activar centro"}
                           </button>
