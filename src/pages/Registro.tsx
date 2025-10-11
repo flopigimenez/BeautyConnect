@@ -277,7 +277,7 @@ const Registro = () => {
                                     Soy cliente
                                 </button>
                                 <button type="button"
-                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[23vh] h-[4vh] md:w-[30vh] md:h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
+                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[20vh] h-[4vh] md:w-[30vh] md:h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
                                     onClick={() => setPrestador(true)}
                                 >
                                     Prestador de servicio
