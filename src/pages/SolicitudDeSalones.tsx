@@ -18,8 +18,8 @@ export default function SolicitudDeSalones() {
     const centroService = new CentroDeEsteticaService();
     const [loadingAceptar, setLoadingAceptar] = useState(false);
     const [loadingRechazar, setLoadingRechazar] = useState(false);
-    const [loadingId, setLoadingId] = useState<number | null>(null); 
-    // const [verMas, setVerMas] = useState<boolean>(false);
+    const [loadingId, setLoadingId] = useState<number | null>(null);
+    const [expanded, setExpanded] = useState<boolean>(false);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
@@ -77,12 +77,29 @@ export default function SolicitudDeSalones() {
                             },
                             { header: "Nombre", accessor: "nombre" },
                             {
-                                header: "Descripción", accessor: "descripcion", render: (row) =>
-                                    row.descripcion
-                                        ? (row.descripcion.length > 50
-                                            ? row.descripcion.slice(0, 50) + "..."
-                                            : row.descripcion)
-                                        : "Sin descripción"
+                                header: "Descripción",
+                                accessor: "descripcion",
+                                render: (row) => {
+                                    if (!row.descripcion) return "Sin descripción";
+
+                                    const texto = row.descripcion;
+                                    const corto = texto.length > 50 ? texto.slice(0, 50) + "..." : texto;
+
+                                    return (
+                                        <div>
+                                            <span>{expanded ? texto : corto}</span>
+                                            {texto.length > 50 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setExpanded(!expanded)}
+                                                    className="ml-2 text-secondary font-semibold hover:underline"
+                                                >
+                                                    {expanded ? "Ocultar" : "Ver más"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                },
                             },
                             { header: "Cuit", accessor: "cuit" },
                             {
@@ -124,7 +141,7 @@ export default function SolicitudDeSalones() {
                                             disabled={loadingAceptar || loadingRechazar}
                                             onClick={() => cambiarEstado(row.id, Estado.ACEPTADO)}
                                         >
-                                            {loadingAceptar  && loadingId === row.id && Estado.ACEPTADO ? "Aprobando..." : "Aprobar"}
+                                            {loadingAceptar && loadingId === row.id && Estado.ACEPTADO ? "Aprobando..." : "Aprobar"}
                                         </button>
                                         <button className="bg-red-600/50  text-primary py-1 px-2 rounded-full hover:bg-red-600/70 hover:scale-102 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={loadingAceptar || loadingRechazar}

@@ -197,7 +197,7 @@ const Registro = () => {
             {error ? (<p className="text-red-500">{error}</p>) : (
                 <div className="bg-primary w-screen pt-25 flex flex-col items-center">
                     <h1 className="font-secondary text-2xl font-bold mb-3 text-tertiary text-center">¡Bienvenido a BeautyConnect!</h1>
-                    <p className="font-primary text-center">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
+                    <p className="font-primary text-center text-sm md:text-base">Regístrate para comenzar a gestionar tus turnos de belleza de manera eficiente.</p>
                     <form className="mt-5 w-[20rem] md:w-[45rem]" onSubmit={handleSubmit}>
                         <div className="mb-5">
                             <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="nombre">Nombre</label>
@@ -271,13 +271,13 @@ const Registro = () => {
                         <div className="flex flex-col items-center justify-center mb-5">
                             <div className="mb-8 grid grid-cols-2 md:gap-30">
                                 <button type="button"
-                                    className={`border border-tertiary rounded-lg w-[16vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == false ? "bg-tertiary text-white" : "bg-white"}`}
+                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[15vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == false ? "bg-tertiary text-white" : "bg-white"}`}
                                     onClick={() => setPrestador(false)}
                                 >
                                     Soy cliente
                                 </button>
                                 <button type="button"
-                                    className={`border border-tertiary rounded-lg w-[28vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
+                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[25vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
                                     onClick={() => setPrestador(true)}
                                 >
                                     Prestador de servicio
