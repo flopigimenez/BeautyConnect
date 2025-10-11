@@ -112,12 +112,16 @@ export default function ResumenCitas() {
               title="Próximas citas"
               columns={[
                 { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
+                { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.titulo}` },
                 {
-                  header: "Servicio", accessor: "profesionalServicio", render: row =>
-                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                      .split('_')
-                      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')
+                  header: "Tipo de Servicio", accessor: "profesionalServicio", render: (row) => (
+                    <div>
+                      {row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                        .split("_")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
+                    </div>
+                  ),
                 },
                 {
                   header: "Fecha", accessor: "fecha",
@@ -177,12 +181,16 @@ export default function ResumenCitas() {
             title="Todas las citas"
             columns={[
               { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
+              { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.titulo}` },
               {
-                header: "Servicio", accessor: "profesionalServicio", render: row =>
-                  row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                    .split('_')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')
+                header: "Tipo de Servicio", accessor: "profesionalServicio", render: (row) => (
+                  <div>
+                    {row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                      .split("_")
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(" ")}
+                  </div>
+                ),
               },
               {
                 header: "Fecha", accessor: "fecha",
