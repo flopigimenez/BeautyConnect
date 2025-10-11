@@ -65,6 +65,7 @@ const Turnos = () => {
   const [loadingClienteInfo, setLoadingClienteInfo] = useState(false);
   const [errorClienteInfo, setErrorClienteInfo] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [verMas, setVerMas] = useState(false);
 
   // ---- Hooks SIEMPRE al tope, sin returns antes ----
 
@@ -299,145 +300,159 @@ const Turnos = () => {
                 <div className={`w-1/2 ${pasos === 1 ? "bg-gray-300" : "bg-secondary"}`}></div>
               </div>
 
-            {/* Paso 1: servicio & profesional */}
-            {pasos === 1 && (
-              <>
-                <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el servicio</h2>
-                <select
-                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
-                  onChange={(e) => {
-                    const s = serviciosActivos.find((srv) => srv.id === Number(e.target.value));
-                    setServicioSeleccionado(s ?? null);
-                    setProfesionalSeleccionado(null);
-                    setFechaSeleccionada(null);
-                    setHoraSeleccionada(null);
-                    setInicios([]);
-                  }}
-                  value={servicioSeleccionado ? servicioSeleccionado.id : ""}
-                >
-                  <option value="" disabled>
-                    Seleccionar servicio
-                  </option>
-                  {serviciosActivos.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.tipoDeServicio
-                        .toLowerCase()
-                        .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}{" "}
+              {/* Paso 1: servicio & profesional */}
+              {pasos === 1 && (
+                <>
+                  <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el servicio</h2>
+                  <select
+                    className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                    onChange={(e) => {
+                      const s = serviciosActivos.find((srv) => srv.id === Number(e.target.value));
+                      setServicioSeleccionado(s ?? null);
+                      setProfesionalSeleccionado(null);
+                      setFechaSeleccionada(null);
+                      setHoraSeleccionada(null);
+                      setInicios([]);
+                    }}
+                    value={servicioSeleccionado ? servicioSeleccionado.id : ""}
+                  >
+                    <option value="" disabled>
+                      Seleccionar servicio
+                    </option>
+                    {serviciosActivos.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.tipoDeServicio
+                          .toLowerCase()
+                          .split("_")
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ")}{" "}
                         -
                         {" "}
                         {s.titulo
                         }{" "}
-                      - ${s.precio}
+                        - ${s.precio}
+                      </option>
+                    ))}
+                  </select>
+                  {servicioSeleccionado && (
+                    <div className="mt-4 w-[100%] rounded-2xl border border-gray-300 shadow flex flex-col gap-2 p-6">
+                      <h3 className="font-secondary text-xl font-bold text-tertiary mb-2">
+                        {servicioSeleccionado.titulo}
+                      </h3>
+                      <p className="font-primary text-base max-w-[100vh] text-gray-700">
+                        <span className="font-semibold text-secondary">Descripción: </span>
+                        {verMas
+                          ? servicioSeleccionado.descripcion
+                          : servicioSeleccionado.descripcion.length > 50
+                            ? servicioSeleccionado.descripcion.slice(0, 50) + "..."
+                            : servicioSeleccionado.descripcion}
+
+                        {servicioSeleccionado.descripcion.length > 50 && (
+                          <button
+                            type="button"
+                            onClick={() => setVerMas(!verMas)}
+                            className="ml-2 text-secondary font-semibold hover:underline"
+                          >
+                            {verMas ? "Ocultar" : "Ver más"}
+                          </button>
+                        )}
+                      </p>
+                      <p className="font-primary text-base text-gray-700">
+                        <span className="font-semibold text-secondary">Tipo: </span>
+                        {servicioSeleccionado.tipoDeServicio.toLowerCase()
+                          .split("_")
+                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(" ")}
+                      </p>
+                      <p className="font-primary text-base text-gray-700">
+                        <span className="font-semibold text-secondary">Precio: </span>
+                        ${servicioSeleccionado.precio}
+                      </p>
+                    </div>
+                  )}
+
+                  <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
+                  <select
+                    className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                    onChange={(e) => {
+                      const p = profesionalServicio.find((ps) => ps?.profesional?.id === Number(e.target.value));
+                      setProfesionalSeleccionado(p?.profesional ?? null);
+                      setFechaSeleccionada(null);
+                      setHoraSeleccionada(null);
+                      setInicios([]);
+                    }}
+                    value={profesionalSeleccionado ? profesionalSeleccionado.id : ""}
+                    disabled={!servicioSeleccionado}
+                  >
+                    <option value="" disabled>
+                      Seleccionar profesional
                     </option>
-                  ))}
-                </select>
-              {servicioSeleccionado && (
-                <div className="mt-4 w-[100%] rounded-2xl  border border-gray-300 shadow flex flex-col gap-2 p-6">
-                  <h3 className="font-secondary text-xl font-bold text-tertiary mb-2">
-                    {servicioSeleccionado.titulo}
-                  </h3>
-                  <p className="font-primary text-base text-gray-700">
-                    <span className="font-semibold text-secondary">Descripción: </span>
-                    {servicioSeleccionado.descripcion}
-                  </p>
-                  <p className="font-primary text-base text-gray-700">
-                    <span className="font-semibold text-secondary">Tipo: </span>
-                    {servicioSeleccionado.tipoDeServicio.toLowerCase()
-                        .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                  </p>
-                  <p className="font-primary text-base text-gray-700">
-                    <span className="font-semibold text-secondary">Precio: </span>
-                    ${servicioSeleccionado.precio}
-                  </p>
-                </div>
+                    {profesionalServicio.map((p) => (
+                      <option key={p?.profesional?.id || `undefined-${Math.random()}`} value={p?.profesional?.id || ""}>
+                        {p?.profesional?.nombre} {p?.profesional?.apellido}
+                      </option>
+                    ))}
+                  </select>
+                </>
               )}
 
-                <h2 className="mt-13 font-secondary text-l font-bold">Selecciona el profesional</h2>
-                <select
-                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
-                  onChange={(e) => {
-                    const p = profesionalServicio.find((ps) => ps?.profesional?.id === Number(e.target.value));
-                    setProfesionalSeleccionado(p?.profesional ?? null);
-                    setFechaSeleccionada(null);
-                    setHoraSeleccionada(null);
-                    setInicios([]);
-                  }}
-                  value={profesionalSeleccionado ? profesionalSeleccionado.id : ""}
-                  disabled={!servicioSeleccionado}
-                >
-                  <option value="" disabled>
-                    Seleccionar profesional
-                  </option>
-                  {profesionalServicio.map((p) => (
-                    <option key={p?.profesional?.id || `undefined-${Math.random()}`} value={p?.profesional?.id || ""}>
-                      {p?.profesional?.nombre} {p?.profesional?.apellido}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
+              {/* Paso 2: fecha & hora */}
+              {pasos === 2 && (
+                <>
+                  <h2 className="mt-13 font-secondary text-l font-bold pb-2">Selecciona la fecha</h2>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="Elegí una fecha"
+                      value={value}
+                      onChange={(newValue) => {
+                        setValue(newValue);
+                        setFechaSeleccionada(newValue ? newValue.format("YYYY-MM-DD") : null);
+                      }}
+                      shouldDisableDate={(date) => {
+                        if (!date) return false;
+                        const today = dayjs();
+                        // Deshabilitar fechas pasadas y el día actual
+                        if (date.isSame(today, "day") || date.isBefore(today, "day")) return true;
+                        // (Opcional) Deshabilitar fines de semana
+                        const d = date.day();
+                        if (d === 0 || d === 6) return true;
+                        return false;
+                      }}
+                      format="DD/MM/YYYY"
+                      className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
+                      slotProps={{ textField: { fullWidth: true } }}
+                    />
+                  </LocalizationProvider>
 
-            {/* Paso 2: fecha & hora */}
-            {pasos === 2 && (
-              <>
-                <h2 className="mt-13 font-secondary text-l font-bold pb-2">Selecciona la fecha</h2>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Elegí una fecha"
-                    value={value}
-                    onChange={(newValue) => {
-                      setValue(newValue);
-                      setFechaSeleccionada(newValue ? newValue.format("YYYY-MM-DD") : null);
-                    }}
-                    shouldDisableDate={(date) => {
-                      if (!date) return false;
-                      const today = dayjs();
-                      // Deshabilitar fechas pasadas y el día actual
-                      if (date.isSame(today, "day") || date.isBefore(today, "day")) return true;
-                      // (Opcional) Deshabilitar fines de semana
-                      const d = date.day();
-                      if (d === 0 || d === 6) return true;
-                      return false;
-                    }}
-                    format="DD/MM/YYYY"
+                  <h2 className="mt-13 font-secondary text-l font-bold">Selecciona la hora</h2>
+                  <select
                     className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
-                    slotProps={{ textField: { fullWidth: true } }}
-                  />
-                </LocalizationProvider>
-
-                <h2 className="mt-13 font-secondary text-l font-bold">Selecciona la hora</h2>
-                <select
-                  className="w-full max-w-[50rem] p-2 mt-2 border border-gray-300 rounded-full"
-                  onChange={(e) => setHoraSeleccionada(e.target.value)}
-                  value={horaSeleccionada ?? ""}
-                  disabled={!fechaSeleccionada || inicios.length === 0}
-                >
-                  <option value="" disabled>
-                    Seleccionar hora
-                  </option>
-                  {inicios.map((h) => (
-                    <option key={h} value={h}>
-                      {h}
+                    onChange={(e) => setHoraSeleccionada(e.target.value)}
+                    value={horaSeleccionada ?? ""}
+                    disabled={!fechaSeleccionada || inicios.length === 0}
+                  >
+                    <option value="" disabled>
+                      Seleccionar hora
                     </option>
-                  ))}
-                </select>
+                    {inicios.map((h) => (
+                      <option key={h} value={h}>
+                        {h}
+                      </option>
+                    ))}
+                  </select>
 
-                {fechaSeleccionada && inicios.length === 0 && (
-                  <p className="mt-3 text-sm text-gray-600">
-                    No hay horarios disponibles para la fecha seleccionada. Prueba con otro día.
-                  </p>
-                )}
-                {!loadingClienteInfo && !clienteInfo && (
-                  <p className="mt-3 text-sm text-red-500 font-primary">
-                    No pudimos cargar tus datos de cliente. Intenta recargar la página o volver a iniciar sesión.
-                  </p>
-                )}
-              </>
-            )}
+                  {fechaSeleccionada && inicios.length === 0 && (
+                    <p className="mt-3 text-sm text-gray-600">
+                      No hay horarios disponibles para la fecha seleccionada. Prueba con otro día.
+                    </p>
+                  )}
+                  {!loadingClienteInfo && !clienteInfo && (
+                    <p className="mt-3 text-sm text-red-500 font-primary">
+                      No pudimos cargar tus datos de cliente. Intenta recargar la página o volver a iniciar sesión.
+                    </p>
+                  )}
+                </>
+              )}
 
               <div className="mt-10 flex w-full max-w-[50rem] flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-start sm:gap-10">
                 <button
@@ -499,9 +514,9 @@ const Turnos = () => {
                 >
                   {pasos === 1 ? "Siguiente" : isConfirming ? "Confirmando..." : "Confirmar Turno"}
                 </button>
+              </div>
             </div>
           </div>
-        </div>
         </div>
       )}
       <Footer />
