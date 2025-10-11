@@ -3,20 +3,22 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
 import { Link } from 'react-router-dom';
-import { CentroDeEsteticaService } from '../services/CentroDeEsteticaService';
-import { useEffect, useState } from 'react';
-import type { CentroDeEsteticaResponseDTO } from '../types/centroDeEstetica/CentroDeEsteticaResponseDTO';
+import { useEffect } from 'react';
 import { Estado } from '../types/enums/Estado';
-import { useAppSelector } from '../redux/store/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/store/hooks';
+import { fetchCentrosPorEstadoyActive } from '../redux/store/centroSlice';
 
 
 const Landing = () => {
-  const [centros, setCentros] = useState<CentroDeEsteticaResponseDTO[]>([]);
-  const centroService = new CentroDeEsteticaService();
+  //const [centros, setCentros] = useState<CentroDeEsteticaResponseDTO[]>([]);
+  //const centroService = new CentroDeEsteticaService();
   const cliente = useAppSelector((state) => state.user.user);
+  const dispatch = useAppDispatch();
+  const centros = useAppSelector((state) => state.centros.centros);
 
   useEffect(() => {
-    centroService
+    dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
+    /*centroService
       .getAll()
       .then((data) => {
         const aceptados = Array.isArray(data)
@@ -24,8 +26,18 @@ const Landing = () => {
           : [];
         setCentros(aceptados);
       })
-      .catch(console.error);
+      .catch(console.error);*/
   }, [cliente?.id]);
+
+  const centrosConPromedio = centros
+    .map(c => {
+      const resenias = c.resenias ?? [];
+      const promedio =
+        resenias.length > 0
+          ? resenias.reduce((acc, r) => acc + r.puntuacion, 0) / resenias.length
+          : 0;
+      return { ...c, promedio };
+    });
 
   return (
     <>
@@ -106,7 +118,7 @@ const Landing = () => {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
-          {centros.slice(0, 3).map((centro) => (
+          {centrosConPromedio.slice(0, 3).map((centro) => (
             <div key={centro.id} className="group relative overflow-hidden rounded-xl shadow-md">
               {/* Imagen base */}
               <img
