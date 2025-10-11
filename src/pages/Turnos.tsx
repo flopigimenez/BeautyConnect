@@ -344,7 +344,10 @@ const Turnos = () => {
                   </p>
                   <p className="font-primary text-base text-gray-700">
                     <span className="font-semibold text-secondary">Tipo: </span>
-                    {servicioSeleccionado.tipoDeServicio}
+                    {servicioSeleccionado.tipoDeServicio.toLowerCase()
+                        .split("_")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")}
                   </p>
                   <p className="font-primary text-base text-gray-700">
                     <span className="font-semibold text-secondary">Precio: </span>
