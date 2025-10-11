@@ -9,7 +9,6 @@ import { ServicioService } from "../services/ServicioService";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AgregarServicio from "../components/modals/AgregarServicio";
 import Swal from "sweetalert2";
-import { divIcon } from "leaflet";
 
 const servicioService = new ServicioService();
 
