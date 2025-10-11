@@ -271,13 +271,13 @@ const Registro = () => {
                         <div className="flex flex-col items-center justify-center mb-5">
                             <div className="mb-8 grid grid-cols-2 md:gap-30">
                                 <button type="button"
-                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[15vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == false ? "bg-tertiary text-white" : "bg-white"}`}
+                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[15vh] h-[4vh] md:w-[30vh] md:h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == false ? "bg-tertiary text-white" : "bg-white"}`}
                                     onClick={() => setPrestador(false)}
                                 >
                                     Soy cliente
                                 </button>
                                 <button type="button"
-                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[23vh] md:w-[30vh] h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
+                                    className={`border border-tertiary text-sm md:text-base rounded-lg w-[23vh] h-[4vh] md:w-[30vh] md:h-[5vh] hover:scale-102 hover:bg-tertiary hover:text-white ${prestador == true ? "bg-tertiary text-white" : "bg-white"}`}
                                     onClick={() => setPrestador(true)}
                                 >
                                     Prestador de servicio
