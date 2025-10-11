@@ -9,6 +9,7 @@ import { CentroDeEsteticaService } from "../../services/CentroDeEsteticaService"
 import Swal from "sweetalert2";
 
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
+import { IoIosArrowDown } from "react-icons/io";
 
 type Props = {
   servicio?: ServicioResponseDTO | null; // si viene, estamos editando
@@ -82,17 +83,17 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
 
   const initialValues: FormValues = isEdit
     ? {
-        tipoDeServicio: toEnumValue(servicio!.tipoDeServicio),
-        titulo: servicio!.titulo ?? "",
-        descripcion: servicio!.descripcion ?? "",
-        precio: servicio!.precio,
-      }
+      tipoDeServicio: toEnumValue(servicio!.tipoDeServicio),
+      titulo: servicio!.titulo ?? "",
+      descripcion: servicio!.descripcion ?? "",
+      precio: servicio!.precio,
+    }
     : {
-        tipoDeServicio: "",
-        titulo: "",
-        descripcion: "",
-        precio: "",
-      };
+      tipoDeServicio: "",
+      titulo: "",
+      descripcion: "",
+      precio: "",
+    };
 
   return (
     <div
@@ -103,7 +104,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       <div
-        className="relative w-full max-w-xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
+        className="mt-15 relative w-full max-w-xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#F0E3E7] bg-gradient-to-r from-[#F9EFF3] to-white px-6 py-5">
@@ -226,12 +227,15 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                           <option value="" label="Seleccione tipo de servicio" className="font-secondary" />
                           {Object.values(TipoDeServicio).map((tipo) => (
                             <option key={tipo} value={tipo}>
-                              {tipo.replaceAll("_", " ")}
+                              {tipo.toLowerCase()
+                                .split("_")
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(" ")}
                             </option>
                           ))}
                         </select>
                         <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#C19BA8]">
-                          v
+                          <IoIosArrowDown />
                         </span>
                       </div>
                       {touched.tipoDeServicio && errors.tipoDeServicio && (
@@ -291,7 +295,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                         name="descripcion"
                         onChange={handleChange}
                         value={values.descripcion}
-                        className="min-h-[120px] w-full resize-none rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#4A1F2F] shadow-sm transition placeholder:text-[#C19BA8] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                        className="min-h-[90px] w-full resize-none rounded-xl border border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#4A1F2F] shadow-sm transition placeholder:text-[#C19BA8] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
                         rows={3}
                         placeholder="Describe los beneficios, duracion y que incluye"
                       />
@@ -301,18 +305,18 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
                     <button
                       type="button"
                       onClick={onClose}
-                      className="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA] sm:w-auto cursor-pointer"
+                      className="inline-flex w-full items-center justify-center rounded-full border border-transparent bg-white px-6 py-2 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA] sm:w-auto cursor-pointer"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-[#703F52] px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5e3443] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto cursor-pointer"
+                      className="inline-flex w-full items-center justify-center rounded-full bg-[#703F52] px-6 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5e3443] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/60 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto cursor-pointer"
                     >
                       {submitting ? "Guardando..." : isEdit ? "Guardar Cambios" : "Crear Servicio"}
                     </button>

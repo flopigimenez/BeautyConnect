@@ -19,7 +19,7 @@ export default function SolicitudDeSalones() {
     const [loadingAceptar, setLoadingAceptar] = useState(false);
     const [loadingRechazar, setLoadingRechazar] = useState(false);
     const [loadingId, setLoadingId] = useState<number | null>(null);
-    const [expanded, setExpanded] = useState<boolean>(false);
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
@@ -83,18 +83,21 @@ export default function SolicitudDeSalones() {
                                     if (!row.descripcion) return "Sin descripción";
 
                                     const texto = row.descripcion;
-                                    const corto = texto.length > 50 ? texto.slice(0, 50) + "..." : texto;
+                                    const isExpanded = expandedRow === row.id;
+                                    const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
 
                                     return (
                                         <div>
-                                            <span>{expanded ? texto : corto}</span>
-                                            {texto.length > 50 && (
+                                            <span>{isExpanded ? texto : corto}</span>
+                                            {texto.length > 45 && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => setExpanded(!expanded)}
-                                                    className="ml-2 text-secondary font-semibold hover:underline"
+                                                    onClick={() =>
+                                                        setExpandedRow(isExpanded ? null : row.id)
+                                                    }
+                                                    className="ml-2 text-[#C19BA8] font-semibold hover:underline"
                                                 >
-                                                    {expanded ? "Ocultar" : "Ver más"}
+                                                    {isExpanded ? "Ocultar" : "Ver más"}
                                                 </button>
                                             )}
                                         </div>

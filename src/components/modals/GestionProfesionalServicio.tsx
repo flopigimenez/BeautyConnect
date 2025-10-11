@@ -290,7 +290,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       <div
-        className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
+        className="mt-15 relative w-full max-w-5xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#F0E3E7] bg-gradient-to-r from-[#F9EFF3] to-white px-6 py-5">
@@ -304,14 +304,14 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50"
+            className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E9DDE1] text-lg text-[#703F52] transition hover:bg-white hover:text-[#4A1F2F] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/50"
             aria-label="Cerrar modal"
           >
             &times;
           </button>
         </div>
 
-        <div className="px-6 pb-6 pt-5">
+        <div className="px-6 pb-3 pt-3">
           {loading && (
             <div className="mb-4 rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-3 text-sm text-[#856272]">
               Cargando servicios...
@@ -326,14 +326,14 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
 
           {!loading && !error && (
             <div className="space-y-8">
-              <section>
-                <h3 className="mb-4 text-base font-semibold text-[#703F52]">Servicios vinculados</h3>
+              <section className="mb-4">
+                <h3 className="mb-3 text-base font-semibold text-[#703F52]">Servicios vinculados</h3>
                 {serviciosConfigurados.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-6 text-center text-sm text-[#856272]">
                     Este profesional todavia no tiene servicios activos. Vincula nuevos servicios desde la seccion siguiente.
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
+                  <div className="overflow-x-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
                     <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
                       <thead className="bg-[#FFFBFA] text-[#703F52]">
                         <tr>
@@ -353,9 +353,12 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
 
                           return (
                             <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
-                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
+                              <td className="px-3 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
                               <td className="px-6 py-4 align-middle text-[#856272]">
-                                {servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}
+                                {servicio.tipoDeServicio?.toLowerCase()
+                                .split("_")
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(" ") ?? "-"}
                               </td>
                               <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
                               <td className="px-6 py-4 align-middle">
@@ -366,14 +369,14 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                     step={5}
                                     value={relActual.duracion}
                                     onChange={(event) => handleDuracionChange(servicio.id, Number(event.target.value))}
-                                    className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                                    className="w-15 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
                                     disabled={saving}
                                   />
                                   <span className="text-xs text-[#856272]">en minutos</span>
                                 </div>
                               </td>
                               <td className="px-6 py-4 align-middle">{renderEstadoChip(relActual)}</td>
-                              <td className="px-6 py-4 align-middle">
+                              <td className="pl-6 py-4 align-middle">
                                 <div className="flex flex-wrap items-center gap-2">
                                   <button
                                     className="inline-flex items-center justify-center rounded-full bg-[#703F52] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#5e3443] disabled:cursor-not-allowed disabled:opacity-60"
@@ -402,13 +405,13 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
               </section>
 
               <section>
-                <h3 className="mb-4 text-base font-semibold text-[#703F52]">Agregar nuevos servicios</h3>
+                <h3 className="mb-3 text-base font-semibold text-[#703F52]">Agregar nuevos servicios</h3>
                 {serviciosDisponibles.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-[#E9DDE1] bg-white/80 px-4 py-6 text-center text-sm text-[#856272]">
                     Todos los servicios del centro ya estan asignados a este profesional.
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm">
+                  <div className="overflow-x-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
                     <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
                       <thead className="bg-[#FFFBFA] text-[#703F52]">
                         <tr>
@@ -428,9 +431,12 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
 
                           return (
                             <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
-                              <td className="px-6 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
+                              <td className="px-3 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
                               <td className="px-6 py-4 align-middle text-[#856272]">
-                                {servicio.tipoDeServicio?.replaceAll("_", " ") ?? "-"}
+                                {servicio.tipoDeServicio?.toLowerCase()
+                                .split("_")
+                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(" ") ?? "-"}
                               </td>
                               <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
                               <td className="px-6 py-4 align-middle">
@@ -441,7 +447,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                                     step={5}
                                     value={relActual.duracion}
                                     onChange={(event) => handleDuracionChange(servicio.id, Number(event.target.value))}
-                                    className="w-24 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                                    className="w-15 rounded-xl border border-[#E9DDE1] bg-white px-3 py-2 text-sm text-[#4A1F2F] focus:border-[#C19BA8] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
                                     disabled={saving}
                                   />
                                   <span className="text-xs text-[#856272]">en minutos</span>
@@ -467,9 +473,9 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
               </section>
             </div>
           )}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-3 flex justify-end">
             <button
-              className="inline-flex items-center justify-center rounded-full border border-transparent bg-white px-6 py-2.5 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA]"
+              className="inline-flex items-center justify-center rounded-full border border-transparent bg-white px-6 py-2 text-sm font-semibold text-[#703F52] shadow-sm transition hover:border-[#E9DDE1] hover:bg-[#FFFBFA]"
               onClick={onClose}
             >
               Cerrar
