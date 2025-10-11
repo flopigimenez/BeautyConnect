@@ -645,7 +645,8 @@ const ConfigPrestador = () => {
                           <button
                             type="button"
                             className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] cursor-pointer"
-                            onClick={async () => {
+                            onClick={async (e) => {
+                               e.preventDefault();
                               const res = await geocodeDireccionTextual({
                                 calle: values.domicilio.calle,
                                 numero: values.domicilio.numero,
