@@ -246,7 +246,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
         [servicio.id]: buildRelacionEntry(prev[servicio.id], { saving: true }),
       }));
 
-      await profesionalServicioService.delete(relacionId);
+      await profesionalServicioService.deleteRelacion(relacionId);
 
       setRelacion((prev) => ({
         ...prev,
