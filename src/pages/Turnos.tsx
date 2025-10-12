@@ -262,7 +262,9 @@ const Turnos = () => {
   }, [profesionalSeleccionado, profesionalServicio]);
 
 
-  const puedeConfirmar = pasos === 2 && !!(fechaSeleccionada && horaSeleccionada && profServicio && clienteInfo?.id);
+  const clienteActivo = isEntityActive(clienteInfo);
+  const puedeConfirmar =
+    pasos === 2 && clienteActivo && !!(fechaSeleccionada && horaSeleccionada && profServicio && clienteInfo?.id);
 
   // ---- Render ----
   return (
