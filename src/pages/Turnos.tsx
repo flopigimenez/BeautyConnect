@@ -483,7 +483,13 @@ const Turnos = () => {
                         alert("Por favor, selecciona un servicio y un profesional.");
                       }
                     } else {
-                      if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
+                      if (!clienteActivo) {
+                        Swal.fire({
+                          icon: "warning",
+                          title: "Cuenta inactiva",
+                          text: "Tu cuenta de cliente está inactiva. Comunícate con el centro para reactivarla.",
+                        });
+                      } else if (puedeConfirmar && clienteInfo && profServicio && fechaSeleccionada && horaSeleccionada) {
                         setIsConfirming(true);
                         const horaToSend =
                           horaSeleccionada.length === 5 ? `${horaSeleccionada}:00` : horaSeleccionada;
