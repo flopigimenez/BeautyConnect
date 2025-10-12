@@ -14,7 +14,9 @@ import Swal from "sweetalert2";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
+import { Rol } from "../types/enums/Rol";
 import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
+import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
 import { buildServiciosLabel } from "../utils/servicios";
 
 L.Icon.Default.mergeOptions({
@@ -101,6 +103,13 @@ const MapaCentros = () => {
   const navigate = useNavigate();
   const { centros, loading, error } = useAppSelector((state) => state.centros);
   const user = useAppSelector((state) => state.user.user);
+  const esCliente = (maybeUser: typeof user): maybeUser is ClienteResponseDTO =>
+    !!maybeUser && maybeUser.usuario?.rol === Rol.CLIENTE;
+  const clienteDatosCompletos = (cliente: ClienteResponseDTO | null): boolean => {
+    if (!cliente) return false;
+    const campos = [cliente.nombre, cliente.apellido, cliente.telefono];
+    return campos.every((valor) => typeof valor === "string" && valor.trim().length > 0);
+  };
   const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
   const [modalCentro, setModalCentro] = useState(false);
   const [centroSeleccionado, setCentroSeleccionado] = useState<CentroDeEsteticaResponseDTO | null>(null);
@@ -353,7 +362,33 @@ const MapaCentros = () => {
                   className="text-sm md:text-base bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
                   onClick={() => {
                     if (user) {
-                      navigate(`/turno/${centroSeleccionado.id}`);
+                      if (esCliente(user)) {
+                        if (!clienteDatosCompletos(user)) {
+                          void Swal.fire({
+                            icon: "info",
+                            title: "Completa tus datos",
+                            text: "Dirigite a Mi Perfil para completar tus datos antes de solicitar un turno.",
+                            showCancelButton: true,
+                            confirmButtonText: "Ir a Mi Perfil",
+                            cancelButtonText: "Cancelar",
+                            confirmButtonColor: "#a27e8f",
+                            cancelButtonColor: "#C19BA8",
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              navigate("/Miperfil");
+                            }
+                          });
+                          return;
+                        }
+                        navigate(`/turno/${centroSeleccionado.id}`);
+                      } else {
+                        void Swal.fire({
+                          icon: "info",
+                          title: "Cuenta no habilitada",
+                          text: "Necesitás iniciar sesión como cliente para solicitar un turno.",
+                          confirmButtonColor: "#a27e8f",
+                        });
+                      }
                     } else {
                       navigate("/IniciarSesion");
                       Swal.fire({
