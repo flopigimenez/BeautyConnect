@@ -413,9 +413,6 @@ const Turnos = () => {
                         const today = dayjs();
                         // Deshabilitar fechas pasadas y el día actual
                         if (date.isSame(today, "day") || date.isBefore(today, "day")) return true;
-                        // (Opcional) Deshabilitar fines de semana
-                        const d = date.day();
-                        if (d === 0 || d === 6) return true;
                         return false;
                       }}
                       format="DD/MM/YYYY"
