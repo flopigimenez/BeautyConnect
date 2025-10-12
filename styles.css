@@ -53,3 +53,7 @@ input[type="search"]::-moz-search-clear-button {
   opacity: 1;
   pointer-events: auto;
 }
+
+.swal2-container {
+  z-index: 4000 !important;
+}
