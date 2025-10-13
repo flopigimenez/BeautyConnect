@@ -20,7 +20,7 @@ export default function ResumenCitas() {
 
   let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
 
-  const turnosPendientes: TurnoResponseDTO[] = misTurnos.filter(
+  let turnosPendientes: TurnoResponseDTO[] = misTurnos.filter(
     turno => turno.estado === EstadoTurno.PENDIENTE
   );
 
@@ -71,8 +71,8 @@ export default function ResumenCitas() {
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
         </aside>
-        <main className="flex-1 overflow-auto px-6 pt-20 pb-10">
-          <div className="pb-10">
+        <main className="flex-1 overflow-auto pt-20 pb-10">
+          <div className="pb-10 px-6">
             <div className="flex justify-between">
               <div>
                 <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
@@ -112,17 +112,11 @@ export default function ResumenCitas() {
               title="Próximas citas"
               columns={[
                 { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
-                { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.titulo}` },
-                {
-                  header: "Tipo de Servicio", accessor: "profesionalServicio", render: (row) => (
-                    <div>
-                      {row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
                         .split("_")
                         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")}
-                    </div>
-                  ),
-                },
+                        .join(" ")} - ${row.profesionalServicio.servicio.titulo}` },
+                { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}`},
                 {
                   header: "Fecha", accessor: "fecha",
                   render: row => {
@@ -130,10 +124,10 @@ export default function ResumenCitas() {
                     return fecha.toLocaleDateString("es-AR", { timeZone: "UTC" });
                   }
                 },
-                { header: "Hora", accessor: "hora", render: row => `${row.hora}` },
+                { header: "Hora", accessor: "hora", render: row => `${row.hora.slice(0, 5)}` },
                 {
                   header: "Estado", accessor: "estado", render: row => (
-                    <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>
+                    <span className="bg-secondary/70 text-primary py-1 px-2 rounded-full">
                       {row.estado.toLowerCase()
                         .split('_')
                         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -181,17 +175,11 @@ export default function ResumenCitas() {
             title="Todas las citas"
             columns={[
               { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
-              { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.titulo}` },
-              {
-                header: "Tipo de Servicio", accessor: "profesionalServicio", render: (row) => (
-                  <div>
-                    {row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                      .split("_")
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(" ")}
-                  </div>
-                ),
-              },
+              { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
+                        .split("_")
+                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" ")} - ${row.profesionalServicio.servicio.titulo}` },
+              { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}`},
               {
                 header: "Fecha", accessor: "fecha",
                 render: row => {
@@ -199,7 +187,7 @@ export default function ResumenCitas() {
                   return fecha.toLocaleDateString("es-AR", { timeZone: "UTC" });
                 }
               },
-              { header: "Hora", accessor: "hora", render: row => `${row.hora}` },
+              { header: "Hora", accessor: "hora", render: row => `${row.hora.slice(0, 5)}` },
               {
                 header: "Estado", accessor: "estado", render: row => (
                   <span className={row.estado === EstadoTurno.PENDIENTE ? "bg-secondary/70 text-primary py-1 px-2 rounded-full" : row.estado === EstadoTurno.CANCELADO ? "bg-red-600/45  text-primary py-1 px-2 rounded-full" : "bg-green-600/45 text-primary py-1 px-2 rounded-full"}>

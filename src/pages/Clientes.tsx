@@ -46,11 +46,8 @@ export default function Clientes() {
             title="Clientes"
             columns={[
               { header: "Nombre y Apellido", accessor: "nombre", render: row => `${row.nombre} ${row.apellido}` },
-              { header: "Telefono", accessor: "telefono", render: row => row.telefono || "-" },
               { header: "Mail", accessor: "usuario", render: row => `${row.usuario.mail}` },
-             
-              
-
+              { header: "Telefono", accessor: "telefono", render: row => row.telefono || "-" },
             ]}
             data={clientesUnicos}
             busqueda={{

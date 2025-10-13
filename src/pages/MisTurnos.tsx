@@ -265,7 +265,7 @@ export default function MisTurnos() {
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-auto lg:px-15 py-16">
+                <main className="flex-1 overflow-auto lg:px-5 py-16">
                     <CustomTable<TurnoResponseDTO>
                         title="Mis Turnos"
                         columns={[
@@ -278,7 +278,7 @@ export default function MisTurnos() {
                                     return `${day}/${month}/${year}`;
                                 }
                             },
-                            { header: "Hora", accessor: "hora" },
+                            { header: "Hora", accessor: "hora", render: row => `${row.hora.slice(0, 5)}` },
                             {
                                 header: "Servicio", accessor: "profesionalServicio", render: row =>
                                     row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
@@ -290,6 +290,13 @@ export default function MisTurnos() {
                                 header: "Profesional", accessor: "profesionalServicio", render: row =>
                                     `${row.profesionalServicio.profesional.nombre.charAt(0).toUpperCase() + row.profesionalServicio.profesional.nombre.slice(1)} 
                                     ${row.profesionalServicio.profesional.apellido.charAt(0).toUpperCase() + row.profesionalServicio.profesional.apellido.slice(1)}`
+                            },
+                            {
+                                header: "Dirección", accessor: "centroDeEsteticaResponseDTO", render: row => <>
+                                    {row.centroDeEstetica?.domicilio.calle} {row.centroDeEstetica?.domicilio.numero}
+                                    <br />
+                                    {row.centroDeEstetica?.domicilio.localidad}
+                                </>
                             },
                             {
                                 header: "Estado", accessor: "estado", render: row => (
@@ -331,8 +338,8 @@ export default function MisTurnos() {
                                     if (habilitado) {
                                         return <span className="text-sm text-gray-400">Disponible al finalizar</span>;
                                     }
-                                    if(cancelado){
-                                      return <span className="text-sm text-gray-400"> -</span>;
+                                    if (cancelado) {
+                                        return <span className="text-sm text-gray-400"> -</span>;
 
                                     }
 

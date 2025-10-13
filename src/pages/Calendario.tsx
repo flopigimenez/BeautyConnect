@@ -242,7 +242,7 @@ export default function Calendario() {
                           "";
                         return (
                           <div key={t.id} className="bg-secondary text-primary rounded-full px-2 py-[2px] text-[11px] font-primary overflow-hidden text-ellipsis whitespace-nowrap">
-                            {`${t.hora} - ${t.profesionalServicio.profesional.nombre}${centroNombre ? ` - ${centroNombre}` : ''}`}
+                            {`${t.hora.slice(0, 5)} - ${t.profesionalServicio.profesional.nombre}${centroNombre ? ` - ${centroNombre}` : ''}`}
                           </div>
                         );
                       })}
@@ -281,7 +281,7 @@ export default function Calendario() {
                   return (
                     <div key={t.id} className="border rounded-xl p-3 flex flex-col gap-1">
                       <div className="flex justify-between">
-                        <span className="font-primary font-semibold">{t.hora}</span>
+                        <span className="font-primary font-semibold">{t.hora.slice(0, 5)}</span>
                         <span className="font-primary text-sm">{t.estado}</span>
                       </div>
                       <div className="font-primary text-sm">
