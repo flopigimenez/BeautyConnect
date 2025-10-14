@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { FaRegTrashAlt } from "react-icons/fa";
+import { FaRegTrashAlt, FaRegQuestionCircle } from "react-icons/fa";
 
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -350,8 +350,12 @@ const RegistroDeSalon = () => {
           </div>
 
           <div className="mb-5">
-            <label className="block text-gray-700 font-primary font-bold mb-2" htmlFor="file">
+            <label className="flex items-center gap-2 text-gray-700 font-primary font-bold mb-2" htmlFor="file">
               Documento que acredite la validez de tu salón:
+              <FaRegQuestionCircle
+                className="text-secondary cursor-help"
+                title="Subí un documento que acredite que tu centro está habilitado (por ejemplo, constancia de AFIP o habilitación municipal)."
+              />
             </label>
             <input
               type="file"
