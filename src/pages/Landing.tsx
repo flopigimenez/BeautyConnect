@@ -124,7 +124,7 @@ const Landing = () => {
               <img
                 src={centro.imagen}
                 alt={centro.nombre}
-                className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="h-56 w-full object-cover transition-transform duration-500 md:group-hover:scale-105"
               />
 
               {/* Card blanca */}
@@ -132,9 +132,10 @@ const Landing = () => {
                 className="
             absolute bottom-0 w-full
             bg-white/95 backdrop-blur
-            transform translate-y-4 opacity-0
+            translate-y-0 opacity-100
+            md:translate-y-4 md:opacity-0
             transition-all duration-300 ease-out
-            group-hover:translate-y-0 group-hover:opacity-100
+            md:group-hover:translate-y-0 md:group-hover:opacity-100
             p-4
           "
               >
@@ -150,7 +151,7 @@ const Landing = () => {
               </div>
 
               {/* Overlay */}
-              <div className="bg-black/0 transition-colors duration-300 group-hover:bg-black/10" />
+              <div className="bg-black/0 transition-colors duration-300 md:group-hover:bg-black/10" />
             </div>
           ))}
         </div>
