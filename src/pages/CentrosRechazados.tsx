@@ -12,6 +12,7 @@ export default function CentrosRechazados() {
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.RECHAZADO));
@@ -45,12 +46,32 @@ export default function CentrosRechazados() {
                             },
                             { header: "Nombre", accessor: "nombre" },
                             {
-                                header: "Descripción", accessor: "descripcion", render: (row) =>
-                                    row.descripcion
-                                        ? (row.descripcion.length > 50
-                                            ? row.descripcion.slice(0, 50) + "..."
-                                            : row.descripcion)
-                                        : "Sin descripción"
+                                header: "Descripción",
+                                accessor: "descripcion",
+                                render: (row) => {
+                                    if (!row.descripcion) return "Sin descripción";
+
+                                    const texto = row.descripcion;
+                                    const isExpanded = expandedRow === row.id;
+                                    const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
+
+                                    return (
+                                        <div>
+                                            <span>{isExpanded ? texto : corto}</span>
+                                            {texto.length > 45 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setExpandedRow(isExpanded ? null : row.id)
+                                                    }
+                                                    className="ml-2 text-[#C19BA8] font-semibold hover:underline"
+                                                >
+                                                    {isExpanded ? "Ocultar" : "Ver más"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                },
                             },
                             { header: "Cuit", accessor: "cuit" },
                             {

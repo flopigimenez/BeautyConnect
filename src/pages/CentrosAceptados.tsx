@@ -16,6 +16,7 @@ export default function CentrosAceptados() {
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
     const centroService = new CentroDeEsteticaService();
+    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.ACEPTADO));
@@ -44,17 +45,37 @@ export default function CentrosAceptados() {
                         columns={[
                             {
                                 header: "", accessor: "imagen", render: row => (
-                                    <img src={row.imagen} alt={row.nombre} className="w-13 h-13 object-cover rounded-md" />
+                                    <img src={row.imagen} alt={row.nombre} className="w-25 h-10 object-cover rounded-md" />
                                 )
                             },
                             { header: "Nombre", accessor: "nombre" },
-                            {
-                                header: "Descripción", accessor: "descripcion", render: (row) =>
-                                    row.descripcion
-                                        ? (row.descripcion.length > 50
-                                            ? row.descripcion.slice(0, 50) + "..."
-                                            : row.descripcion)
-                                        : "Sin descripción"
+                           {
+                                header: "Descripción",
+                                accessor: "descripcion",
+                                render: (row) => {
+                                    if (!row.descripcion) return "Sin descripción";
+
+                                    const texto = row.descripcion;
+                                    const isExpanded = expandedRow === row.id;
+                                    const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
+
+                                    return (
+                                        <div>
+                                            <span>{isExpanded ? texto : corto}</span>
+                                            {texto.length > 45 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setExpandedRow(isExpanded ? null : row.id)
+                                                    }
+                                                    className="ml-2 text-[#C19BA8] font-semibold hover:underline"
+                                                >
+                                                    {isExpanded ? "Ocultar" : "Ver más"}
+                                                </button>
+                                            )}
+                                        </div>
+                                    );
+                                },
                             },
                             { header: "Cuit", accessor: "cuit" },
                             {
@@ -67,13 +88,27 @@ export default function CentrosAceptados() {
                                         : "No subido"
                             },
                             {
-                                header: "Servicios", accessor: "servicios", render: (row) =>
-                                    Array.isArray(row.servicios)
-                                        ? row.servicios.map(servicio => servicio.tipoDeServicio.toLowerCase()
-                                            .split('_')
-                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(", "))
-                                        : "Sin servicios"
+                                header: "Servicios",
+                                accessor: "servicios",
+                                render: (row) => {
+                                    if (!Array.isArray(row.servicios) || row.servicios.length === 0) {
+                                        return "Sin servicios";
+                                    }
+
+                                    const tiposUnicos = [
+                                        ...new Set(
+                                            row.servicios.map((servicio) =>
+                                                servicio.tipoDeServicio
+                                                    ?.toLowerCase()
+                                                    .split("_")
+                                                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                                                    .join(" ")
+                                            )
+                                        ),
+                                    ];
+
+                                    return tiposUnicos.join(", ");
+                                },
                             },
                             {
                                 header: "Domicilio", accessor: "domicilio", render: (row) =>

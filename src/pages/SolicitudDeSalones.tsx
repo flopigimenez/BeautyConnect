@@ -114,12 +114,6 @@ export default function SolicitudDeSalones() {
                                         </a>
                                         : "No subido"
                             },
-                            // {
-                            //     header: "Servicios", accessor: "servicios", render: (row) =>
-                            //         Array.isArray(row.servicios)
-                            //             ? row.servicios.map(servicio => servicio.tipoDeServicio).join(", ")
-                            //             : "Sin servicios"
-                            // },
                             {
                                 header: "Domicilio", accessor: "domicilio", render: (row) =>
                                     row.domicilio
@@ -154,19 +148,7 @@ export default function SolicitudDeSalones() {
                                         </button>
                                     </div>
                                 )
-                            },
-                            // {
-                            //     header: "Ver más", render: (row) => (
-                            //         <div>
-                            //             <button className="border border-tertiary text-tertiary py-1 px-2 rounded-full hover:bg-tertiary hover:text-white hover:scale-102"
-                            //                 onClick={() => setVerMas(true)}
-                            //             >
-                            //                 Ver
-                            //             </button>
-                            //         </div>
-
-                            //     )
-                            // }
+                            }
                         ]}
                         data={centrosFiltrados}
                         busqueda={{
