@@ -16,8 +16,10 @@ const PendienteAprobacion = () => {
     if (user && centro) {
       dispatch(fetchCentro(centro.id));
         setTimeout(() => {
-          navigate("/redirigir");
-        }, 1000);
+          if (centro?.estado !== "PENDIENTE"){
+            navigate("/redirigir");
+          }
+        }, 2000);
     }
   }, [user, centro?.estado, navigate, dispatch]);
 
