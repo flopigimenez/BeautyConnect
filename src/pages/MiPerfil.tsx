@@ -20,6 +20,7 @@ export default function MiPerfil() {
   const [error, setError] = useState<string | null>(null);
   const [cliente, setCliente] = useState<ClienteResponseDTO | null>(null);
   const dispatch = useAppDispatch();
+  const [isGoogleUser, setIsGoogleUser] = useState<boolean>(false);
 
   // form state
   const [nombre, setNombre] = useState("");
@@ -38,6 +39,15 @@ export default function MiPerfil() {
       }
       setUid(user.uid);
       setMailVista(user.email ?? "");
+
+      const providerData = user.providerData;
+      const isGoogle = providerData.some(
+        (provider) => provider.providerId === "google.com"
+      );
+      setIsGoogleUser(isGoogle);
+        console.log("Proveedor detectado:", providerData);
+      console.log("¿Es Google user?", isGoogle);
+
       try {
         setError(null);
         setLoading(true);
@@ -50,7 +60,7 @@ export default function MiPerfil() {
           setApellido(found.apellido ?? "");
           setTelefono(found.telefono ?? "");
           setMailVista(found.usuario?.mail ?? user.email ?? "");
-         
+
         } else {
           setCliente(null);
           setNombre("");
@@ -102,7 +112,7 @@ export default function MiPerfil() {
       } else {
         updated = await svc.create(payload);
       }
-      
+
       dispatch(setUser(updated));
       setCliente(updated);
       setNombre(updated.nombre ?? "");
@@ -204,32 +214,37 @@ export default function MiPerfil() {
 
 
                 {/* Configuración de cuenta */}
-                <section>
-                  <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">
-                    Configuración de la cuenta
-                  </h2>
+                {!isGoogleUser && (
+                  <>
+                    <section>
+                      <h2 className="text-lg font-semibold font-secondary text-[#703F52] mb-4">
+                        Configuración de la cuenta
+                      </h2>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-[#374151] font-primary">
-                        Contraseña (Firebase/Usuario)
-                      </label>
-                      <input
-                        type="password"
-                        value="********"
-                        disabled
-                        className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 text-gray-500 shadow-sm px-3 py-2 text-sm"
-                      />
-                      <button
-                        onClick={() => setShowModal(true)}
-                        className="mt-2 text-sm text-[#C19BA8] hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
-                      >
-                        Cambiar contraseña
-                      </button>
-                    </div>
-                  </div>
-                </section>
-                <CambiarPasswordModal isOpen={showModal} onClose={() => setShowModal(false)} />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-[#374151] font-primary">
+                            Contraseña (Firebase/Usuario)
+                          </label>
+                          <input
+                            type="password"
+                            value="********"
+                            disabled
+                            className="mt-1 block w-full rounded-md border border-gray-200 bg-gray-50 text-gray-500 shadow-sm px-3 py-2 text-sm"
+                          />
+                          <button
+                            onClick={() => setShowModal(true)}
+                            className="mt-2 text-sm text-[#C19BA8] hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            Cambiar contraseña
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+                    <CambiarPasswordModal isOpen={showModal} onClose={() => setShowModal(false)} />
+                  </>
+                )}
+
               </div>
 
               {/* Bot�n */}
