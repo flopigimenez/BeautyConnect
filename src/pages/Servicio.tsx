@@ -30,25 +30,27 @@ const Servicio = () => {
         setError("No hay usuario autenticado.");
         return;
       }
-      try {
-        setLoading(true);
-        const uid = user.uid;
-        const servicios = await servicioService.findByUid(uid);
-
-        const normalizados = servicios.map((servicio) => ({
-          ...servicio,
-          active: servicio.active ?? true,
-        }));
-        setData(normalizados);
-
-      } catch (e: unknown) {
-        setError((e as Error).message ?? "Error al cargar servicios.");
-      } finally {
-        setLoading(false);
-      }
+      await fetchServicios(user.uid);
     });
     return () => unsub();
   }, []);
+
+  const fetchServicios = async (uid: string) => {
+    try {
+      setLoading(true);
+      const servicios = await servicioService.findByUid(uid);
+      const normalizados = servicios.map((servicio) => ({
+        ...servicio,
+        active: servicio.active ?? true,
+      }));
+      setData(normalizados);
+      setError(null);
+    } catch (e: unknown) {
+      setError((e as Error).message ?? "Error al cargar servicios.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOpenEdit = (row: ServicioResponseDTO) => {
     setSelected(row);
@@ -227,9 +229,12 @@ const Servicio = () => {
                 const normalizado = { ...nuevo, active: nuevo.active ?? true };
                 setData((prev) => [normalizado, ...prev]);
               }}
-              onUpdated={(actualizado) => {
+              onUpdated={async (actualizado) => {
                 const normalizado = { ...actualizado, active: actualizado.active ?? true };
                 setData((prev) => prev.map((s) => (s.id === normalizado.id ? normalizado : s)));
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (user) await fetchServicios(user.uid);
               }}
               onClose={() => setOpenEdit(false)}
             />
