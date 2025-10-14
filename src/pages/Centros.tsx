@@ -322,7 +322,7 @@ const Centros = () => {
 
                     {modalCentro && centroSeleccionado && (
                         <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] animate-fadeIn">
-                            <div className="relative mt-15 bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
+                            <div className="relative mt-5 bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
 
                                 <button
                                     onClick={() => setModalCentro(false)}
