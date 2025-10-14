@@ -3,7 +3,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import logo from '../assets/logo.png';
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Estado } from '../types/enums/Estado';
 import { useAppDispatch, useAppSelector } from '../redux/store/hooks';
 import { fetchCentrosPorEstadoyActive } from '../redux/store/centroSlice';
@@ -15,6 +16,25 @@ const Landing = () => {
   const cliente = useAppSelector((state) => state.user.user);
   const dispatch = useAppDispatch();
   const centros = useAppSelector((state) => state.centros.centros);
+  const [activeCentroId, setActiveCentroId] = useState<number | null>(null);
+
+  const isMobileViewport = () =>
+    typeof window !== 'undefined' && !window.matchMedia('(min-width: 768px)').matches;
+
+  const handleCardToggle = (centroId: number) => {
+    if (!isMobileViewport()) {
+      return;
+    }
+    setActiveCentroId((prev) => (prev === centroId ? null : centroId));
+  };
+
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>, centroId: number) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleCardToggle(centroId);
+    }
+  };
+
 
   useEffect(() => {
     dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
@@ -118,78 +138,53 @@ const Landing = () => {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
-          {centrosConPromedio.slice(0, 3).map((centro) => (
-            <div key={centro.id} className="group relative overflow-hidden rounded-xl shadow-md">
-              {/* Imagen base */}
-              <img
-                src={centro.imagen}
-                alt={centro.nombre}
-                className="h-56 w-full object-cover transition-transform duration-500 md:group-hover:scale-105"
-              />
-
-              {/* Card blanca */}
+          {centrosConPromedio.slice(0, 3).map((centro) => {
+            const isActive = activeCentroId === centro.id;
+            return (
               <div
-                className="
-            absolute bottom-0 w-full
-            bg-white/95 backdrop-blur
-            translate-y-0 opacity-100
-            md:translate-y-4 md:opacity-0
-            transition-all duration-300 ease-out
-            md:group-hover:translate-y-0 md:group-hover:opacity-100
-            p-4
-          "
+                key={centro.id}
+                className="group relative overflow-hidden rounded-xl shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C19BA8]/60"
+                role="button"
+                tabIndex={0}
+                aria-expanded={isActive}
+                onClick={() => handleCardToggle(centro.id)}
+                onKeyDown={(event) => handleCardKeyDown(event, centro.id)}
               >
-                <h3 className="text-lg font-semibold text-[#703F52]">{centro.nombre}</h3>
-                <p className="mt-1 text-sm text-[#703F52]/80 line-clamp-3">{centro.descripcion}</p>
+                {/* Imagen base */}
+                <img
+                  src={centro.imagen}
+                  alt={centro.nombre}
+                  className={`h-56 w-full object-cover transition-transform duration-500 md:group-hover:scale-105 ${
+                    isActive ? 'scale-105' : ''
+                  }`}
+                />
 
-                <Link
-                  to={`/centros`}
-                  className="mt-3 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] cursor-pointer shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                {/* Card blanca */}
+                <div
+                  className={`absolute bottom-0 w-full bg-white/95 backdrop-blur transform transition-all duration-300 ease-out p-4 pointer-events-none md:translate-y-4 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-hover:pointer-events-auto ${
+                    isActive ? 'translate-y-0 opacity-100 pointer-events-auto' : 'translate-y-4 opacity-0'
+                  }`}
                 >
-                  Ver más
-                </Link>
+                  <h3 className="text-lg font-semibold text-[#703F52]">{centro.nombre}</h3>
+                  <p className="mt-1 text-sm text-[#703F52]/80 line-clamp-3">{centro.descripcion}</p>
+
+                  <Link
+                    to={`/centros`}
+                    className="mt-3 inline-block rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#C19BA8] cursor-pointer shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#C19BA8]/40"
+                  >
+                    Ver mas
+                  </Link>
+                </div>
+
+                {/* Overlay */}
+                <div
+                  className={`bg-black/0 transition-colors duration-300 md:group-hover:bg-black/10 ${
+                    isActive ? 'bg-black/10' : ''
+                  }`}
+                />
               </div>
-
-              {/* Overlay */}
-              <div className="bg-black/0 transition-colors duration-300 md:group-hover:bg-black/10" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-
-      {/*como funciona mejorado*/}
-      <section className="bg-[#FFFBFA] py-16">
-        <h2 className="text-4xl font-secondary text-[#703F52] font-bold text-center mb-12">
-          ¿Cómo funciona?
-        </h2>
-        <div className="flex flex-col items-center relative max-w-md mx-auto">
-          {/* Línea vertical */}
-          <div className="absolute top-0 bottom-0 w-1 bg-[#C19BA8]"></div>
-          <div className="relative z-10 flex flex-col items-center mb-16 last:mb-0">
-            {/* Punto */}
-            <div className="w-4 h-4 bg-[#C19BA8] rounded-full mb-2"></div>
-
-            {/* Contenedor del número y texto alineado */}
-            <div className="flex flex-col items-end -ml-20">
-              <span className="text-5xl text-[#703F52] font-bold font-secondary">01</span>
-              <p className="text-[#703F52] text-sm font-secondary">Registrate</p>
-            </div>
-            <div className="w-4 h-4 bg-[#C19BA8] rounded-full mb-2"></div>
-
-            <div className="flex flex-col items-start ml-50">
-              <span className="text-5xl text-[#703F52] font-bold font-secondary">02</span>
-              <p className="text-[#703F52] text-sm font-secondary">Buscá el servicio que querés</p>
-            </div>
-
-
-            <div className="flex flex-col items-end -ml-50">
-              <span className="text-5xl text-[#703F52] font-bold font-secondary">03</span>
-              <p className="text-[#703F52] text-sm font-secondary">Reservá el turno online</p>
-            </div>
-            <div className="w-4 h-4 bg-[#C19BA8] rounded-full "></div>
-
-          </div>
+            );
+          })}
         </div>
       </section>
       <Footer />
