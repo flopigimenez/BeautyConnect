@@ -67,7 +67,6 @@ const Turnos = () => {
   const [loadingClienteInfo, setLoadingClienteInfo] = useState(false);
   const [errorClienteInfo, setErrorClienteInfo] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-  const [verMas, setVerMas] = useState(false);
 
   // ---- Hooks SIEMPRE al tope, sin returns antes ----
 

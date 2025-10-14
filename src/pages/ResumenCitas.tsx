@@ -21,7 +21,7 @@ export default function ResumenCitas() {
 
   let turnosFiltrados: TurnoResponseDTO[] = [...misTurnos];
 
-  let turnosPendientes: TurnoResponseDTO[] = misTurnos.filter(
+  const turnosPendientes: TurnoResponseDTO[] = misTurnos.filter(
     turno => turno.estado === EstadoTurno.PENDIENTE
   );
 

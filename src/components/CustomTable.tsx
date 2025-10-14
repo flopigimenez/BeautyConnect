@@ -67,12 +67,12 @@ export function CustomTable<T extends object>({
           )}
           {borrarFiltros && filtros && (
             <div className="flex justify-center items-center gap-2 md:pr-[15vh] mt-5">
-              <button className="cursor-pointer text-tertiary cursor-pointer"
+              <button className="text-tertiary cursor-pointer"
                 onClick={filtros.onClick}
               >
                 <IoFilterCircleOutline size={35} />
               </button>
-              <button className="cursor-pointer text-tertiary hover:underline cursor-pointer"
+              <button className="text-tertiary hover:underline cursor-pointer"
                 onClick={borrarFiltros.onClick}
               >
                 Borrar Filtros
