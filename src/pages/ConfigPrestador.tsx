@@ -222,6 +222,8 @@ const ConfigPrestador = () => {
   const miCentroSlice = useAppSelector((state) => state.miCentro.centro);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [isGoogleUser, setIsGoogleUser] = useState<boolean>(false);
+
 
   const handleCloudinaryUpload = async (
     event: ChangeEvent<HTMLInputElement>,
@@ -294,6 +296,13 @@ const ConfigPrestador = () => {
       }
       setUid(user.uid);
       setMailVista(user.email ?? "");
+
+      const providerData = user.providerData;
+      const isGoogle = providerData.some(
+        (provider) => provider.providerId === "google.com"
+      );
+      setIsGoogleUser(isGoogle);
+
       try {
         setLoading(true);
         const p = await prestadorService.getByUid(user.uid);
@@ -401,14 +410,17 @@ const ConfigPrestador = () => {
                     <FieldBox label="Teléfono" name="telefono" />
                     <div>
                       <FieldBox label="Email (usuario)" name="usuario.mail" type="email" disabled />
-                      <button
-                        type="button"
-                        onClick={() => setShowPwd(true)}
-                        className="text-sm text-[#C19BA8] hover:underline cursor-pointer"
-                      >
-                        Cambiar contraseña
-                      </button>
+                      {!isGoogleUser && (
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd(true)}
+                          className="text-sm text-[#C19BA8] hover:underline cursor-pointer"
+                        >
+                          Cambiar contraseña
+                        </button>
+                      )}
                     </div>
+
 
                     <div className="md:col-span-2 flex justify-end gap-2 mt-4">
                       <button
@@ -646,7 +658,7 @@ const ConfigPrestador = () => {
                             type="button"
                             className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] cursor-pointer"
                             onClick={async (e) => {
-                               e.preventDefault();
+                              e.preventDefault();
                               const res = await geocodeDireccionTextual({
                                 calle: values.domicilio.calle,
                                 numero: values.domicilio.numero,

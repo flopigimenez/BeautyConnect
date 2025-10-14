@@ -45,8 +45,6 @@ export default function MiPerfil() {
         (provider) => provider.providerId === "google.com"
       );
       setIsGoogleUser(isGoogle);
-        console.log("Proveedor detectado:", providerData);
-      console.log("¿Es Google user?", isGoogle);
 
       try {
         setError(null);
