@@ -16,7 +16,7 @@ import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import Swal from "sweetalert2";
 import Footer from "../components/Footer";
 import { FaArrowLeft } from "react-icons/fa6";
-import { buildServiciosLabel } from "../utils/servicios";
+import { buildServiciosLabel, normalizarClaveServicio } from "../utils/servicios";
 
 
 const RATING_SCALE = 5;
@@ -462,10 +462,7 @@ const Centros = () => {
                                             <option value="">Seleccionar servicio</option>
                                             {Object.values(TipoDeServicio).map((tipo) => (
                                                 <option key={tipo} value={tipo}>
-                                                    {tipo.toLowerCase()
-                                                        .split("_")
-                                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                                        .join(" ")}
+                                                    {normalizarClaveServicio(tipo)}
                                                 </option>
                                             ))}
                                         </select>

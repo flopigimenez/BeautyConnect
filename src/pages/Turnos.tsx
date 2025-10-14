@@ -24,6 +24,8 @@ import { setUser } from "../redux/store/authSlice";
 import Footer from "../components/Footer";
 
 import Swal from "sweetalert2";
+import DescripcionColumna from "../utils/DescripcionColumna";
+import { normalizarClaveServicio } from "../utils/servicios";
 
 const Turnos = () => {
   const navigate = useNavigate();
@@ -323,11 +325,7 @@ const Turnos = () => {
                     </option>
                     {serviciosActivos.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.tipoDeServicio
-                          .toLowerCase()
-                          .split("_")
-                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(" ")}{" "}
+                        {normalizarClaveServicio(s.tipoDeServicio)}{" "}
                         -
                         {" "}
                         {s.titulo
@@ -341,30 +339,13 @@ const Turnos = () => {
                       <h3 className="font-secondary text-xl font-bold text-tertiary mb-2">
                         {servicioSeleccionado.titulo}
                       </h3>
-                      <p className="font-primary text-base max-w-[100vh] text-gray-700">
-                        <span className="font-semibold text-secondary">Descripción: </span>
-                        {verMas
-                          ? servicioSeleccionado.descripcion
-                          : servicioSeleccionado.descripcion.length > 50
-                            ? servicioSeleccionado.descripcion.slice(0, 50) + "..."
-                            : servicioSeleccionado.descripcion}
-
-                        {servicioSeleccionado.descripcion.length > 50 && (
-                          <button
-                            type="button"
-                            onClick={() => setVerMas(!verMas)}
-                            className="ml-2 text-secondary font-semibold hover:underline"
-                          >
-                            {verMas ? "Ocultar" : "Ver más"}
-                          </button>
-                        )}
+                      <p className="flex font-primary text-base max-w-[100vh] text-gray-700">
+                        <span className="font-semibold text-secondary pr-1">Descripción:</span>
+                        <DescripcionColumna descripcion={servicioSeleccionado.descripcion} limite={100} />
                       </p>
                       <p className="font-primary text-base text-gray-700">
                         <span className="font-semibold text-secondary">Tipo: </span>
-                        {servicioSeleccionado.tipoDeServicio.toLowerCase()
-                          .split("_")
-                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(" ")}
+                        {normalizarClaveServicio(servicioSeleccionado.tipoDeServicio)}
                       </p>
                       <p className="font-primary text-base text-gray-700">
                         <span className="font-semibold text-secondary">Precio: </span>

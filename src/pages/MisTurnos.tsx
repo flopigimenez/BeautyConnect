@@ -12,6 +12,7 @@ import { ReseniaService } from "../services/ReseniaService";
 import { RxCross2 } from "react-icons/rx";
 import { TurnoService } from "../services/TurnoService";
 import Swal from "sweetalert2";
+import { normalizarClaveServicio } from "../utils/servicios";
 
 export default function MisTurnos() {
     const dispatch = useAppDispatch();
@@ -281,10 +282,7 @@ export default function MisTurnos() {
                             { header: "Hora", accessor: "hora", render: row => `${row.hora.slice(0, 5)}` },
                             {
                                 header: "Servicio", accessor: "profesionalServicio", render: row =>
-                                    row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                                        .split('_')
-                                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ')
+                                    normalizarClaveServicio(row.profesionalServicio.servicio.tipoDeServicio)
                             },
                             {
                                 header: "Profesional", accessor: "profesionalServicio", render: row =>
@@ -418,10 +416,7 @@ export default function MisTurnos() {
                                 <option value="">Todos</option>
                                 {Object.values(TipoDeServicio).map((tipo) => (
                                     <option key={tipo} value={tipo}>
-                                        {tipo.toLowerCase()
-                                            .split('_')
-                                            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                                            .join(' ')}
+                                        {normalizarClaveServicio(tipo)}
                                     </option>
                                 ))}
                             </select>

@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 
 import type { ServicioResponseDTO } from "../../types/servicio/ServicioResponseDTO";
 import { IoIosArrowDown } from "react-icons/io";
+import { normalizarClaveServicio } from "../../utils/servicios";
 
 type Props = {
   servicio?: ServicioResponseDTO | null; // si viene, estamos editando
@@ -227,10 +228,7 @@ const AgregarServicio = ({ servicio, onCreated, onUpdated, onClose }: Props) => 
                           <option value="" label="Seleccione tipo de servicio" className="font-secondary" />
                           {Object.values(TipoDeServicio).map((tipo) => (
                             <option key={tipo} value={tipo}>
-                              {tipo.toLowerCase()
-                                .split("_")
-                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(" ")}
+                              {normalizarClaveServicio(tipo)}
                             </option>
                           ))}
                         </select>

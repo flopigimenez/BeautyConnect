@@ -8,6 +8,7 @@ import { TurnoService } from "../services/TurnoService";
 import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import SideBar from "../components/SideBar";
 import NavbarPrestador from "../components/NavbarPrestador";
+import { normalizarClaveServicio } from "../utils/servicios";
 const turnoService = new TurnoService();
 const centroService = new CentroDeEsteticaService();
 
@@ -288,11 +289,7 @@ export default function Calendario() {
                         {t.profesionalServicio.profesional.nombre} {t.profesionalServicio.profesional.apellido}
                       </div>
                       <div className="font-primary text-sm text-gray-600">
-                        {t.profesionalServicio.servicio.tipoDeServicio
-                          .toLowerCase()
-                          .split("_")
-                          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                          .join(" ")}
+                        {normalizarClaveServicio(t.profesionalServicio.servicio.tipoDeServicio)}
                       </div>
                       <div className="font-primary text-sm text-gray-600">
                         Cliente: {t.cliente.nombre} {t.cliente.apellido}

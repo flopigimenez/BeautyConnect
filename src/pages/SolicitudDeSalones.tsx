@@ -8,6 +8,7 @@ import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 import Footer from "../components/Footer";
 import Swal from "sweetalert2";
+import DescripcionColumna from "../utils/DescripcionColumna";
 
 // import { RxCross2 } from "react-icons/rx";
 
@@ -19,7 +20,6 @@ export default function SolicitudDeSalones() {
     const [loadingAceptar, setLoadingAceptar] = useState(false);
     const [loadingRechazar, setLoadingRechazar] = useState(false);
     const [loadingId, setLoadingId] = useState<number | null>(null);
-    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.PENDIENTE));
@@ -79,30 +79,7 @@ export default function SolicitudDeSalones() {
                             {
                                 header: "Descripción",
                                 accessor: "descripcion",
-                                render: (row) => {
-                                    if (!row.descripcion) return "Sin descripción";
-
-                                    const texto = row.descripcion;
-                                    const isExpanded = expandedRow === row.id;
-                                    const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
-
-                                    return (
-                                        <div>
-                                            <span>{isExpanded ? texto : corto}</span>
-                                            {texto.length > 45 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setExpandedRow(isExpanded ? null : row.id)
-                                                    }
-                                                    className="ml-2 text-[#C19BA8] font-semibold hover:underline"
-                                                >
-                                                    {isExpanded ? "Ocultar" : "Ver más"}
-                                                </button>
-                                            )}
-                                        </div>
-                                    );
-                                },
+                                render: (row) => <DescripcionColumna descripcion={row.descripcion} />,
                             },
                             { header: "Cuit", accessor: "cuit" },
                             {

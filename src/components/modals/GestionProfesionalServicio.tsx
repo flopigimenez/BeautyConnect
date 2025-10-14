@@ -7,6 +7,7 @@ import type { ProfesionalServicioDTO } from "../../types/profesionalServicio/Pro
 import { ProfesionalServicioService } from "../../services/ProfesionalServicioService";
 import { ServicioService } from "../../services/ServicioService";
 import type { ProfesionalServicioResponseDTO } from "../../types/profesionalServicio/ProfesionalServicioResponseDTO";
+import { normalizarClaveServicio } from "../../utils/servicios";
 
 type Props = {
   profesional: ProfesionalResponseDTO;
@@ -355,10 +356,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                             <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
                               <td className="px-3 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
                               <td className="px-6 py-4 align-middle text-[#856272]">
-                                {servicio.tipoDeServicio?.toLowerCase()
-                                .split("_")
-                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(" ") ?? "-"}
+                                {normalizarClaveServicio(servicio.tipoDeServicio)}
                               </td>
                               <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
                               <td className="px-6 py-4 align-middle">
@@ -433,10 +431,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                             <tr key={servicio.id} className="bg-white transition hover:bg-[#FFFBFA]">
                               <td className="px-3 py-4 align-middle text-[#4A1F2F]">{servicio.titulo}</td>
                               <td className="px-6 py-4 align-middle text-[#856272]">
-                                {servicio.tipoDeServicio?.toLowerCase()
-                                .split("_")
-                                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                .join(" ") ?? "-"}
+                                {normalizarClaveServicio(servicio.tipoDeServicio)}
                               </td>
                               <td className="px-6 py-4 align-middle text-[#4A1F2F]">{precio}</td>
                               <td className="px-6 py-4 align-middle">

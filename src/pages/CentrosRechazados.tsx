@@ -6,13 +6,13 @@ import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/Cent
 import { Estado } from "../types/enums/Estado";
 import { fetchCentrosPorEstado } from "../redux/store/centroSlice";
 import Footer from "../components/Footer";
+import DescripcionColumna from "../utils/DescripcionColumna";
 
 
 export default function CentrosRechazados() {
     const dispatch = useAppDispatch();
     const centros = useAppSelector((state) => state.centros.centros ?? []);
     const [busqueda, setBusqueda] = useState("");
-    const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
     useEffect(() => {
         dispatch(fetchCentrosPorEstado(Estado.RECHAZADO));
@@ -45,33 +45,10 @@ export default function CentrosRechazados() {
                                 )
                             },
                             { header: "Nombre", accessor: "nombre" },
-                            {
+                             {
                                 header: "Descripción",
                                 accessor: "descripcion",
-                                render: (row) => {
-                                    if (!row.descripcion) return "Sin descripción";
-
-                                    const texto = row.descripcion;
-                                    const isExpanded = expandedRow === row.id;
-                                    const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
-
-                                    return (
-                                        <div>
-                                            <span>{isExpanded ? texto : corto}</span>
-                                            {texto.length > 45 && (
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setExpandedRow(isExpanded ? null : row.id)
-                                                    }
-                                                    className="ml-2 text-[#C19BA8] font-semibold hover:underline"
-                                                >
-                                                    {isExpanded ? "Ocultar" : "Ver más"}
-                                                </button>
-                                            )}
-                                        </div>
-                                    );
-                                },
+                                render: (row) => <DescripcionColumna descripcion={row.descripcion} limite={40}  />,
                             },
                             { header: "Cuit", accessor: "cuit" },
                             {

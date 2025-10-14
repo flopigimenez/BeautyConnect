@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { fetchTurnosCentro } from "../redux/store/misTurnosSlice";
 import { EstadoTurno } from "../types/enums/EstadoTurno";
 import { TurnoService } from "../services/TurnoService";
+import { normalizarClaveServicio } from "../utils/servicios";
 
 export default function ResumenCitas() {
   const dispatch = useAppDispatch();
@@ -73,28 +74,9 @@ export default function ResumenCitas() {
         </aside>
         <main className="flex-1 overflow-auto pt-20 pb-10">
           <div className="pb-10 px-6">
-            <div className="flex justify-between">
-              <div>
-                <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
-                <h3 className="font-secondary mb-5 text-xl">Resumen citas</h3>
-              </div>
-
-              <div className="flex mt-4 w-100">
-                <label className="block text-md font-primary mb-2 font-bold pr-2">Filtrar por estado</label>
-                <select
-                  value={filtroAplicado.estado ?? ""}
-                  onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno || null }))}
-                  className="w-[60%] h-[40%] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
-                >
-                  <option value="">Todos</option>
-                  {Object.values(EstadoTurno).map((estado) => (
-                    <option key={estado} value={estado}>
-                      {estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase()}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
+            <div>
+              <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
+              <h3 className="font-secondary mb-5 text-xl">Resumen citas</h3>
             </div>
             <div className="flex justify-around pb-3">
               <div className="border border-tertiary rounded-2xl p-1 w-[30%] h-[70%] text-center">
@@ -112,11 +94,8 @@ export default function ResumenCitas() {
               title="Próximas citas"
               columns={[
                 { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
-                { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                        .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")} - ${row.profesionalServicio.servicio.titulo}` },
-                { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}`},
+                { header: "Servicio", accessor: "profesionalServicio", render: row => `${normalizarClaveServicio(row.profesionalServicio.servicio.tipoDeServicio)} - ${row.profesionalServicio.servicio.titulo}` },
+                { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}` },
                 {
                   header: "Fecha", accessor: "fecha",
                   render: row => {
@@ -171,15 +150,29 @@ export default function ResumenCitas() {
               data={turnosPendientes.slice().reverse()}
             />
           )}
+
+         <div className="flex justify-end w-full text-end px-6">
+            <label className="block text-md font-primary mb-2 font-bold pr-2">Filtrar por estado</label>
+            <select
+              value={filtroAplicado.estado ?? ""}
+              onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno || null }))}
+              className="w-auto min-w-[200px] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
+            >
+              <option value="">Todos</option>
+              {Object.values(EstadoTurno).map((estado) => (
+                <option key={estado} value={estado}>
+                  {estado.charAt(0).toUpperCase() + estado.slice(1).toLowerCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <CustomTable<TurnoResponseDTO>
             title="Todas las citas"
             columns={[
               { header: "Cliente", accessor: "cliente", render: row => `${row.cliente.nombre} ${row.cliente.apellido}` },
-              { header: "Servicio", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.servicio.tipoDeServicio.toLowerCase()
-                        .split("_")
-                        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(" ")} - ${row.profesionalServicio.servicio.titulo}` },
-              { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}`},
+              { header: "Servicio", accessor: "profesionalServicio", render: row => `${normalizarClaveServicio(row.profesionalServicio.servicio.tipoDeServicio)} - ${row.profesionalServicio.servicio.titulo}` },
+              { header: "Profesional", accessor: "profesionalServicio", render: row => `${row.profesionalServicio.profesional.nombre} ${row.profesionalServicio.profesional.apellido}` },
               {
                 header: "Fecha", accessor: "fecha",
                 render: row => {

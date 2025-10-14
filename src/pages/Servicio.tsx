@@ -9,6 +9,8 @@ import { ServicioService } from "../services/ServicioService";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import AgregarServicio from "../components/modals/AgregarServicio";
 import Swal from "sweetalert2";
+import DescripcionColumna from "../utils/DescripcionColumna";
+import { normalizarClaveServicio } from "../utils/servicios";
 
 const servicioService = new ServicioService();
 
@@ -20,7 +22,6 @@ const Servicio = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [selected, setSelected] = useState<ServicioResponseDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [expandedRow, setExpandedRow] = useState<number | null>(null);
 
   useEffect(() => {
     const auth = getAuth();
@@ -133,14 +134,7 @@ const Servicio = () => {
                 columns={[
                   { header: "Titulo", accessor: "titulo" },
                   {
-                    header: "Tipo", accessor: "tipoDeServicio", render: (row) => (
-                      <div>
-                        {row.tipoDeServicio.toLowerCase()
-                          .split("_")
-                          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(" ")}
-                      </div>
-                    ),
+                    header: "Tipo", accessor: "tipoDeServicio", render: (row) => normalizarClaveServicio(row.tipoDeServicio)
                   },
                   {
                     header: "Precio",
@@ -157,30 +151,7 @@ const Servicio = () => {
                   {
                     header: "Descripción",
                     accessor: "descripcion",
-                    render: (row) => {
-                      if (!row.descripcion) return "Sin descripción";
-
-                      const texto = row.descripcion;
-                      const isExpanded = expandedRow === row.id;
-                      const corto = texto.length > 45 ? texto.slice(0, 45) + "..." : texto;
-
-                      return (
-                        <div>
-                          <span>{isExpanded ? texto : corto}</span>
-                          {texto.length > 45 && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setExpandedRow(isExpanded ? null : row.id)
-                              }
-                              className="ml-2 text-[#C19BA8] font-semibold hover:underline"
-                            >
-                              {isExpanded ? "Ocultar" : "Ver más"}
-                            </button>
-                          )}
-                        </div>
-                      );
-                    },
+                    render: (row) => <DescripcionColumna descripcion={row.descripcion}/>,
                   },
                   {
                     header: "Estado",
