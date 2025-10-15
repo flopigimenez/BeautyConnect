@@ -266,7 +266,7 @@ const MapaCentros = () => {
           {geocodingError && <p className="text-red-500">{geocodingError}</p>}
           {userLocation ? (
             nearestCentros.length ? (
-              <ul className="space-y-3">
+              <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                 {nearestCentros.map(({ centro, distanceKm, addressLabel }) => (
                   <li
                     key={centro.id}
