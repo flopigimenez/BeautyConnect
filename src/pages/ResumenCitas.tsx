@@ -9,6 +9,7 @@ import { fetchTurnosCentro } from "../redux/store/misTurnosSlice";
 import { EstadoTurno } from "../types/enums/EstadoTurno";
 import { TurnoService } from "../services/TurnoService";
 import { normalizarClaveServicio } from "../utils/servicios";
+import Swal from "sweetalert2";
 
 export default function ResumenCitas() {
   const dispatch = useAppDispatch();
@@ -61,9 +62,58 @@ export default function ResumenCitas() {
       await turnoService.cambiarEstado(id, estado);
       dispatch(fetchTurnosCentro(centro!.id));
     } catch (error) {
-      console.log(error);
+      console.error("No se pudo cambiar el estado del turno:", error);
+      throw error;
     }
-  }
+  };
+
+  const confirmarCambioEstado = async (id: number, estado: EstadoTurno) => {
+    const esCancelacion = estado === EstadoTurno.CANCELADO;
+
+    const { isConfirmed } = await Swal.fire({
+      title: esCancelacion ? "Confirmar cancelacion de turno" : "Confirmar finalizacion de turno",
+      text: esCancelacion
+        ? "Esta accion cancelara el turno seleccionado."
+        : "Marcaras el turno como finalizado.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#703F52",
+      cancelButtonColor: "#9CA3AF",
+      confirmButtonText: esCancelacion ? "Si, cancelar" : "Si, finalizar",
+      cancelButtonText: "Volver",
+    });
+
+    if (!isConfirmed) {
+      return;
+    }
+
+    if (!centro?.id) {
+      await Swal.fire({
+        icon: "error",
+        title: "Centro no disponible",
+        text: "No se pudo identificar el centro para actualizar el turno.",
+        confirmButtonColor: "#703F52",
+      });
+      return;
+    }
+
+    try {
+      await cambiarEstado(id, estado);
+      await Swal.fire({
+        icon: "success",
+        title: esCancelacion ? "Turno cancelado" : "Turno finalizado",
+        confirmButtonColor: "#703F52",
+      });
+    } catch (error) {
+      console.error("No se pudo actualizar el turno:", error);
+      await Swal.fire({
+        icon: "error",
+        title: "Ocurrio un error",
+        text: "No se pudo actualizar el turno. Intenta nuevamente.",
+        confirmButtonColor: "#703F52",
+      });
+    }
+  };
 
   return (
     <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
@@ -128,7 +178,11 @@ export default function ResumenCitas() {
                             ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
                             : "bg-gray-300 cursor-not-allowed"
                             }`}
-                          onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
+                          onClick={() => {
+                            if (isPending) {
+                              void confirmarCambioEstado(row.id, EstadoTurno.FINALIZADO);
+                            }
+                          }}
                         >
                           Finalizar
                         </button>
@@ -138,7 +192,11 @@ export default function ResumenCitas() {
                             ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
                             : "bg-gray-300 cursor-not-allowed"
                             }`}
-                          onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                          onClick={() => {
+                            if (isPending) {
+                              void confirmarCambioEstado(row.id, EstadoTurno.CANCELADO);
+                            }
+                          }}
                         >
                           Cancelar
                         </button>
@@ -205,7 +263,11 @@ export default function ResumenCitas() {
                           ? "bg-green-600/50 hover:bg-green-600/70 hover:scale-102 cursor-pointer"
                           : "bg-gray-300 cursor-not-allowed"
                           }`}
-                        onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.FINALIZADO)}
+                        onClick={() => {
+                          if (isPending) {
+                            void confirmarCambioEstado(row.id, EstadoTurno.FINALIZADO);
+                          }
+                        }}
                       >
                         Finalizar
                       </button>
@@ -215,7 +277,11 @@ export default function ResumenCitas() {
                           ? "bg-red-600/50 hover:bg-red-600/70 hover:scale-102 cursor-pointer"
                           : "bg-gray-300 cursor-not-allowed"
                           }`}
-                        onClick={() => isPending && cambiarEstado(row.id, EstadoTurno.CANCELADO)}
+                        onClick={() => {
+                          if (isPending) {
+                            void confirmarCambioEstado(row.id, EstadoTurno.CANCELADO);
+                          }
+                        }}
                       >
                         Cancelar
                       </button>
