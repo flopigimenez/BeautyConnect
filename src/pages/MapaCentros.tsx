@@ -7,33 +7,18 @@ import "leaflet/dist/leaflet.css";
 import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png?url";
 import iconUrl from "leaflet/dist/images/marker-icon.png?url";
 import shadowUrl from "leaflet/dist/images/marker-shadow.png?url";
-import { RxCross2 } from "react-icons/rx";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Swal from "sweetalert2";
 import { useAppDispatch, useAppSelector } from "../redux/store/hooks";
 import { fetchCentrosPorEstadoyActive } from "../redux/store/centroSlice";
 import { Estado } from "../types/enums/Estado";
-import { Rol } from "../types/enums/Rol";
 import type { CentroDeEsteticaResponseDTO } from "../types/centroDeEstetica/CentroDeEsteticaResponseDTO";
-import type { ClienteResponseDTO } from "../types/cliente/ClienteResponseDTO";
-import { buildServiciosLabel } from "../utils/servicios";
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl,
   iconUrl,
   shadowUrl,
 });
-const diasEnEspanol: Record<string, string> = {
-  MONDAY: "Lunes",
-  TUESDAY: "Martes",
-  WEDNESDAY: "Miércoles",
-  THURSDAY: "Jueves",
-  FRIDAY: "Viernes",
-  SATURDAY: "Sábado",
-  SUNDAY: "Domingo",
-};
-
 
 const centroMarkerIcon = new L.Icon({
   iconUrl:
@@ -102,22 +87,11 @@ const MapaCentros = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { centros, loading, error } = useAppSelector((state) => state.centros);
-  const user = useAppSelector((state) => state.user.user);
-  const esCliente = (maybeUser: typeof user): maybeUser is ClienteResponseDTO =>
-    !!maybeUser && maybeUser.usuario?.rol === Rol.CLIENTE;
-  const clienteDatosCompletos = (cliente: ClienteResponseDTO | null): boolean => {
-    if (!cliente) return false;
-    const campos = [cliente.nombre, cliente.apellido, cliente.telefono];
-    return campos.every((valor) => typeof valor === "string" && valor.trim().length > 0);
-  };
   const [userLocation, setUserLocation] = useState<LatLngTuple | null>(null);
-  const [modalCentro, setModalCentro] = useState(false);
-  const [centroSeleccionado, setCentroSeleccionado] = useState<CentroDeEsteticaResponseDTO | null>(null);
   const [geolocationError, setGeolocationError] = useState<string | null>(null);
   const [centrosConCoordenadas, setCentrosConCoordenadas] = useState<CentroWithCoords[]>([]);
   const [geocodingError, setGeocodingError] = useState<string | null>(null);
   const [geocoding, setGeocoding] = useState(false);
-  const serviciosSeleccionadosLabel = buildServiciosLabel(centroSeleccionado?.servicios);
 
   useEffect(() => {
     dispatch(fetchCentrosPorEstadoyActive({ estado: Estado.ACEPTADO, active: true }));
@@ -272,8 +246,7 @@ const MapaCentros = () => {
                     key={centro.id}
                     className="border border-gray-200 rounded-2xl p-4 hover:border-secondary transition cursor-pointer"
                     onClick={() => {
-                      setCentroSeleccionado(centro);
-                      setModalCentro(true);
+                      navigate(`/centroInfo/${centro.id}`);
                     }}
                   >
                     <p className="text-lg font-semibold text-gray-800">{centro.nombre}</p>
@@ -293,120 +266,6 @@ const MapaCentros = () => {
           )}
         </div>
       </div>
-      {modalCentro && centroSeleccionado && (
-        <div className="fixed inset-0 bg-gradient-to-b from-black/50 to-black/30 backdrop-blur-md flex items-center justify-center z-[2000] animate-fadeIn">
-          <div className="relative mt-5 bg-white rounded-2xl shadow-2xl w-[90%] max-w-md overflow-hidden transition-all duration-300">
-
-            <button
-              onClick={() => setModalCentro(false)}
-              className="absolute top-3 right-3 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-800 transition-colors rounded-full p-1 shadow-sm z-10 cursor-pointer"
-            >
-              <RxCross2 size={22} />
-            </button>
-
-            <div className="relative">
-              <img
-                src={centroSeleccionado.imagen}
-                alt={centroSeleccionado.nombre}
-                className="w-full h-43 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-            </div>
-
-            <div className="py-2 px-5 space-y-3 font-primary text-gray-700">
-              <h3 className="text-xl font-bold text-center text-secondary">
-                {centroSeleccionado.nombre}
-              </h3>
-              <p className="text-sm"><b>Descripción:</b> {centroSeleccionado.descripcion}</p>
-
-              {centroSeleccionado.domicilio && (
-                <p className="text-sm">
-                  <b>Domicilio:</b> {centroSeleccionado.domicilio.calle}{" "}
-                  {centroSeleccionado.domicilio.numero},{" "}
-                  {centroSeleccionado.domicilio.localidad} –{" "}
-                  CP {centroSeleccionado.domicilio.codigoPostal}
-                </p>
-              )}
-
-              {serviciosSeleccionadosLabel && (
-                <p className="text-sm">
-                  <b>Servicios:</b>{" "}
-                  {serviciosSeleccionadosLabel}
-                </p>
-              )}
-              {centroSeleccionado.horariosCentro && centroSeleccionado.horariosCentro.length > 0 && (
-                <div>
-                  <b className="text-sm">Horarios de atención:</b>
-                  <ul className="list-disc list-inside mt-1 text-sm">
-                    {centroSeleccionado.horariosCentro.map((horario, index) => (
-                      <li key={index} className="text-sm">
-                        {diasEnEspanol[horario.dia]}:{" "}
-                        {horario.horaMInicio?.slice(0, 5)} - {horario.horaMFinalizacion?.slice(0, 5)} /{" "}
-                        {horario.horaTInicio?.slice(0, 5)} - {horario.horaTFinalizacion?.slice(0, 5)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <div className="flex justify-around mt-3">
-                <button
-                  className="text-sm bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
-                  onClick={() =>
-                    navigate(`/centros/${centroSeleccionado.id}/resenias`)
-                  }
-                >
-                  Ver reseñas
-                </button>
-                <button
-                  className="text-sm bg-gradient-to-r cursor-pointer from-secondary to-[#b38a9b] text-white rounded-full py-2 px-4 font-semibold shadow-md hover:opacity-90 transition-all"
-                  onClick={() => {
-                    if (user) {
-                      if (esCliente(user)) {
-                        if (!clienteDatosCompletos(user)) {
-                          void Swal.fire({
-                            icon: "info",
-                            title: "Completa tus datos",
-                            text: "Dirigite a Mi Perfil para completar tus datos antes de solicitar un turno.",
-                            showCancelButton: true,
-                            confirmButtonText: "Ir a Mi Perfil",
-                            cancelButtonText: "Cancelar",
-                            confirmButtonColor: "#a27e8f",
-                            cancelButtonColor: "#C19BA8",
-                          }).then((result) => {
-                            if (result.isConfirmed) {
-                              navigate("/Miperfil");
-                            }
-                          });
-                          return;
-                        }
-                        navigate(`/turno/${centroSeleccionado.id}`);
-                      } else {
-                        void Swal.fire({
-                          icon: "info",
-                          title: "Cuenta no habilitada",
-                          text: "Necesitás iniciar sesión como cliente para solicitar un turno.",
-                          confirmButtonColor: "#a27e8f",
-                        });
-                      }
-                    } else {
-                      navigate("/IniciarSesion");
-                      Swal.fire({
-                        icon: "info",
-                        title: "Debes iniciar sesión para pedir un turno",
-                        showConfirmButton: true,
-                        confirmButtonColor: "#a27e8f",
-                      });
-                    }
-                  }}
-                >
-                  Pedir turno
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
       <Footer />
     </div>
   );

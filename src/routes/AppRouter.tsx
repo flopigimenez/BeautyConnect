@@ -20,7 +20,7 @@ import SolicitudDeSalones from "../pages/SolicitudDeSalones";
 import ConfigPrestador from "../pages/ConfigPrestador";
 import Calendario from "../pages/Calendario";
 import ResumenCitas from "../pages/ResumenCitas";
-// Componente AppRouter que define las rutas de la aplicación
+// Componente AppRouter que define las rutas de la aplicaciï¿½n
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Rol } from "../types/enums/Rol";
 import CentrosRechazados from "../pages/CentrosRechazados";
@@ -29,6 +29,7 @@ import IniciarSesion from "../pages/IniciarSesion";
 import Redirigir from "../pages/Redirigir";
 import AdminClientes from "../pages/AdminClientes";
 import AdminPrestadores from "../pages/AdminPrestadores";
+import CentroInfo from "../pages/CentroInfo";
 // Componente AppRouter que define las rutas de la aplicacion
 
 export const AppRouter = () => {
@@ -42,6 +43,7 @@ export const AppRouter = () => {
         <Route path="/" element={<Landing />} />
         <Route path="/turno/:id" element={<Turnos />} />
         <Route path="/Centros" element={<Centros />} />
+        <Route path="/centroInfo/:id" element={<CentroInfo />} />
         <Route path="/mapa-centros" element={<MapaCentros />} />
         {/* <Route path="/calificaciones" element={<Calificaciones />} /> */}
         <Route path="/centros/:id/resenias" element={<ReseniasCentro />} />
