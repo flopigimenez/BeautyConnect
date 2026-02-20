@@ -66,17 +66,12 @@ const NavbarAdmin = () => {
         localStorage.setItem("navSeleccionado", nombre);
     };
 
-    const getBtnClass = (nombre: string) =>
-        seleccionado === nombre
-            ? "bg-secondary rounded-full p-2 text-primary"
-            : "p-2";
-
     return (
         <nav className="bg-primary shadow-md fixed top-0 w-full z-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     <div className="flex items-center">
-                        <span className="text-lg font-primary text-tertiary font-bold">BeautyConnect</span>
+                        <span className="text-xl font-bold text-gray-900 font-secondary">BeautyConnect</span>
                     </div>
                     <div className="flex">
                         <button
@@ -91,7 +86,7 @@ const NavbarAdmin = () => {
                     </div>
                 </div>
             </div>
-            {/* Panel lateral para todas las pantallas */}
+            {/* Panel lateral */}
             {menuOpen && (
                 <div className="fixed inset-0 z-50 bg-black/25 bg-opacity-40 flex justify-end">
                     <div className="w-64 bg-primary h-full shadow-lg p-6 flex flex-col">
@@ -108,17 +103,14 @@ const NavbarAdmin = () => {
                             </button>
                         </div>
                         <nav className="w-full mb-6">
-                            {sidebarItems.map(({ to, label, icon: Icon }, idx) => (
+                            {sidebarItems.map(({ to, label, icon: Icon }) => (
                                 <Link
                                     key={to}
                                     to={to}
                                     className="flex items-center gap-3 px-3 py-2 rounded-full text-sm text-[#3c2e35] transition-colors mb-2 hover:bg-[#F7EFF1]"
                                     onClick={() => {
                                         handleSelect(
-                                            idx === 0 ? "centroA" :
-                                                idx === 1 ? "solicitud" :
-                                                    idx === 2 ? "centroR" :
-                                                        idx === 3 ? "clientes" : "prestadores"
+                                            seleccionado === label ? "" : label
                                         ); setMenuOpen(false);
                                     }}
                                 >
