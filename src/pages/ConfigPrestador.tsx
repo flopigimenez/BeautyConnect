@@ -358,9 +358,9 @@ const ConfigPrestador = () => {
 
         <main className="flex-1 overflow-auto px-6 py-10 bg-[#FFFBFA] min-h-[calc(100vh-64px)]">
           <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 py-20">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Configuración</h1>
-              <div className="flex gap-2">
+            <div className="lg:flex items-center lg:justify-between mb-6">
+              <h1 className="text-2xl md:text-3xl mb-4 lg:mb-0 text-center font-bold font-secondary text-[#703F52]">Configuración</h1>
+              <div className="flex gap-2 items-center justify-center">
                 <Tab active={tab === "prestador"} onClick={() => setTab("prestador")}>Prestador</Tab>
                 <Tab active={tab === "centro"} onClick={() => setTab("centro")}>Centro de Estética</Tab>
               </div>
@@ -596,7 +596,7 @@ const ConfigPrestador = () => {
 
                       <div className="md:col-span-2 flex flex-col gap-2">
                         <span className="text-sm font-medium text-[#703F52]">Imagen del centro</span>
-                        <div className="flex flex-col gap-4 md:flex-row">
+                        <div className="flex flex-col gap-4 lg:flex-row">
                           <div className="flex-1 space-y-3">
                             <input
                               type="file"
@@ -653,7 +653,7 @@ const ConfigPrestador = () => {
                       <div className="md:col-span-2 mt-2">
                         <h3 className="text-lg font-semibold text-[#703F52] mb-2">Ubicación en mapa</h3>
 
-                        <div className="flex items-center gap-3 mb-3">
+                        <div className="lg:flex items-center gap-3 mb-3">
                           <button
                             type="button"
                             className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] cursor-pointer"
@@ -724,7 +724,7 @@ const ConfigPrestador = () => {
                               {values.horariosCentro.length > 0 ? (
                                 values.horariosCentro.map((h: HorarioCentroFormValue, idx: number) => (
                                   <div key={h.id ?? idx} className="rounded-xl border border-[#E9DDE1] bg-[#FFFBFA] p-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+                                    <div className="grid grid-cols-1 lg:grid-cols-6 gap-3 items-end">
                                       <label className="flex flex-col">
                                         <span className="text-sm font-medium text-[#703F52]">Día</span>
                                         <Field as="select" name={`horariosCentro.${idx}.dia`} className="rounded-lg border border-[#E9DDE1] px-3 py-2">
@@ -772,7 +772,7 @@ const ConfigPrestador = () => {
                               {/* Agregar nuevo */}
                               <div className="rounded-xl border border-dashed border-[#E9DDE1] p-4 bg-white">
                                 <h4 className="text-sm font-semibold text-[#703F52] mb-3">Agregar horario</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-6 gap-3 items-end">
+                                <div className="grid grid-cols-1 lg:grid-cols-6 gap-3 items-end">
                                   <Field as="select" name="__tmp.dia" className="rounded-lg border border-[#E9DDE1] px-3 py-2">
                                     <option value="">Seleccioná…</option>
                                     {DIA_OPTIONS.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}

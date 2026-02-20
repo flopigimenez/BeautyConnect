@@ -53,14 +53,14 @@ export function CustomTable<T extends object>({
   }, []);
 
   return (
-    <div className="p-4">
+    <div className="lg:p-4 pt-4">
       {title && (
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">{title}</h2>
           {actionButton && (
             <button
               onClick={actionButton.onClick}
-              className="rounded-full bg-[#C19BA8] px-5 py-2 text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
+              className="rounded-full bg-[#C19BA8] px:2 md:px-5 py-2 w-[40%] text-white font-semibold hover:bg-[#b78fa0] disabled:opacity-60 cursor-pointer"
             >
               {actionButton.label}
             </button>
@@ -84,7 +84,7 @@ export function CustomTable<T extends object>({
               type="text"
               onChange={(e) => busqueda.onChange(e.target.value)}
               placeholder={busqueda.placeholder || "Buscar..."}
-              className="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
+              className="border border-gray-300 rounded-full px-2 py-1 ml-3 w-full md:px-4 md:py-2 md:w-[40%] focus:outline-none focus:ring-2 focus:ring-[#C19BA8]"
             />
           )}
         </div>

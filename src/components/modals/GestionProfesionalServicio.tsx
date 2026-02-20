@@ -291,7 +291,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       <div
-        className="mt-15 relative w-full max-w-5xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
+        className="mt-15 relative w-full max-w-5xl max-h-[85vh] overflow-y-auto rounded-2xl bg-gradient-to-br from-[#FFFBFA] via-white to-[#F7EEF2] shadow-[0px_30px_80px_-40px_rgba(112,63,82,0.45)] ring-1 ring-black/5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#F0E3E7] bg-gradient-to-r from-[#F9EFF3] to-white px-6 py-5">
@@ -334,7 +334,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                     Este profesional todavia no tiene servicios activos. Vincula nuevos servicios desde la seccion siguiente.
                   </div>
                 ) : (
-                  <div className="overflow-x-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
+                  <div className="overflow-x-auto rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
                     <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
                       <thead className="bg-[#FFFBFA] text-[#703F52]">
                         <tr>
@@ -409,7 +409,7 @@ export default function GestionProfesionalServicio({ profesional, centroId: cent
                     Todos los servicios del centro ya estan asignados a este profesional.
                   </div>
                 ) : (
-                  <div className="overflow-x-hidden rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
+                  <div className="overflow-x-auto rounded-2xl border border-[#F0E3E7] bg-white shadow-sm max-h-[23vh] overflow-y-scroll">
                     <table className="min-w-full divide-y divide-[#F0E3E7] text-sm">
                       <thead className="bg-[#FFFBFA] text-[#703F52]">
                         <tr>

@@ -9,6 +9,7 @@ import { CentroDeEsteticaService } from "../services/CentroDeEsteticaService";
 import SideBar from "../components/SideBar";
 import NavbarPrestador from "../components/NavbarPrestador";
 import { normalizarClaveServicio } from "../utils/servicios";
+import { IoIosArrowBack } from "react-icons/io";
 const turnoService = new TurnoService();
 const centroService = new CentroDeEsteticaService();
 
@@ -161,22 +162,22 @@ export default function Calendario() {
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <SideBar />
         </aside>
-        <main className="flex-1 overflow-auto px-15 py-16">
+        <main className="flex-1 overflow-auto px-3 md:px-15 py-18">
         <h1 className="font-secondary text-2xl font-bold mb-6">Calendario de turnos</h1>
 
         {loadingCentro && <p className="font-primary">Cargando centro...</p>}
         {errorCentro && <p className="font-primary text-red-600">{errorCentro}</p>}
 
         {centroId && (
-          <div className="bg-white rounded-2xl shadow p-6">
+          <div className="bg-white rounded-2xl shadow p-3 md:p-6">
             <div className="flex items-center justify-between mb-4">
               <button
                 className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
                 onClick={() => setMonth((m) => m.subtract(1, "month"))}
               >
-                Mes anterior
+                <IoIosArrowBack />
               </button>
-              <h2 className="font-secondary text-xl font-bold capitalize">{monthName}</h2>
+              <h2 className="font-secondary md:text-xl font-bold capitalize">{monthName}</h2>
               <div className="flex gap-2">
                 <button
                   className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
@@ -185,10 +186,10 @@ export default function Calendario() {
                   Hoy
                 </button>
                 <button
-                  className="rounded-full bg-secondary px-4 py-1 font-primary text-sm cursor-pointer"
+                  className="rounded-full bg-secondary px-1 md:px-4 py-1 font-primary text-sm cursor-pointer"
                   onClick={() => setMonth((m) => m.add(1, "month"))}
                 >
-                  Mes siguiente
+                  <IoIosArrowBack className="rotate-180" />
                 </button>
               </div>
             </div>
@@ -208,7 +209,7 @@ export default function Calendario() {
               <p className="font-primary text-red-600 mb-3">{errorTurnos}</p>
             )}
 
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 lg:gap-2">
               {grid.map((cell, idx) => {
                 const key = cell.date.format("YYYY-MM-DD");
                 const isToday = cell.date.isSame(dayjs(), "day");
@@ -220,11 +221,11 @@ export default function Calendario() {
                 return (
                   <div
                     key={`${key}-${idx}`}
-                    className={`border rounded-xl p-2 min-h-[110px] flex flex-col ${
+                    className={`border rounded-xl p-2 min-h-[85px] lg:min-h-[110px] flex flex-col ${
                       cell.inCurrentMonth ? "bg-[#FFFBFA]" : "bg-gray-50 text-gray-400"
                     } ${isToday ? "ring-2 ring-secondary" : ""}`}
                   >
-                    <div className="flex justify-between items-center mb-1">
+                    <div className="lg:flex items-center lg:justify-between mb-1">
                       <span className="font-primary text-sm">{cell.date.date()}</span>
                       {items.length > 0 && (
                         <button
@@ -235,7 +236,7 @@ export default function Calendario() {
                         </button>
                       )}
                     </div>
-                    <div className="space-y-1">
+                    <div className="hidden lg:block lg:space-y-1">
                       {visible.map((t) => {
                         const centroNombre =
                           t.centroDeEstetica?.nombre ??

@@ -41,7 +41,7 @@ export default function Clientes() {
         <aside className="hidden md:block w-64 shrink-0 border-r border-[#E9DDE1] bg-[#FFFBFA] h-[calc(100vh-64px)] sticky top-[64px]">
           <Sidebar />
         </aside>
-        <main className="flex-1 overflow-auto px-6 py-16">
+        <main className="flex-1 overflow-auto px-2 md:px-6 py-16">
           <CustomTable<ClienteResponseDTO>
             title="Clientes"
             columns={[

@@ -123,18 +123,18 @@ export default function ResumenCitas() {
           <Sidebar />
         </aside>
         <main className="flex-1 overflow-auto pt-20 pb-10">
-          <div className="pb-10 px-6">
+          <div className="pb-10 px-3 md:px-6">
             <div>
               <h1 className="mb-3 text-2xl md:text-3xl font-bold font-secondary text-[#703F52]">Panel</h1>
               <h3 className="font-secondary mb-5 text-xl">Resumen citas</h3>
             </div>
             <div className="flex justify-around pb-3">
-              <div className="border border-tertiary rounded-2xl p-1 w-[30%] h-[70%] text-center">
-                <p className="font-secondary text-lg">Citas de hoy</p>
+              <div className="border border-tertiary rounded-2xl p-1 w-auto md:w-[30%] h-[70%] text-center">
+                <p className="font-secondary md:text-lg">Citas de hoy</p>
                 <p className="font-secondary font-bold text-3xl">{turnosHoy}</p>
               </div>
-              <div className="border border-tertiary rounded-2xl p-1 w-[30%] h-[70%] text-center">
-                <p className="font-secondary text-lg">Citas de esta semana</p>
+              <div className="border border-tertiary rounded-2xl p-1 w-auto md:w-[30%] h-[70%] text-center">
+                <p className="font-secondary md:text-lg">Citas de esta semana</p>
                 <p className="font-secondary font-bold text-3xl">{turnosSemana}</p>
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function ResumenCitas() {
             <select
               value={filtroAplicado.estado ?? ""}
               onChange={(e) => setFiltroAplicado(prev => ({ ...prev, estado: e.target.value as EstadoTurno || null }))}
-              className="w-auto min-w-[200px] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
+              className="w-auto md:min-w-[200px] border border-secondary text-md font-primary px-4 py-1 rounded-full hover:bg-secondary-dark transition"
             >
               <option value="">Todos</option>
               {Object.values(EstadoTurno).map((estado) => (

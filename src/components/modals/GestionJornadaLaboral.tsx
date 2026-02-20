@@ -247,7 +247,7 @@ export default function GestionJornadaLaboral({ profesional, onClose }: Props) {
       <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
       <div className="fixed inset-0 z-50 grid place-items-center mt-15" onClick={onClose}>
-        <div className="w-[780px] max-w-[95vw] rounded-xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="w-[780px] max-w-[95vw] max-h-[85vh] overflow-y-auto rounded-xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
           <h2 className="text-xl font-secondary text-[#703F52] mb-2">{titulo}</h2>
           <p className="text-sm text-gray-600 mb-4">Cada tarjeta resume el horario guardado y los cambios que podes aplicar para ese dia.</p>
 
