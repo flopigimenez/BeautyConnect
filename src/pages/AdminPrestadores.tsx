@@ -30,7 +30,7 @@ const prestadores = useAppSelector((state) => state.prestadores.prestadores);
     <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
       <NavbarAdmin />
       <div className="flex flex-1 overflow-hidden">
-        <main className="flex-1 overflow-auto px-6 py-16">
+        <main className="flex-1 overflow-auto px-2 md:px-6 py-16">
           <CustomTable<PrestadorServicioResponseDTO>
             title="Prestadores de Servicio"
             columns={[

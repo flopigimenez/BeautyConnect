@@ -66,7 +66,7 @@ export default function SolicitudDeSalones() {
         <div className="bg-[#FFFBFA] min-h-screen flex flex-col">
             <Navbar />
             <div className="flex flex-1 overflow-hidden">
-                <main className="flex-1 overflow-auto mx-8 my-20">
+                <main className="flex-1 overflow-auto px-2 md:px-6 my-20">
                     <CustomTable<CentroDeEsteticaResponseDTO>
                         title="Solicitud de Salones"
                         columns={[
