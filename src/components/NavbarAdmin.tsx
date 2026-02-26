@@ -89,7 +89,7 @@ const NavbarAdmin = () => {
             {/* Panel lateral */}
             {menuOpen && (
                 <div className="fixed inset-0 z-50 bg-black/25 bg-opacity-40 flex justify-end">
-                    <div className="w-64 bg-primary h-full shadow-lg p-6 flex flex-col">
+                    <div className="w-64 md:w-75 lg:w-90 bg-primary h-full shadow-lg p-6 flex flex-col">
                         <div className="flex justify-between mb-5">
                             <img src={logo} alt="BeautyConnect logo" className="w-10 h-10 object-contain" />
                             <button
@@ -107,7 +107,7 @@ const NavbarAdmin = () => {
                                 <Link
                                     key={to}
                                     to={to}
-                                    className="flex items-center gap-3 px-3 py-2 rounded-full text-sm text-[#3c2e35] transition-colors mb-2 hover:bg-[#F7EFF1]"
+                                    className="flex items-center gap-3 px-3 py-2 rounded-full text-sm lg:text-lg text-[#3c2e35] transition-colors mb-2 hover:bg-[#F7EFF1]"
                                     onClick={() => {
                                         handleSelect(
                                             seleccionado === label ? "" : label
@@ -122,10 +122,10 @@ const NavbarAdmin = () => {
                         <div className="mt-auto">
                             {user && (
                                 <>
-                                    <span className="block text-sm text-gray-700 font-primary mb-2">Hola, {user.usuario.mail}</span>
+                                    <span className="block text-sm lg:text-lg text-gray-700 font-primary mb-2">Hola, {user.usuario.mail}</span>
                                     <button
                                         onClick={() => { handleLogout(); setMenuOpen(false); }}
-                                        className="w-full text-sm bg-[#C19BA8] text-white px-3 py-2 rounded hover:bg-[#a27e8f] transition font-primary cursor-pointer"
+                                        className="w-full text-sm lg:text-lg bg-[#C19BA8] text-white px-3 py-2 rounded hover:bg-[#a27e8f] transition font-primary cursor-pointer"
                                     >
                                         Cerrar sesión
                                     </button>
